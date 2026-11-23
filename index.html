@@ -193,7 +193,7 @@ footer{max-width:1360px;margin:0 auto;padding:0 28px 30px;font-size:11px;color:v
   <span style="flex:1"></span>
   <a href="#acesso" data-v="acesso">Acesso · <span id="usr"></span></a>
 </nav>
-<main id="view"><div class="empty">Carregando posições…</div></main>
+<main id="view" style="display:none"></main>
 <footer id="foot"></footer>
 <div id="tip" role="tooltip"></div>
 
@@ -1054,6 +1054,7 @@ async function carregar(){
       setSave(ghToken() ? "Gravando alterações pendentes…" : "Há alterações só neste navegador"); if (ghToken()) gravarGitHub(); } } catch (e) {}
 }
 async function iniciar(){
+  document.getElementById("view").style.display = "";
   try {
     await carregar();
   } catch (e) {
