@@ -1,0 +1,11 @@
+{
+ "iter": 310000,
+ "users": {
+  "pedro": {
+   "salt": "dQzh/zXlwufm0YGZepV0bg==",
+   "iv": "7Z3QC3Covuu6iBeO",
+   "wk": "Bi7JbfrHfAzCT6JHAfs/zWUkP1utJ5Km8Fi+xRW1LmmkxYsbxvn2NKcVzhFirOsf",
+   "admin": true
+  }
+ }
+}

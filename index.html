@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Carteiras · Etti Partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde-etti:#224725; --verde-vivo:#00bf85; --creme:#fff8ed; --creme-2:#fff2e6; --pessego:#f8cbad;
+  --verde-claro:#b6d7a8; --branco:#ffffff; --cinza:#7f7f7f;
+  --surface:var(--creme); --card:var(--branco); --ink:var(--verde-etti); --ink-corpo:#5f645f;
+  --borda:var(--verde-claro); --radius:6.5px; --pad:20px; --gutter:18px;
+  --font:"Raleway","Liberation Sans",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--font);background:var(--surface);color:var(--ink);font-size:14px;line-height:1.4;
+  font-variant-numeric:lining-nums tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit;font-variant-numeric:lining-nums tabular-nums}
+:focus-visible{outline:2px solid var(--verde-etti);outline-offset:2px}
+
+/* ---------- topo ---------- */
+.top{background:var(--verde-etti);color:var(--creme);display:flex;align-items:center;gap:22px;padding:12px 28px;flex-wrap:wrap}
+.top img{height:30px;display:block}
+.top .tit{border-left:1px solid rgba(182,215,168,.45);padding-left:20px}
+.top .tit b{display:block;font-size:17px;font-weight:700;letter-spacing:.2px}
+.top .tit span{font-size:12px;color:var(--verde-claro)}
+.top .sp{flex:1}
+.seg{display:inline-flex;border:1px solid rgba(182,215,168,.6);border-radius:9999px;padding:2px}
+.seg button{background:none;border:0;color:var(--verde-claro);padding:6px 14px;border-radius:9999px;cursor:pointer;font-weight:600;font-size:12.5px}
+.seg button[aria-pressed="true"]{background:var(--creme);color:var(--verde-etti)}
+.tabs{background:#1b3a1e;display:flex;gap:2px;padding:0 20px;overflow-x:auto}
+.tabs a{color:var(--verde-claro);text-decoration:none;padding:11px 14px;font-weight:600;font-size:13px;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs a:hover{color:var(--creme)}
+.tabs a[aria-current="page"]{color:var(--creme);border-bottom-color:var(--verde-vivo)}
+.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;border-radius:9999px;background:var(--pessego);color:var(--verde-etti);font-size:11px;font-weight:700;text-align:center}
+
+main{max-width:1360px;margin:0 auto;padding:24px 28px 40px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);opacity:.8}
+.eyebrow::after{content:"";display:block;width:28px;height:2px;background:var(--verde-vivo);margin-top:6px}
+h1{font-size:24px;font-weight:700;margin:8px 0 4px;letter-spacing:-.2px}
+.lede{color:var(--ink-corpo);margin:0 0 20px;max-width:900px}
+h2{font-size:16px;font-weight:700;margin:0 0 4px}
+.sub{color:var(--ink-corpo);font-size:12.5px;margin:0 0 14px}
+.grid{display:grid;gap:var(--gutter)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:1.25fr 1fr}
+.g3c{grid-template-columns:1.1fr 1fr 1.1fr}
+@media (max-width:1180px){.g3c{grid-template-columns:1fr 1fr}}
+@media (max-width:1000px){.g2,.g3,.g3c{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:var(--radius);padding:var(--pad);min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--gutter);margin-bottom:var(--gutter)}
+.tile{background:var(--card);border:1px solid var(--borda);border-radius:var(--radius);padding:16px 18px}
+.tile.dest{background:var(--verde-etti);border-color:var(--verde-etti);color:var(--creme)}
+.tile .k{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.tile .v{font-size:28px;font-weight:700;margin:6px 0 2px;letter-spacing:-.3px}
+.tile .s{font-size:12px;color:var(--ink-corpo)}
+.tile.dest .s{color:var(--verde-claro)}
+.tile.dest .k{color:var(--verde-vivo);opacity:1}
+.mt{margin-top:var(--gutter)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--ink-corpo)}
+.small{font-size:12px}
+.fonte{font-size:11px;color:var(--ink-corpo);margin-top:12px}
+.note{background:var(--creme-2);border-radius:var(--radius);padding:10px 14px;font-size:12.5px;margin-bottom:var(--gutter)}
+
+/* ---------- tabelas ---------- */
+.tw{overflow:auto;max-height:640px;border:1px solid var(--borda);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:var(--verde-etti);color:#fff;font-weight:700;text-align:left;padding:8px 10px;position:sticky;top:0;z-index:1;white-space:nowrap}
+th.s{cursor:pointer;user-select:none}
+th.s:hover{text-decoration:underline}
+td{padding:7px 10px;border-top:1px solid var(--borda);vertical-align:middle}
+tbody tr:hover td{background:#fbfaf5}
+td.r,th.r{text-align:right}
+td.c,th.c{text-align:center}
+td b{font-weight:700}
+tr.tot td{font-weight:700;background:var(--creme-2)}
+.mtab th.gs{border-left:3px solid var(--creme)}
+.mtab td.gs{border-left:2px solid var(--verde-etti)}
+.mtab td.gm{background:#fbf6ec}
+.mtab tr.h2 th{background:#2f5a33;font-size:12px;padding:5px 10px}
+.mtab th{position:static}
+
+tr.hl td{background:#eef6ea}
+.link{background:none;border:0;padding:0;color:var(--ink);font-weight:700;cursor:pointer;text-align:left}
+.link:hover{text-decoration:underline}
+
+/* ---------- chips / status ---------- */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:9999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.chip .ic{font-size:11px;line-height:1}
+.st-crit{background:var(--pessego);color:var(--verde-etti)}
+.st-aten{background:var(--creme-2);color:var(--verde-etti);box-shadow:inset 0 0 0 1px var(--pessego)}
+.st-info{background:#eef2ee;color:var(--verde-etti)}
+.st-ok{background:#e7f2e2;color:var(--verde-etti)}
+.st-na{background:#f1f1ef;color:var(--ink-corpo)}
+.pill{display:inline-block;padding:1px 8px;border-radius:9999px;border:1px solid var(--borda);font-size:11.5px;font-weight:600}
+
+/* ---------- score ---------- */
+.score{display:flex;align-items:center;gap:8px;min-width:120px}
+.score .tr{flex:1;height:6px;background:#eef0ea;position:relative}
+.score .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--verde-etti)}
+.score b{width:28px;text-align:right}
+
+/* ---------- gráficos HTML ---------- */
+.hb{display:grid;grid-template-columns:minmax(120px,170px) 1fr auto;gap:6px 12px;align-items:center;font-size:12.5px}
+.hb .lb{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .tk{height:18px;position:relative}
+.hb .tk i{position:absolute;left:0;top:2px;height:14px;background:var(--verde-etti);border-radius:0 4px 4px 0}
+.hb .vl{text-align:right;color:var(--ink);font-weight:600;white-space:nowrap}
+.bandc{display:grid;grid-template-columns:minmax(120px,160px) 1fr 64px;gap:8px 12px;align-items:center;font-size:12.5px}
+.bandc .tk{height:22px;position:relative;background:linear-gradient(to right,#eef0ea 1px,transparent 1px) 0 0/25% 100%}
+.bandc .band{position:absolute;top:2px;bottom:2px;background:var(--verde-claro)}
+.bandc .bar{position:absolute;left:0;top:7px;height:8px;background:var(--verde-etti);border-radius:0 4px 4px 0}
+.bandc .tat{position:absolute;top:0;bottom:0;width:2px;background:var(--verde-vivo);margin-left:-1px}
+.bandc .vl{text-align:right;font-weight:700}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-corpo);margin:2px 0 12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:14px;height:8px}
+.cols{display:flex;align-items:flex-end;gap:6px;height:190px;padding-top:18px;border-bottom:1px solid var(--borda)}
+.cols .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.cols .c i{width:min(28px,80%);background:var(--verde-etti);border-radius:4px 4px 0 0;display:block}
+.cols .c em{font-style:normal;font-size:11px;font-weight:700;margin-bottom:3px;white-space:nowrap}
+.colx{display:flex;gap:6px;font-size:11px;color:var(--ink-corpo);margin-top:5px}
+.colx span{flex:1;text-align:center;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+svg text{font-family:var(--font)}
+
+/* ---------- formulários ---------- */
+.btn{background:var(--verde-etti);color:#fff;border:0;border-radius:var(--radius);padding:7px 14px;font-weight:700;cursor:pointer;font-size:12.5px}
+.btn.sec{background:#fff;color:var(--verde-etti);box-shadow:inset 0 0 0 1.5px var(--verde-etti)}
+.btn.sm{padding:4px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=number],input[type=text],input[type=search],select{border:1px solid var(--borda);border-radius:5px;padding:6px 8px;background:#fff}
+input[type=number]{width:72px;text-align:right}
+input.pct{width:50px;padding:5px 4px}
+.flt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.flt .chipbtn{border:1px solid var(--borda);background:#fff;border-radius:9999px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:12.5px}
+.flt .chipbtn[aria-pressed="true"]{background:var(--verde-etti);color:#fff;border-color:var(--verde-etti)}
+.alert{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--borda)}
+.alert:first-child{border-top:0}
+.alert .t{font-weight:700}
+.alert .d{font-size:12.5px;color:var(--ink-corpo)}
+.alert.ack{opacity:.55}
+.save{font-size:12px;color:var(--verde-claro)}
+#tip{position:fixed;pointer-events:none;background:var(--verde-etti);color:var(--creme);font-size:12px;padding:7px 10px;border-radius:5px;max-width:320px;z-index:50;display:none;line-height:1.35;white-space:pre-line}
+.empty{padding:30px;text-align:center;color:var(--ink-corpo)}
+footer{max-width:1360px;margin:0 auto;padding:0 28px 30px;font-size:11px;color:var(--ink-corpo)}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--verde-etti);padding:24px}
+#formLogin{background:var(--creme);border-radius:var(--radius);padding:34px 34px 26px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
+#formLogin img{height:34px;align-self:flex-start;background:var(--verde-etti);padding:8px 12px;border-radius:4px}
+#formLogin .lg-eb{font-size:11px;font-weight:700;letter-spacing:.18em;margin-top:8px}
+#formLogin h1{font-size:22px;margin:0 0 6px}
+#formLogin label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600}
+#formLogin input{border:1px solid var(--borda);border-radius:5px;padding:9px 10px;font-size:14px;background:#fff}
+#formLogin .btn{padding:10px;font-size:14px;margin-top:6px}
+#lgMsg{color:var(--verde-etti);font-weight:700;font-size:12.5px;min-height:16px;margin:0}
+.lg-nota{font-size:11px;color:var(--ink-corpo);margin:0}
+</style>
+</head>
+<body>
+<div id="login">
+  <form id="formLogin" autocomplete="on">
+    <img alt="Etti Partners" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcsAAACfCAMAAAChtAIgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAALxUExURf///////////wAAAP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7SE4wAAAD7dFJOU4vflQCf/6vggMHAN0AmJWruVig/MAYO2yK3HTZ42fjtNQGd86UbrOQKegNIVdHoaQlG8dIatgR9fP2nCy32vip7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">
+    <div class="lg-eb">MONITOR DE CARTEIRAS</div>
+    <h1>Acesso restrito à equipe</h1>
+    <label>Usuário<input id="lgUser" name="username" autocomplete="username" required></label>
+    <label>Senha<input id="lgPw" name="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn" id="lgBtn" type="submit">Entrar</button>
+    <p id="lgMsg" role="alert"></p>
+    <p class="lg-nota">Os dados ficam criptografados e só abrem com usuário e senha válidos.</p>
+  </form>
+</div>
+<header class="top" style="display:none">
+  <img alt="Etti Partners" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcsAAACfCAMAAAChtAIgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAALxUExURf///////////wAAAP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7SE4wAAAD7dFJOU4vflQCf/6vggMHAN0AmJWruVig/MAYO2yK3HTZ42fjtNQGd86UbrOQKegNIVdHoaQlG8dIatgR9fP2nCy32vip7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">
+  <div class="tit"><b>Monitor de Carteiras</b><span id="hdrSub">Carregando posições…</span></div>
+  <div class="sp"></div>
+  <div class="seg" role="group" aria-label="Mercado">
+    <button data-uni="all">Consolidado</button><button data-uni="on">Onshore</button><button data-uni="off">Offshore</button>
+  </div>
+  <span class="save" id="saveState"></span>
+</header>
+<nav class="tabs" id="tabs" style="display:none">
+  <a href="#painel" data-v="painel">Painel</a>
+  <a href="#cliente" data-v="cliente">Carteiras</a>
+  <a href="#alertas" data-v="alertas">Alertas<span class="badge" id="bAl"></span></a>
+  <a href="#liquidez" data-v="liquidez">Liquidez e vencimentos</a>
+  <a href="#modelo" data-v="modelo">Modelo de Alocação e IPS</a>
+  <a href="#classificacao" data-v="classificacao">Classificação</a>
+  <span style="flex:1"></span>
+  <a href="#acesso" data-v="acesso">Acesso · <span id="usr"></span></a>
+</nav>
+<main id="view"><div class="empty">Carregando posições…</div></main>
+<footer id="foot"></footer>
+<div id="tip" role="tooltip"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Estado
+   ===================================================================== */
+const S = {view:"painel", uni:"all", cli:null, q:"", sort:{k:"aum",d:-1}, psort:{k:"v",d:-1},
+           sev:"prio", tipo:"todos", showAck:false, aq:"", simV:100000, simModo:"aporte", editBands:null, durIn:{}};
+let POS = [], META = {}, HIST = [], CFG = null, DEF = null, DURM = {};
+let DB = true, ACKS = {}, canWrite = null;
+let M = null;            // métricas calculadas
+const PERFIS = ["Conservador","Moderado","Arrojado"];
+const PL = {Conservador:"C", Moderado:"M", Arrojado:"A"};
+const NM = "Não mapeado";
+
+try { const s = JSON.parse(localStorage.getItem("etti_monitor_ui") || "{}"); if (s.uni) S.uni = s.uni; if (s.cli) S.cli = s.cli; } catch (e) {}
+function lembrar(){ try { localStorage.setItem("etti_monitor_ui", JSON.stringify({uni:S.uni, cli:S.cli})); } catch (e) {} }
+
+/* =====================================================================
+   Formatação
+   ===================================================================== */
+const nf0 = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0});
+const nf1 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1});
+const nf2 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const nf4 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:4,maximumFractionDigits:4});
+function moeda(v, ccy){ return (ccy==="USD"?"US$ ":"R$ ") + nf0.format(v); }
+function compacto(v, ccy){
+  const p = ccy==="USD"?"US$ ":"R$ "; const a = Math.abs(v);
+  if (a >= 1e9) return p + nf1.format(v/1e9) + " bi";
+  if (a >= 1e6) return p + nf1.format(v/1e6) + " mi";
+  if (a >= 1e3) return p + nf0.format(v/1e3) + " mil";
+  return p + nf0.format(v);
+}
+function pct(x, d){ if (x==null || isNaN(x)) return "–"; return (d===0?nf0:nf1).format(x*100) + "%"; }
+function pp(x){ if (x==null || isNaN(x)) return "–"; const s = x>0?"+":(x<0?"−":""); return s + nf1.format(Math.abs(x*100)) + " p.p."; }
+function dtBR(iso){ if(!iso) return "–"; const [y,m,d] = iso.split("-"); return d+"/"+m+"/"+y; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function nomeCart(c){
+  let s = c.replace(/^cliente_/i,"Cliente ").replace(/^carteira_/i,"Carteira ");
+  const parts = s.split("_");
+  return parts[0] + parts.slice(1).map(x=>" · " + (x.toLowerCase()==="offshore"?"Offshore":x.length<=4?x.toUpperCase():x.charAt(0).toUpperCase()+x.slice(1))).join("");
+}
+function isCNPJ(s){ return /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/.test(s||""); }
+function nomeAtivo(p){ if (isCNPJ(p.a) || p.off) return (p.ds||p.a).trim(); return p.a; }
+function diasEntre(a,b){ return Math.round((new Date(b+"T12:00:00") - new Date(a+"T12:00:00"))/864e5); }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function hash(s){ let h=2166136261; for (let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0).toString(36); }
+
+/* =====================================================================
+   Classificação e alvos
+   ===================================================================== */
+function classesDe(uni){ return uni==="off" ? CFG.offshore.classes : CFG.onshore.classes; }
+function classeOn(p){
+  const o = CFG.onshore.assetClass || {};
+  if (o[p.a]) return o[p.a];
+  const m = CFG.onshore.clsmap[(p.mc||"nd").toLowerCase()];
+  if (m) return m;
+  return CFG.onshore.classes.includes(p.mc) ? p.mc : NM;
+}
+function classeOff(p){
+  const o = CFG.offshore.assetClass || {};
+  if (o[p.a]) return o[p.a];
+  const last = p.a.split(":").pop();
+  if (o[last]) return o[last];
+  if (/^US[0-9A-Z]{10}$/.test(last) && o["CUSIP:"+last.slice(2,11)]) return o["CUSIP:"+last.slice(2,11)];
+  if (p.t==="caixa") return CFG.offshore.classes[0];
+  return NM;
+}
+function faixasDe(nome, uni){
+  if (uni==="on"){
+    const cc = CFG.onshore.clients[nome] || {};
+    const prof = cc.profile || null;
+    if (cc.hasIPS && cc.bands && Object.keys(cc.bands).length) return {bands:cc.bands, profile:prof, fonte:"IPS do cliente"};
+    if (prof && PL[prof]){
+      const L = PL[prof], b = {};
+      CFG.onshore.classes.forEach(k=>{ const m = CFG.onshore.model[k]||{}; b[k] = [m["min"+L]||0, m["est"+L]||0, m["max"+L]!=null?m["max"+L]:1]; });
+      return {bands:b, profile:prof, fonte:"Modelo " + prof};
+    }
+    return {bands:null, profile:prof, fonte:"Sem IPS"};
+  }
+  const cc = CFG.offshore.clients[nome] || {};
+  const prof = cc.profile || null;
+  if (cc.bands && Object.keys(cc.bands).length) return {bands:cc.bands, profile:prof, fonte:"IPS do cliente"};
+  if (prof && CFG.offshore.strategicByProfile[prof]) return {bands:CFG.offshore.strategicByProfile[prof], profile:prof, fonte:"Modelo " + prof};
+  return {bands:null, profile:prof, fonte:"Sem IPS"};
+}
+function tiltDe(uni, k){ return uni==="on" ? ((CFG.onshore.model[k]||{}).tilt||0) : (CFG.offshore.tilts[k]||0); }
+/* Tática = Mid ± passos × (distância ao limite)/4; a primeira classe (caixa) é o resíduo */
+function tatica(bands, uni){
+  if (!bands) return null;
+  const cls = classesDe(uni), out = {}; let soma = 0;
+  cls.forEach((k,i)=>{ if (i===0) return;
+    const b = bands[k] || [0,0,0], mn=b[0]||0, ae=b[1]||0, mx=(b[2]!=null?b[2]:1), t0 = tiltDe(uni,k);
+    let t = ae + (t0>0 ? t0*(mx-ae)/4 : t0*(ae-mn)/4);
+    t = Math.max(mn, Math.min(mx, t)); t = Math.max(0, t); out[k] = t; soma += t; });
+  out[cls[0]] = Math.max(0, 1 - soma);
+  return out;
+}
+
+/* =====================================================================
+   Métricas
+   ===================================================================== */
+const BUCKETS = [["D+0",0,0],["D+1 a 5",1,5],["D+6 a 30",6,30],["D+31 a 90",31,90],["D+91 a 360",91,360],["Acima de 360",361,1e9]];
+function bucketDe(p){ if (p.pl==null) return "Sem informação"; for (const b of BUCKETS) if (p.pl>=b[1] && p.pl<=b[2]) return b[0]; return "Sem informação"; }
+
+function calcular(){
+  const ptax = META.ptax || 0, dA = META.data_analise, P = CFG.params;
+  const exOn = new Set(CFG.onshore.exclude||[]), exOff = new Set(CFG.offshore.exclude||[]);
+  const ports = {};
+  for (const p0 of POS){
+    const uni = p0.off ? "off" : "on";
+    if ((uni==="on"?exOn:exOff).has(p0.c)) continue;
+    const cls = uni==="on" ? classeOn(p0) : classeOff(p0);
+    if (cls==="__EXCLUDE__") continue;
+    let du_ = p0.du, duFonte = du_!=null ? "Comdinheiro" : null, duInfo = null;
+    const man = ((CFG.onshore.durManual)||{})[p0.a];
+    if (du_==null && man!=null && man!==""){ du_ = +man; duFonte = "Manual"; }
+    const dRec = DURM[p0.a] || (p0.al ? DURM["cnpj:"+p0.al] : null) || (isCNPJ(p0.a) ? DURM["cnpj:"+p0.a.slice(0,18)] : null);
+    if (du_==null && !(man!=null && man!=="") && dRec && dRec.du!=null){ du_ = dRec.du; duFonte = "Estimada"; duInfo = dRec; }
+    const p = Object.assign({}, p0, {cls, uni, v:p0.sb, vb: uni==="off" ? p0.sb*ptax : p0.sb, nome: nomeAtivo(p0), du:du_, duFonte, duInfo});
+    const P_ = ports[p.c] || (ports[p.c] = {nome:p.c, uni, ccy: uni==="off"?"USD":"BRL", pos:[], aum:0, aumBRL:0, cls:{}});
+    P_.pos.push(p); P_.aum += p.v; P_.aumBRL += p.vb; P_.cls[cls] = (P_.cls[cls]||0) + p.v;
+  }
+  const alertas = [];
+  const add = (sev, tipo, cart, titulo, det, chave) => alertas.push({sev, tipo, cart, titulo, det, chave, id:"a"+hash(chave)});
+  for (const P_ of Object.values(ports)){
+    const cls = classesDe(P_.uni), tot = P_.aum || 1;
+    P_.share = {}; cls.concat([NM]).forEach(k=>P_.share[k] = (P_.cls[k]||0)/tot);
+    const f = faixasDe(P_.nome, P_.uni); P_.bands = f.bands; P_.profile = f.profile; P_.fonteFaixa = f.fonte;
+    P_.tat = tatica(P_.bands, P_.uni);
+    P_.fora = [];
+    if (P_.bands){
+      let tv = 0;
+      cls.forEach(k=>{
+        const b = P_.bands[k] || [0,0,0], a = P_.share[k]||0, mn=b[0]||0, mx=b[2]!=null?b[2]:1;
+        tv += Math.abs(a - (P_.tat[k]||0));
+        if (a < mn - 1e-9 || a > mx + 1e-9){
+          const dist = a < mn ? mn - a : a - mx, dir = a < mn ? "abaixo" : "acima";
+          P_.fora.push({k, dir, a, mn, mx, dist});
+          add(dist > 0.05 ? "crit" : "aten", "Fora da banda", P_.nome,
+              `${k} ${dir} da banda do IPS`,
+              `Atual ${pct(a)} · faixa ${pct(mn,0)} a ${pct(mx,0)} · ${pp(dist)} fora`, `banda|${P_.nome}|${k}|${dir}`);
+        }
+      });
+      tv += P_.share[NM]||0;
+      P_.drift = tv/2; P_.driftScore = Math.min(100, P_.drift/(P.driftEscalaPP/100)*100);
+    } else {
+      P_.drift = null; P_.driftScore = null;
+      add("info","Sem IPS",P_.nome,"Carteira sem IPS nem perfil definido","Defina o perfil em Modelo de Alocação e IPS para calcular drift e bandas.",`semips|${P_.nome}`);
+    }
+    // concentração: por ativo, fora caixa e títulos públicos
+    const byA = {};
+    P_.pos.forEach(p=>{ if (p.cls===cls[0] || p.t==="titulo" || p.v<=0) return; byA[p.a] = byA[p.a] || {nome:p.nome, v:0}; byA[p.a].v += p.v; });
+    const arr = Object.values(byA).sort((a,b)=>b.v-a.v);
+    const maior = arr[0] ? arr[0].v/tot : 0, top5 = arr.slice(0,5).reduce((s,x)=>s+x.v,0)/tot;
+    P_.conc = {maior, top5, maiorNome: arr[0] ? arr[0].nome : "–",
+               score: Math.min(100, Math.max(maior/P.concMaiorPos, top5/P.concTop5)*100)};
+    if (maior > P.concMaiorPos) add("aten","Concentração",P_.nome,`Posição acima de ${pct(P.concMaiorPos,0)} da carteira`,`${arr[0].nome}: ${pct(maior)}`,`conc|${P_.nome}|${arr[0].nome}`);
+    // liquidez
+    P_.liq = {}; P_.pos.forEach(p=>{ const b = bucketDe(p); P_.liq[b] = (P_.liq[b]||0) + p.v; });
+    P_.liqD5 = ((P_.liq["D+0"]||0) + (P_.liq["D+1 a 5"]||0))/tot;
+    if (P_.liqD5 < P.liqMinD5 && P_.aum > 0) add("aten","Liquidez",P_.nome,`Só ${pct(P_.liqD5)} resgatável em até D+5`,`Mínimo de referência: ${pct(P.liqMinD5,0)} da carteira.`,`liq|${P_.nome}`);
+    // caixa em conta
+    const cx = P_.pos.filter(p=>p.t==="caixa").reduce((s,p)=>s+p.v,0);
+    P_.caixa = cx/tot;
+    if (P_.caixa > P.caixaParadaPct && cx > (P_.uni==="off"?2000:10000)) add("aten","Caixa parado",P_.nome,`Saldo em conta de ${moeda(cx,P_.ccy)}`,`${pct(P_.caixa)} da carteira sem aplicação.`,`caixa|${P_.nome}|${Math.round(cx/1000)}`);
+    // duration (onshore)
+    if (P_.uni==="on"){
+      P_.dur = {};
+      ["Pré Fixado","Inflação"].forEach(k=>{
+        let s=0,w=0; P_.pos.forEach(p=>{ if (p.cls===k && p.du!=null && p.v>0){ s+=p.du*p.v; w+=p.v; } });
+        P_.dur[k] = w ? s/w : null;
+        const alvo = (CFG.onshore.durTargets||{})[k];
+        if (P_.dur[k]!=null && alvo && Math.abs(P_.dur[k]-alvo) > P.durTolAnos && (P_.cls[k]||0)/tot > 0.05)
+          add("info","Duration",P_.nome,`Duration de ${k} em ${nf1.format(P_.dur[k])} anos`,`Alvo do modelo: ${nf1.format(alvo)} anos.`,`dur|${P_.nome}|${k}`);
+      });
+    }
+    // posição-a-posição
+    let defas = 0, defasV = 0;
+    P_.pos.forEach(p=>{
+      if (p.vc && dA){ const d = diasEntre(dA, p.vc); p.diasVenc = d;
+        if (d >= 0 && d <= P.vencDias) add("info","Vencimento",P_.nome,`${p.nome} vence em ${dtBR(p.vc)}`,`${moeda(p.v,P_.ccy)} · em ${d} dias`,`venc|${P_.nome}|${p.a}|${p.vc}`); }
+      if (p.dr && dA && diasEntre(p.dr, dA) > P.precoDefasadoDias){ defas++; defasV += p.v; }
+      if (p.v < 0) add("aten","Saldo negativo",P_.nome,`${p.nome} com saldo negativo`,moeda(p.v,P_.ccy),`neg|${P_.nome}|${p.a}`);
+    });
+    if (defas) add("info","Preço defasado",P_.nome,`${defas} posição(ões) sem preço recente`,`${moeda(defasV,P_.ccy)} com última cotação há mais de ${P.precoDefasadoDias} dias.`,`defas|${P_.nome}|${defas}`);
+    if ((P_.cls[NM]||0) > 0) add("aten","Não mapeado",P_.nome,`${moeda(P_.cls[NM],P_.ccy)} sem classe`,`${pct(P_.share[NM])} da carteira fora da alocação. Classifique em Classificação.`,`nm|${P_.nome}`);
+    P_.alertas = [];
+  }
+  alertas.forEach(a=>{ a.ack = ACKS[a.id] && ACKS[a.id].chave===a.chave ? ACKS[a.id] : null; if (ports[a.cart]) ports[a.cart].alertas.push(a); });
+  M = {ports, alertas};
+}
+function portsVis(){ return Object.values(M.ports).filter(p=>S.uni==="all" || p.uni===S.uni); }
+function abertos(list){ return list.filter(a=>!a.ack); }
+const SEVN = {crit:"Crítico", aten:"Atenção", info:"Informativo"};
+const SEVI = {crit:"▲", aten:"●", info:"i"};
+function chipSev(s){ return `<span class="chip st-${s}"><span class="ic" aria-hidden="true">${SEVI[s]}</span>${SEVN[s]}</span>`; }
+
+/* =====================================================================
+   Componentes de gráfico
+   ===================================================================== */
+function scoreBar(v){ if (v==null) return `<span class="chip st-na">Sem IPS</span>`;
+  return `<div class="score" data-tip="Nota ${nf0.format(v)} de 100"><div class="tr"><i style="width:${Math.max(2,v)}%"></i></div><b>${nf0.format(v)}</b></div>`; }
+function fmtDur(p){
+  if (p.du==null) return "–";
+  if (p.duFonte==="Comdinheiro") return nf2.format(p.du);
+  const tip = p.duFonte==="Manual" ? "Duration informada manualmente pela equipe" :
+    `Duration estimada · confiança ${p.duInfo.conf}\n${p.duInfo.metodo}`;
+  return `<span data-tip="${esc(tip)}" style="border-bottom:1px dotted var(--ink-corpo)">≈ ${nf2.format(p.du)}</span>`;
+}
+function durInfo(p, k){
+  if (p.uni!=="on" || !p.dur || p.dur[k]==null) return null;
+  const alvo = (CFG.onshore.durTargets||{})[k]; if (!alvo) return {d:p.dur[k], delta:null};
+  return {d:p.dur[k], alvo, delta:p.dur[k]-alvo};
+}
+function durDesvio(p, k){ const i = durInfo(p,k); return i && i.delta!=null ? Math.abs(i.delta) : -1; }
+function durCel(p, k){
+  const i = durInfo(p,k); if (!i) return `<span class="muted">–</span>`;
+  if (i.delta==null) return nf1.format(i.d);
+  const fora = Math.abs(i.delta) > CFG.params.durTolAnos, s = i.delta>0?"+":i.delta<0?"−":"";
+  const txt = `${nf1.format(i.d)} <span class="${fora?"":"muted"} small">(${s}${nf1.format(Math.abs(i.delta))})</span>`;
+  return fora ? `<span class="chip st-aten" data-tip="${esc(k)}: ${nf1.format(i.d)} anos\nAlvo ${nf1.format(i.alvo)} · ${i.delta>0?"alongada":"encurtada"} em ${nf1.format(Math.abs(i.delta))} ano">${txt}</span>` : txt;
+}
+function hbars(items, fmt){
+  const mx = Math.max(...items.map(i=>i.v), 1e-9);
+  return `<div class="hb">` + items.map(i=>`<div class="lb" title="${esc(i.label)}">${esc(i.label)}</div>
+    <div class="tk" data-tip="${esc(i.label)}\n${esc(i.tip||fmt(i.v))}"><i style="width:${Math.max(0.5,i.v/mx*100)}%"></i></div>
+    <div class="vl">${esc(i.lbl!=null?i.lbl:fmt(i.v))}</div>`).join("") + `</div>`;
+}
+function colunas(items, fmtCap, fmtTip, o){
+  o = o||{}; const mx = Math.max(...items.map(i=>i.v), 1e-9);
+  const top = o.capTop ? new Set(items.slice().sort((a,b)=>b.v-a.v).slice(0,o.capTop).filter(i=>i.v>0)) : null;
+  return `<div class="cols">` + items.map(i=>`<div class="c" data-tip="${esc(i.label)}\n${esc(fmtTip(i.v,i))}"><em>${i.v>0&&(!top||top.has(i))?esc(fmtCap(i.v,i)):""}</em><i style="height:${i.v>0?Math.max(2,i.v/mx*150):0}px"></i></div>`).join("")
+    + `</div><div class="colx">` + items.map((i,n)=>`<span title="${esc(i.label)}">${!o.xEvery||n%o.xEvery===0?esc(i.label):""}</span>`).join("") + `</div>`;
+}
+function linha(pts, ccy){
+  if (pts.length < 2) return `<div class="empty small">O histórico começa a se formar a cada atualização diária.</div>`;
+  const W=560,H=190,L=56,R=16,T=16,B=26;
+  const xs = pts.map((p,i)=>i), ys = pts.map(p=>p.v);
+  let mn = Math.min(...ys), mx = Math.max(...ys); const pad=(mx-mn)*0.15||mx*0.02; mn-=pad; mx+=pad;
+  const X = i => L + (W-L-R)*(pts.length===1?0.5:i/(pts.length-1)), Y = v => T + (H-T-B)*(1-(v-mn)/(mx-mn));
+  const ticks = [0,0.5,1].map(t=>mn+(mx-mn)*t);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolução do patrimônio">`;
+  ticks.forEach(t=>{ s += `<line x1="${L}" x2="${W-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#e8ebe4" stroke-width="1"/><text x="${L-8}" y="${Y(t)+4}" font-size="11" text-anchor="end" fill="#5f645f">${esc(compacto(t,ccy).replace(/^R\$ |^US\$ /,""))}</text>`; });
+  s += `<polyline fill="none" stroke="#224725" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${pts.map((p,i)=>X(i)+","+Y(p.v)).join(" ")}"/>`;
+  pts.forEach((p,i)=>{ s += `<circle cx="${X(i)}" cy="${Y(p.v)}" r="${i===pts.length-1?5:3.5}" fill="#224725" stroke="#fff" stroke-width="2" data-tip="${dtBR(p.d)}\n${esc(moeda(p.v,ccy))}"/>`;
+    if (i===0 || i===pts.length-1 || pts.length<=8) s += `<text x="${X(i)}" y="${H-8}" font-size="11" text-anchor="middle" fill="#5f645f">${dtBR(p.d).slice(0,5)}</text>`; });
+  const u = pts[pts.length-1]; s += `<text x="${X(pts.length-1)-8}" y="${Y(u.v)-10}" font-size="12" font-weight="700" text-anchor="end" fill="#224725">${esc(compacto(u.v,ccy))}</text>`;
+  return s + `</svg>`;
+}
+
+/* =====================================================================
+   Views
+   ===================================================================== */
+function cabec(eb, tit, lede){ return `<div class="eyebrow">${esc(eb)}</div><h1>${esc(tit)}</h1>${lede?`<p class="lede">${lede}</p>`:""}`; }
+function totalVis(ps){ return ps.reduce((s,p)=>s+(S.uni==="off"?p.aum:p.aumBRL),0); }
+function ccyVis(){ return S.uni==="off" ? "USD" : "BRL"; }
+function valorVis(p){ return S.uni==="off" ? p.aum : p.aumBRL; }
+
+function vPainel(){
+  const ps = portsVis(), ccy = ccyVis(), tot = totalVis(ps);
+  const al = M.alertas.filter(a=>ps.some(p=>p.nome===a.cart));
+  const ab = abertos(al), nCrit = ab.filter(a=>a.sev==="crit").length, nAten = ab.filter(a=>a.sev==="aten").length;
+  const fora = ps.filter(p=>p.fora.length).length, comIPS = ps.filter(p=>p.bands).length;
+  const nm = ps.reduce((s,p)=>s+(p.cls[NM]||0)*(S.uni==="off"?1:(p.uni==="off"?META.ptax:1)),0);
+  const on = Object.values(M.ports).filter(p=>p.uni==="on"), off = Object.values(M.ports).filter(p=>p.uni==="off");
+  const subAum = S.uni==="all" ? `Onshore ${compacto(on.reduce((s,p)=>s+p.aum,0),"BRL")} · Offshore ${compacto(off.reduce((s,p)=>s+p.aum,0),"USD")}`
+               : `${ps.length} carteiras`;
+  let h = cabec("Painel", fora ? `${fora} de ${comIPS} carteiras com IPS estão fora da banda` : "Todas as carteiras com IPS estão dentro da banda",
+    `Posições de ${dtBR(META.data_analise)}${S.uni!=="on"?` · PTAX ${nf4.format(META.ptax||0)}`:""}. Clique numa carteira para ver alocação, bandas, liquidez e posições.`);
+  h += `<div class="tiles">
+    <div class="tile dest"><div class="k">Patrimônio sob gestão</div><div class="v">${compacto(tot,ccy)}</div><div class="s">${subAum}</div></div>
+    <div class="tile"><div class="k">Carteiras</div><div class="v">${ps.length}</div><div class="s">${comIPS} com IPS ou perfil</div></div>
+    <div class="tile"><div class="k">Fora da banda</div><div class="v">${fora}</div><div class="s">carteiras com ao menos uma classe fora</div></div>
+    <div class="tile"><div class="k">Alertas abertos</div><div class="v">${ab.length}</div><div class="s">${nCrit} críticos · ${nAten} de atenção</div></div>
+    <div class="tile"><div class="k">Sem classe</div><div class="v">${compacto(nm,ccy)}</div><div class="s">${pct(nm/(tot||1))} do patrimônio</div></div>
+  </div>`;
+  // alocação por classe: onshore e offshore separados, cada um na sua moeda
+  const cardAloc = uni => {
+    const grupo = uni==="on" ? on : off, c = uni==="on" ? "BRL" : "USD";
+    let it = classesDe(uni).concat([NM]).map(k=>({label:k, v:grupo.reduce((s,p)=>s+(p.cls[k]||0),0)})).filter(i=>i.v>0.5);
+    const t = it.reduce((s,i)=>s+i.v,0);
+    it.forEach(i=>{ i.lbl = pct(i.v/(t||1)); i.tip = moeda(i.v,c) + " · " + pct(i.v/(t||1)); });
+    return `<div class="card"><h2>Alocação por classe · ${uni==="on"?"Onshore":"Offshore"}</h2><p class="sub">${uni==="on"?"Em R$":"Em US$"}, soma de ${grupo.length} carteiras (${compacto(t,c)}). Taxas de gestão provisionadas ficam de fora.</p>${it.length?hbars(it, v=>compacto(v,c)):'<p class="muted">Sem posições.</p>'}</div>`;
+  };
+  // concentração por instituição financeira
+  const bancos = {};
+  ps.forEach(p=>p.pos.forEach(x=>{ const b = (x.if||"").trim().toUpperCase() || "NÃO INFORMADO";
+    const o = bancos[b] || (bancos[b] = {v:0, carts:new Set()});
+    o.v += S.uni==="off" ? x.v : x.vb; o.carts.add(p.nome); }));
+  const totB = Object.values(bancos).reduce((s,o)=>s+o.v,0);
+  const itB = Object.entries(bancos).map(([b,o])=>({label:b, v:o.v, lbl:pct(o.v/(totB||1)),
+    tip:`${moeda(o.v,ccy)} · ${pct(o.v/(totB||1))}\n${o.carts.size} carteiras`})).filter(i=>i.v>0.5).sort((a,b)=>b.v-a.v);
+  const maiorB = itB[0];
+  const cardBancos = `<div class="card"><h2>Concentração por instituição</h2><p class="sub">Patrimônio custodiado em cada banco ou corretora${S.uni==="all"?", offshore convertido pela PTAX":""}.${maiorB?` ${esc(maiorB.label)} concentra ${pct(maiorB.v/(totB||1))}.`:""}</p>${hbars(itB, v=>compacto(v,ccy))}</div>`;
+  // histórico
+  const hp = {}; HIST.forEach(x=>{ const off_ = /_offshore$/.test(x.c); const uni = off_?"off":"on";
+    if ((uni==="on"?CFG.onshore.exclude:CFG.offshore.exclude).includes(x.c)) return;
+    if (S.uni!=="all" && S.uni!==uni) return;
+    hp[x.d] = (hp[x.d]||0) + (S.uni==="all" && off_ ? x.v*(META.ptax||0) : x.v); });
+  const pts = Object.keys(hp).sort().map(d=>({d, v:hp[d]}));
+  const cardEvol = `<div class="card"><h2>Evolução do patrimônio</h2><p class="sub">Um ponto por atualização${S.uni==="all"?"; offshore convertido pela PTAX do dia mais recente":""}.</p>${linha(pts, ccy)}</div>`;
+  if (S.uni==="all") h += `<div class="grid g2">${cardAloc("on")}${cardAloc("off")}</div><div class="grid g2 mt">${cardBancos}${cardEvol}</div>`;
+  else h += `<div class="grid g2">${cardAloc(S.uni)}${cardBancos}</div><div class="mt">${cardEvol}</div>`;
+  // tabela
+  const q = S.q.trim().toLowerCase();
+  let rows = ps.filter(p=>!q || nomeCart(p.nome).toLowerCase().includes(q) || p.nome.includes(q));
+  const key = {nome:p=>p.nome, uni:p=>p.uni, perfil:p=>p.profile||"", aum:p=>valorVis(p), drift:p=>p.driftScore==null?-1:p.driftScore,
+               dpre:p=>durDesvio(p,"Pré Fixado"), dinf:p=>durDesvio(p,"Inflação"), fora:p=>p.fora.length, liq:p=>p.liqD5, al:p=>abertos(p.alertas).length}[S.sort.k];
+  rows.sort((a,b)=>{ const x=key(a), y=key(b); return (x>y?1:x<y?-1:0)*S.sort.d; });
+  const th = (k,l,c) => `<th class="s ${c||""}" data-sort="${k}" aria-sort="${S.sort.k===k?(S.sort.d>0?"ascending":"descending"):"none"}">${l}${S.sort.k===k?(S.sort.d>0?" ▲":" ▼"):""}</th>`;
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h2>Carteiras</h2><p class="sub" style="margin:0">Drift: metade da soma dos desvios contra a alocação tática (${CFG.params.driftEscalaPP} p.p. = nota 100). Duration: média ponderada da classe em anos; entre parênteses, o desvio contra o alvo (pré ${nf1.format(CFG.onshore.durTargets["Pré Fixado"]||0)} · inflação ${nf1.format(CFG.onshore.durTargets["Inflação"]||0)}), destacado acima de ${nf1.format(CFG.params.durTolAnos)} ano.</p></div>
+    <input type="search" id="qCart" placeholder="Buscar carteira" value="${esc(S.q)}" aria-label="Buscar carteira"></div>
+    <div class="tw"><table><thead><tr>${th("nome","Carteira")}${th("uni","Mercado")}${th("perfil","Perfil")}${th("aum","Patrimônio","r")}${th("drift","Drift")}${th("dpre","Duration pré","r")}${th("dinf","Duration inflação","r")}${th("fora","Fora da banda","c")}${th("liq","Liquidez até D+5","r")}${th("al","Alertas","c")}</tr></thead><tbody>`;
+  rows.forEach(p=>{
+    const a = abertos(p.alertas), cr = a.filter(x=>x.sev==="crit").length;
+    h += `<tr><td><button class="link" data-cli="${esc(p.nome)}">${esc(nomeCart(p.nome))}</button></td>
+      <td><span class="pill">${p.uni==="on"?"Onshore":"Offshore"}</span></td>
+      <td>${esc(p.profile||"–")}${p.bands&&p.fonteFaixa==="IPS do cliente"?' <span class="muted small">· IPS</span>':""}</td>
+      <td class="r">${moeda(valorVis(p), ccy)}</td>
+      <td>${scoreBar(p.driftScore)}</td><td class="r">${durCel(p,"Pré Fixado")}</td><td class="r">${durCel(p,"Inflação")}</td>
+      <td class="c">${p.bands ? (p.fora.length ? `<span class="chip st-${p.fora.some(f=>f.dist>0.05)?"crit":"aten"}" data-tip="${esc(p.fora.map(f=>f.k+" "+f.dir).join("\n"))}">${p.fora.length}</span>` : `<span class="chip st-ok">0</span>`) : "–"}</td>
+      <td class="r">${pct(p.liqD5)}</td>
+      <td class="c">${a.length ? `<span class="chip st-${cr?"crit":"aten"}">${a.length}</span>` : "–"}</td></tr>`;
+  });
+  h += `<tr class="tot"><td colspan="3">Total (${rows.length})</td><td class="r">${moeda(rows.reduce((s,p)=>s+valorVis(p),0),ccy)}</td><td colspan="6"></td></tr>`;
+  h += `</tbody></table></div><div class="fonte">Fonte: Comdinheiro, Relatório Gerencial de Carteiras de ${dtBR(META.data_analise)}; Banco Central (PTAX venda de ${dtBR(META.ptax_data)}).</div></div>`;
+  return h;
+}
+
+function vCliente(){
+  const ps = portsVis().sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{numeric:true}));
+  if (!ps.length) return `<div class="empty">Nenhuma carteira neste filtro.</div>`;
+  let P_ = ps.find(p=>p.nome===S.cli) || ps.slice().sort((a,b)=>b.aumBRL-a.aumBRL)[0];
+  S.cli = P_.nome;
+  const ccy = P_.ccy, cls = classesDe(P_.uni), tot = P_.aum;
+  let h = `<div class="row" style="justify-content:space-between;align-items:flex-end"><div>${cabec("Carteiras", nomeCart(P_.nome), "")}</div>
+    <label class="small muted">Carteira&nbsp; <select id="selCli">${ps.map(p=>`<option value="${esc(p.nome)}"${p.nome===P_.nome?" selected":""}>${esc(nomeCart(p.nome))}</option>`).join("")}</select></label></div>`;
+  h += `<p class="lede">${P_.uni==="on"?"Onshore":"Offshore"} · ${esc(P_.fonteFaixa)}${P_.profile?" · perfil "+esc(P_.profile):""} · posições de ${dtBR(META.data_analise)}</p>`;
+  const durTxt = P_.uni==="on" ? ["Pré Fixado","Inflação"].map(k=>`${k==="Pré Fixado"?"Pré":"Inflação"} ${P_.dur[k]!=null?nf1.format(P_.dur[k]):"–"}`).join(" · ") : null;
+  h += `<div class="tiles">
+    <div class="tile dest"><div class="k">Patrimônio</div><div class="v">${compacto(tot,ccy)}</div><div class="s">${P_.uni==="off"?"≈ "+compacto(P_.aumBRL,"BRL")+" pela PTAX":P_.pos.length+" posições"}</div></div>
+    <div class="tile"><div class="k">Drift</div><div class="v">${P_.drift!=null?nf1.format(P_.drift*100)+" p.p.":"–"}</div><div class="s">${P_.driftScore!=null?"nota "+nf0.format(P_.driftScore)+" de 100":"defina o perfil ou IPS em Modelo de Alocação e IPS"}</div></div>
+    <div class="tile"><div class="k">Concentração</div><div class="v">${pct(P_.conc.maior)}</div><div class="s" title="${esc(P_.conc.maiorNome)}">maior posição · 5 maiores ${pct(P_.conc.top5)}</div></div>
+    <div class="tile"><div class="k">Liquidez até D+5</div><div class="v">${pct(P_.liqD5)}</div><div class="s">${compacto(P_.liqD5*tot,ccy)}</div></div>
+    ${durTxt?`<div class="tile"><div class="k">Duration (anos)</div><div class="v" style="font-size:20px;margin-top:12px">${durTxt}</div><div class="s">alvo: pré ${nf1.format(CFG.onshore.durTargets["Pré Fixado"]||0)} · inflação ${nf1.format(CFG.onshore.durTargets["Inflação"]||0)}</div></div>`:""}
+  </div>`;
+  const ab = abertos(P_.alertas).sort((a,b)=>"cai".indexOf(a.sev[0])-"cai".indexOf(b.sev[0]));
+  if (ab.length) h += `<div class="card" style="margin-bottom:var(--gutter)"><h2>Alertas desta carteira</h2>${ab.slice(0,8).map(a=>`<div class="alert"><div>${chipSev(a.sev)}</div><div><div class="t">${esc(a.titulo)}</div><div class="d">${esc(a.det)}</div></div><div class="small muted">${esc(a.tipo)}</div></div>`).join("")}${ab.length>8?`<p class="small muted">E mais ${ab.length-8} em Alertas.</p>`:""}</div>`;
+  // alocação x bandas
+  const allK = cls.concat((P_.cls[NM]||0)?[NM]:[]);
+  let escala = 0; allK.forEach(k=>{ const b=(P_.bands||{})[k]; escala=Math.max(escala, P_.share[k]||0, b?Math.min(1,b[2]!=null?b[2]:0):0, P_.tat?P_.tat[k]||0:0); });
+  escala = Math.min(1, Math.ceil((escala+0.02)*10)/10);
+  const X = v => (Math.min(v,escala)/escala*100);
+  h += `<div class="grid g3"><div class="card"><h2>Alocação atual, faixa do IPS e tática</h2><p class="sub">Escala de 0 a ${pct(escala,0)}. A tática aplica o tilt da casa sobre o mid; caixa é o resíduo.</p>
+    <div class="legend"><span><i style="background:var(--verde-etti);height:8px"></i>Atual</span><span><i style="background:var(--verde-claro)"></i>Faixa do IPS (mín–máx)</span><span><i style="background:var(--verde-vivo);width:3px;height:14px"></i>Tática</span></div><div class="bandc">`;
+  allK.forEach(k=>{
+    const a = P_.share[k]||0, b = (P_.bands||{})[k], t = P_.tat ? P_.tat[k] : null;
+    const tip = `${k}\nAtual ${pct(a)} (${moeda(P_.cls[k]||0,ccy)})` + (b?`\nFaixa ${pct(b[0],0)} a ${pct(b[2]!=null?b[2]:1,0)} · mid ${pct(b[1],0)}`:"") + (t!=null?`\nTática ${pct(t)}`:"");
+    h += `<div class="lb">${esc(k)}</div><div class="tk" data-tip="${esc(tip)}">
+      ${b?`<div class="band" style="left:${X(b[0]||0)}%;width:${Math.max(0.4,X(b[2]!=null?b[2]:1)-X(b[0]||0))}%"></div>`:""}
+      <div class="bar" style="width:${a>0?Math.max(0.6,X(a)):0}%"></div>
+      ${t!=null?`<div class="tat" style="left:${X(t)}%"></div>`:""}</div><div class="vl">${pct(a)}</div>`;
+  });
+  h += `</div></div>`;
+  // simulador
+  h += `<div class="card"><h2>Ajustes da Carteira</h2><p class="sub">${P_.tat?"Mostra quanto comprar ou vender por classe para chegar à tática.":"Defina o perfil ou IPS da carteira para simular."}</p>
+    <div class="flt"><button class="chipbtn" data-sim="aporte" aria-pressed="${S.simModo==="aporte"}">Aporte</button><button class="chipbtn" data-sim="retirada" aria-pressed="${S.simModo==="retirada"}">Retirada</button><button class="chipbtn" data-sim="rebal" aria-pressed="${S.simModo==="rebal"}">Rebalancear</button>
+    ${S.simModo!=="rebal"?`<label class="small">Valor (${ccy==="USD"?"US$":"R$"}) <input type="number" id="simV" style="width:130px" value="${S.simV}" step="1000" min="0"></label>`:""}</div>`;
+  if (P_.tat){
+    const x = S.simModo==="aporte"?S.simV:S.simModo==="retirada"?-S.simV:0, novo = tot + x;
+    let mov = cls.map(k=>({k, atual:P_.cls[k]||0, alvo:(P_.tat[k]||0)*novo}));
+    mov.forEach(m=>m.d = m.alvo - m.atual);
+    if (S.simModo!=="rebal"){
+      // usa só o fluxo: distribui o aporte entre as classes abaixo do alvo (ou a retirada entre as acima)
+      const lado = x>=0 ? mov.filter(m=>m.d>0) : mov.filter(m=>m.d<0);
+      const somaGap = lado.reduce((s,m)=>s+Math.abs(m.d),0);
+      mov.forEach(m=>m.f = 0);
+      if (somaGap>0) lado.forEach(m=>m.f = x * Math.abs(m.d)/somaGap * (Math.abs(x)>somaGap? somaGap/Math.abs(x):1));
+      const resto = x - mov.reduce((s,m)=>s+m.f,0);
+      if (Math.abs(resto)>1) mov.forEach(m=>m.f += resto*(P_.tat[m.k]||0));
+    } else mov.forEach(m=>m.f = m.d);
+    h += `<div class="tw" style="max-height:none"><table><thead><tr><th>Classe</th><th class="r">Atual</th><th class="r">Tática</th><th class="r">Comprar / (vender)</th></tr></thead><tbody>`;
+    mov.forEach(m=>{
+      h += `<tr><td>${esc(m.k)}</td><td class="r">${pct(m.atual/(tot||1))}</td><td class="r">${pct(P_.tat[m.k]||0)}</td><td class="r"><b>${Math.abs(m.f)<1?"–":(m.f<0?"("+nf0.format(-m.f)+")":nf0.format(m.f))}</b></td></tr>`; });
+    h += `</tbody></table></div><p class="fonte">Aporte e retirada usam só o fluxo informado, priorizando as classes mais distantes da tática. Valores em ${ccy==="USD"?"US$":"R$"}.</p>`;
+  }
+  h += `</div></div>`;
+  // tabela de bandas
+  if (P_.bands){
+    h += `<div class="card mt"><h2>Enquadramento por classe</h2><div class="tw" style="max-height:none"><table><thead><tr><th>Classe</th><th class="r">Atual (${ccy==="USD"?"US$":"R$"})</th><th class="r">% atual</th><th class="r">Mín</th><th class="r">Mid</th><th class="r">Máx</th><th class="r">Tática</th><th class="r">Desvio vs tática</th><th>Status</th></tr></thead><tbody>`;
+    allK.forEach(k=>{ const b=P_.bands[k]||[0,0,0], a=P_.share[k]||0, t=P_.tat[k]||0, f=P_.fora.find(x=>x.k===k);
+      h += `<tr${f?' class="hl"':""}><td><b>${esc(k)}</b></td><td class="r">${nf0.format(P_.cls[k]||0)}</td><td class="r">${pct(a)}</td><td class="r">${k===NM?"–":pct(b[0],0)}</td><td class="r">${k===NM?"–":pct(b[1],0)}</td><td class="r">${k===NM?"–":pct(b[2]!=null?b[2]:1,0)}</td><td class="r">${pct(t)}</td><td class="r">${pp(a-t)}</td>
+      <td>${k===NM?'<span class="chip st-aten">Classificar</span>':f?`<span class="chip st-${f.dist>0.05?"crit":"aten"}">${f.dir==="acima"?"Acima":"Abaixo"} da banda</span>`:'<span class="chip st-ok">Dentro</span>'}</td></tr>`; });
+    h += `</tbody></table></div></div>`;
+  }
+  // liquidez + vencimentos
+  const liqItems = BUCKETS.map(b=>({label:b[0], v:P_.liq[b[0]]||0})).concat((P_.liq["Sem informação"]||0)?[{label:"Sem informação", v:P_.liq["Sem informação"]}]:[]);
+  const venc = P_.pos.filter(p=>p.diasVenc!=null && p.diasVenc>=0).sort((a,b)=>a.diasVenc-b.diasVenc).slice(0,10);
+  if (P_.uni==="on") h += cardDuration(P_);
+  // concentração por instituição na carteira
+  const bc = {}; P_.pos.forEach(x=>{ const b=(x.if||"").trim().toUpperCase()||"NÃO INFORMADO"; bc[b]=(bc[b]||0)+x.v; });
+  const itBc = Object.entries(bc).filter(([b,v])=>v>0.5).sort((a,b)=>b[1]-a[1]).map(([b,v])=>({label:b, v, lbl:pct(v/(tot||1)), tip:moeda(v,ccy)+" · "+pct(v/(tot||1))}));
+  h += `<div class="grid g3c mt"><div class="card"><h2>Escada de liquidez</h2><p class="sub">Prazo de resgate ou liquidação de cada posição, em % da carteira.</p>${colunas(liqItems, v=>pct(v/(tot||1),0), v=>moeda(v,ccy)+" · "+pct(v/(tot||1)))}</div>
+    <div class="card"><h2>Por instituição</h2><p class="sub">Onde a carteira está custodiada.</p>${hbars(itBc, v=>compacto(v,ccy))}</div>
+    <div class="card"><h2>Próximos vencimentos</h2>${venc.length?`<div class="tw" style="max-height:260px"><table><thead><tr><th>Ativo</th><th>Vencimento</th><th class="r">Saldo</th></tr></thead><tbody>${venc.map(p=>`<tr><td>${esc(p.nome)}</td><td>${dtBR(p.vc)} <span class="muted small">(${p.diasVenc} d)</span></td><td class="r">${nf0.format(p.v)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">Nenhum ativo com vencimento informado.</p>`}</div></div>`;
+  // posições
+  const pk = {nome:p=>p.nome, cls:p=>p.cls, t:p=>p.t, if:p=>p.if||"", v:p=>p.v, liq:p=>p.pl==null?1e9:p.pl, vc:p=>p.vc||"9", du:p=>p.du==null?-1:p.du, dr:p=>p.dr||""}[S.psort.k];
+  const pos = P_.pos.slice().sort((a,b)=>{ const x=pk(a),y=pk(b); return (x>y?1:x<y?-1:0)*S.psort.d; });
+  const th = (k,l,c) => `<th class="s ${c||""}" data-psort="${k}" aria-sort="${S.psort.k===k?(S.psort.d>0?"ascending":"descending"):"none"}">${l}${S.psort.k===k?(S.psort.d>0?" ▲":" ▼"):""}</th>`;
+  h += `<div class="card mt"><h2>Posições (${pos.length})</h2><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
+  pos.forEach(p=>{ h += `<tr><td title="${esc(p.a)}">${esc(p.nome)}</td><td>${p.cls===NM?'<span class="chip st-aten">Não mapeado</span>':esc(p.cls)}</td><td>${esc(p.t)}</td><td>${esc(p.if||"–")}</td><td class="r">${nf0.format(p.v)}</td><td class="r">${pct(p.v/(tot||1))}</td><td>${esc(p.pl!=null?"D+"+p.pl:(p.lq||"–"))}</td><td>${dtBR(p.vc)}</td><td class="r">${fmtDur(p)}</td><td>${dtBR(p.dr)}</td></tr>`; });
+  h += `</tbody></table></div><div class="fonte">Fonte: Comdinheiro, posições de ${dtBR(META.data_analise)}. Valores em ${ccy==="USD"?"US$":"R$"}.</div></div>`;
+  return h;
+}
+
+/* Ajuste de duration: troca dentro da mesma classe (vende um prazo, compra outro) */
+function cardDuration(P_){
+  const tgt = CFG.onshore.durTargets||{}, tol = CFG.params.durTolAnos, ccy = P_.ccy;
+  let h = `<div class="card mt"><h2>Ajuste de duration</h2><p class="sub">Duration média ponderada por saldo em cada classe, contra o alvo do modelo. O ajuste vende um ativo e compra outro dentro da mesma classe, então a alocação não muda. Edite as durations de compra e venda para testar.</p>
+    <div class="tw" style="max-height:none"><table><thead><tr><th>Classe</th><th class="r">Saldo na classe</th><th class="r">Duration atual</th><th class="r">Alvo</th><th class="r">Desvio</th><th>Status</th><th class="r">Vender duration</th><th class="r">Comprar duration</th><th class="r">Valor a trocar</th></tr></thead><tbody>`;
+  const listas = [];
+  ["Pré Fixado","Inflação"].forEach(k=>{
+    const pos = P_.pos.filter(p=>p.cls===k && p.v>0), V = pos.reduce((s,p)=>s+p.v,0);
+    const comDur = pos.filter(p=>p.du!=null), Vd = comDur.reduce((s,p)=>s+p.v,0), d = P_.dur[k], alvo = tgt[k];
+    if (!V){ h += `<tr><td><b>${esc(k)}</b></td><td class="r">–</td><td colspan="7" class="muted">Sem posição nesta classe.</td></tr>`; return; }
+    if (d==null || !alvo){ h += `<tr><td><b>${esc(k)}</b></td><td class="r">${nf0.format(V)}</td><td colspan="7" class="muted">${d==null?"Nenhuma posição da classe tem duration informada.":"Sem alvo definido no modelo."}</td></tr>`; return; }
+    const delta = d - alvo, need = alvo - d, ok = Math.abs(delta) <= tol;
+    const durs = comDur.map(p=>p.du), chave = P_.nome+"|"+k, st = S.durIn[chave] || {};
+    const r1 = x => Math.round(x*10)/10;
+    const vDef = need>0 ? r1(Math.min(...durs)) : r1(Math.max(...durs));
+    const cDef = need>0 ? r1(Math.max(alvo+2.5, Math.max(...durs))) : r1(Math.max(0.3, Math.min(alvo-2.5, Math.min(...durs))));
+    const dv = st.v!=null ? st.v : vDef, dc = st.c!=null ? st.c : cDef;
+    const valor = Math.abs(dc-dv) > 0.05 ? need*Vd/(dc-dv) : null;
+    let vtxt;
+    if (Math.abs(need) < 0.005) vtxt = "–";
+    else if (valor==null || valor<=0) vtxt = `<span class="muted small">${need>0?"compre um prazo maior que o vendido":"compre um prazo menor que o vendido"}</span>`;
+    else vtxt = `<b>${moeda(valor,ccy)}</b>${valor>V?' <span class="chip st-aten" data-tip="O valor passa do saldo da classe: use durations mais distantes entre si.">acima do saldo</span>':""}<br><span class="muted small">${pct(valor/V)} da classe</span>`;
+    const est = ok ? `<span class="chip st-ok">Na tolerância</span>` : `<span class="chip st-aten">${need>0?"Alongar":"Encurtar"} ${nf1.format(Math.abs(delta))} ano</span>`;
+    const dis = "";
+    h += `<tr${ok?"":' class="hl"'}><td><b>${esc(k)}</b></td><td class="r">${nf0.format(V)}</td><td class="r">${nf2.format(d)}</td><td class="r">${nf2.format(alvo)}</td><td class="r">${(delta>0?"+":delta<0?"−":"")+nf2.format(Math.abs(delta))}</td><td>${est}</td>
+      <td class="r"><input type="number" step="0.1" min="0" id="d${hash(chave)}v" data-dur="${esc(chave)}|v" value="${dv}" aria-label="Duration do ativo vendido em ${esc(k)}"${dis}></td>
+      <td class="r"><input type="number" step="0.1" min="0" id="d${hash(chave)}c" data-dur="${esc(chave)}|c" value="${dc}" aria-label="Duration do ativo comprado em ${esc(k)}"${dis}></td>
+      <td class="r">${vtxt}</td></tr>`;
+    listas.push({k, pos:comDur.slice().sort((a,b)=>b.du-a.du), V, semDur:V-Vd, est:comDur.filter(p=>p.duFonte!=="Comdinheiro").reduce((s,p)=>s+p.v,0)});
+  });
+  h += `</tbody></table></div><p class="fonte">Valor a trocar = (alvo − atual) × saldo com duration ÷ (duration comprada − duration vendida). Os valores iniciais sugerem vender o prazo mais curto ou mais longo da carteira, conforme a direção do ajuste. Tolerância: ${nf1.format(tol)} ano.${listas.some(l=>l.est>0.5)?` Valores com ≈ são durations estimadas a partir da carteira aberta dos fundos na CVM (${listas.filter(l=>l.est>0.5).map(l=>esc(l.k)+": "+pct(l.est/(l.V||1),0)+" do saldo").join("; ")}); passe o mouse para ver a fonte.`:""}</p>`;
+  if (listas.length){
+    h += `<div class="grid g2 mt">` + listas.map(l=>`<div><h2 style="font-size:14px">${esc(l.k)} · posições por duration</h2><div class="tw" style="max-height:260px"><table><thead><tr><th>Ativo</th><th class="r">Saldo</th><th class="r">Duration</th><th class="r">Contribuição</th></tr></thead><tbody>${l.pos.map(p=>`<tr><td>${esc(p.nome)}</td><td class="r">${nf0.format(p.v)}</td><td class="r">${fmtDur(p)}</td><td class="r">${nf2.format(p.du*p.v/(l.V-l.semDur||1))}</td></tr>`).join("")}${l.semDur>0.5?`<tr><td class="muted">Sem duration informada</td><td class="r">${nf0.format(l.semDur)}</td><td class="r">–</td><td class="r">–</td></tr>`:""}</tbody></table></div></div>`).join("") + `</div>`;
+  }
+  return h + `</div>`;
+}
+
+function vAlertas(){
+  const ps = new Set(portsVis().map(p=>p.nome));
+  let al = M.alertas.filter(a=>ps.has(a.cart));
+  const tipos = [...new Set(al.map(a=>a.tipo))].sort();
+  const okSev = (a,s) => s==="todos" || a.sev===s || (s==="prio" && a.sev!=="info");
+  const cont = s => abertos(al).filter(a=>okSev(a,s)).length;
+  let vis = al.filter(a=>okSev(a,S.sev) && (S.tipo==="todos"||a.tipo===S.tipo) && (S.showAck||!a.ack));
+  const q = S.aq.trim().toLowerCase(); if (q) vis = vis.filter(a=>(nomeCart(a.cart)+" "+a.titulo+" "+a.det).toLowerCase().includes(q));
+  vis.sort((a,b)=>("cai".indexOf(a.sev[0])-"cai".indexOf(b.sev[0])) || a.cart.localeCompare(b.cart,"pt-BR",{numeric:true}));
+  let h = cabec("Central de alertas", `${cont("crit")} alertas críticos e ${cont("aten")} de atenção em aberto`,
+    "Recalculados a cada atualização das posições. Ao reconhecer um alerta, ele some da lista para toda a equipe (depois de gravado no GitHub) até a situação mudar.");
+  h += `<div class="card"><div class="flt">${["prio","crit","aten","info","todos"].map(s=>`<button class="chipbtn" data-sev="${s}" aria-pressed="${S.sev===s}">${s==="todos"?"Todos":s==="prio"?"Críticos e atenção":SEVN[s]} (${cont(s)})</button>`).join("")}
+    <select id="selTipo" aria-label="Tipo de alerta"><option value="todos">Todos os tipos</option>${tipos.map(t=>`<option${S.tipo===t?" selected":""}>${esc(t)}</option>`).join("")}</select>
+    <input type="search" id="aq" placeholder="Buscar" value="${esc(S.aq)}" aria-label="Buscar alertas">
+    <label class="small"><input type="checkbox" id="showAck"${S.showAck?" checked":""}> Mostrar reconhecidos</label>
+    <span style="flex:1"></span>${vis.some(a=>!a.ack)?`<button class="btn sec sm" id="ackAll"${podeEditar()?"":" disabled"}>Reconhecer os ${vis.filter(a=>!a.ack).length} visíveis</button>`:""}</div>`;
+  if (!vis.length) h += `<div class="empty">Nenhum alerta com estes filtros.</div>`;
+  h += vis.slice(0,400).map(a=>`<div class="alert${a.ack?" ack":""}"><div>${chipSev(a.sev)}</div>
+     <div><div class="t"><button class="link" data-cli="${esc(a.cart)}">${esc(nomeCart(a.cart))}</button> · ${esc(a.titulo)}</div><div class="d">${esc(a.tipo)} · ${esc(a.det)}${a.ack?` · reconhecido em ${dtBR((a.ack.em||"").slice(0,10))}${a.ack.por?" por "+esc(a.ack.por):""}`:""}</div></div>
+     <div>${a.ack?`<button class="btn sec sm" data-unack="${a.id}"${podeEditar()?"":" disabled"}>Reabrir</button>`:`<button class="btn sm" data-ack="${a.id}"${podeEditar()?"":" disabled"}>Reconhecer</button>`}</div></div>`).join("");
+  if (vis.length>400) h += `<p class="small muted">Mostrando 400 de ${vis.length}. Use os filtros.</p>`;
+  h += `</div>`;
+  return h;
+}
+
+function vLiquidez(){
+  const ps = portsVis(), ccy = ccyVis(), conv = p => S.uni==="off"?1:(p.uni==="off"?META.ptax:1);
+  const tot = totalVis(ps);
+  const agg = {}; ps.forEach(p=>Object.entries(p.liq).forEach(([b,v])=>agg[b]=(agg[b]||0)+v*conv(p)));
+  const items = BUCKETS.map(b=>({label:b[0], v:agg[b[0]]||0})).concat(agg["Sem informação"]?[{label:"Sem informação", v:agg["Sem informação"]}]:[]);
+  // vencimentos por mês, 24 meses
+  const dA = META.data_analise, meses = [];
+  const d0 = new Date(dA+"T12:00:00");
+  for (let i=0;i<24;i++){ const d = new Date(d0.getFullYear(), d0.getMonth()+i, 1); meses.push({k:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), label:["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][d.getMonth()]+"/"+String(d.getFullYear()).slice(2), v:0, n:0}); }
+  const lista = [];
+  ps.forEach(p=>p.pos.forEach(x=>{ if (x.diasVenc!=null && x.diasVenc>=0){ const m = meses.find(m=>m.k===x.vc.slice(0,7)); if (m){ m.v += x.v*conv(p); m.n++; } if (x.diasVenc<=90) lista.push({p, x}); } }));
+  lista.sort((a,b)=>a.x.diasVenc-b.x.diasVenc);
+  const v12 = meses.slice(0,12).reduce((s,m)=>s+m.v,0);
+  let h = cabec("Liquidez e vencimentos", `${pct((agg["D+0"]||0)/(tot||1))} do patrimônio resgata no mesmo dia e ${compacto(v12,ccy)} vencem em 12 meses`,
+    "Prazo de liquidez informado pela Comdinheiro para cada posição. Vencimentos de títulos, CDBs, crédito privado e bonds.");
+  h += `<div class="grid g2"><div class="card"><h2>Escada de liquidez</h2><p class="sub">% do patrimônio ${S.uni==="all"?"consolidado":S.uni==="on"?"onshore":"offshore"} por prazo de resgate.</p>${colunas(items, v=>pct(v/(tot||1),0), v=>moeda(v,ccy)+" · "+pct(v/(tot||1)))}</div>
+    <div class="card"><h2>Vencimentos por mês</h2><p class="sub">Próximos 24 meses, em ${ccy==="USD"?"US$":"R$"}.</p>${colunas(meses, v=>compacto(v,ccy).replace(/^R\$ |^US\$ /,""), (v,i)=>moeda(v,ccy)+" · "+i.n+" posições", {capTop:4, xEvery:3})}<p class="fonte">Rótulo nos quatro maiores meses; passe o mouse nas colunas para ver os demais.</p></div></div>`;
+  // tabela por carteira
+  h += `<div class="card mt"><h2>Liquidez por carteira</h2><div class="tw"><table><thead><tr><th>Carteira</th><th class="r">Patrimônio</th>${BUCKETS.map(b=>`<th class="r">${b[0]}</th>`).join("")}<th class="r">Sem inf.</th></tr></thead><tbody>`;
+  ps.slice().sort((a,b)=>a.liqD5-b.liqD5).forEach(p=>{ const t=p.aum||1;
+    h += `<tr${p.liqD5<CFG.params.liqMinD5?' class="hl"':""}><td><button class="link" data-cli="${esc(p.nome)}">${esc(nomeCart(p.nome))}</button></td><td class="r">${moeda(valorVis(p),ccy)}</td>${BUCKETS.map(b=>`<td class="r">${p.liq[b[0]]?pct(p.liq[b[0]]/t):"–"}</td>`).join("")}<td class="r">${p.liq["Sem informação"]?pct(p.liq["Sem informação"]/t):"–"}</td></tr>`; });
+  h += `</tbody></table></div></div>`;
+  h += `<div class="card mt"><h2>Vencimentos nos próximos 90 dias (${lista.length})</h2>${lista.length?`<div class="tw"><table><thead><tr><th>Vencimento</th><th>Carteira</th><th>Ativo</th><th>Tipo</th><th class="r">Saldo</th></tr></thead><tbody>${lista.map(({p,x})=>`<tr><td>${dtBR(x.vc)} <span class="muted small">(${x.diasVenc} d)</span></td><td><button class="link" data-cli="${esc(p.nome)}">${esc(nomeCart(p.nome))}</button></td><td>${esc(x.nome)}</td><td>${esc(x.t)}</td><td class="r">${moeda(x.v,p.ccy)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">Nada vence nos próximos 90 dias.</p>`}
+    <div class="fonte">Fonte: Comdinheiro, posições de ${dtBR(META.data_analise)}.</div></div>`;
+  return h;
+}
+
+function podeEditar(){ return true; }
+function inp(path, val, opts){ opts = opts||{}; const dis = podeEditar() || !DB ? "" : " disabled";
+  if (opts.pct) return `<input type="number" class="pct" step="0.5" data-cfg="${esc(path)}" data-pct="1" value="${val==null?"":+(val*100).toFixed(2)}"${dis}>`;
+  return `<input type="number" step="${opts.step||1}" data-cfg="${esc(path)}" value="${val==null?"":val}" style="width:${opts.w||72}px"${dis}>`; }
+
+function vModelo(){
+  const on = CFG.onshore, off = CFG.offshore;
+  let h = cabec("Modelo de Alocação e IPS", "Alvos da casa e faixas de cada cliente",
+    "Edições ficam salvas para toda a equipe e recalculam bandas, drift e alertas na hora. Percentuais em % da carteira.");
+  if (!ghToken()) h += `<div class="note">Este navegador ainda não grava no GitHub: as alterações ficam só aqui até você configurar o token em <a href="#acesso">Acesso</a>.</div>`;
+  // cabeçalho em dois níveis, com separação visual entre os perfis
+  const cabMod = extra => `<thead><tr><th rowspan="2">Classe</th>${extra?`<th rowspan="2">Benchmark</th>`:""}${PERFIS.map((p,i)=>`<th class="c gs" colspan="3">${p}</th>`).join("")}<th class="c gs" rowspan="2">Tilt</th><th class="c gs" colspan="3">Tática</th></tr>
+    <tr class="h2">${PERFIS.map(()=>`<th class="c gs">Mín</th><th class="c">Mid</th><th class="c">Máx</th>`).join("")}${PERFIS.map((p,i)=>`<th class="r${i===0?" gs":""}">${p.slice(0,4)}.</th>`).join("")}</tr></thead>`;
+  const gcl = (i,j) => (j===0?"gs ":"") + (i===1?"gm":"");
+  // onshore
+  h += `<div class="card"><h2>Onshore · mid por perfil e tilt tático</h2><p class="sub">Cada passo de tilt (−4 a +4) move ¼ da distância entre o mid e o limite da banda (máximo se positivo, mínimo se negativo). Caixa Pós é o resíduo.</p><div class="tw mtab" style="max-height:none"><table>${cabMod(true)}<tbody>`;
+  const tatP = {}; PERFIS.forEach(pf=>{ const L=PL[pf], b={}; on.classes.forEach(k=>{ const m=on.model[k]||{}; b[k]=[m["min"+L]||0,m["est"+L]||0,m["max"+L]!=null?m["max"+L]:1]; }); tatP[pf]=tatica(b,"on"); });
+  on.classes.forEach(k=>{ const m = on.model[k]||{};
+    h += `<tr><td><b>${esc(k)}</b></td><td><input type="text" data-cfg="onshore.model.${esc(k)}.bench" value="${esc(m.bench||"")}" style="width:80px"${podeEditar()||!DB?"":" disabled"}></td>`;
+    PERFIS.forEach((pf,i)=>{ const L=PL[pf]; ["min","est","max"].forEach((x,j)=>h+=`<td class="c ${gcl(i,j)}">${inp(`onshore.model.${k}.${x}${L}`, m[x+L], {pct:1})}</td>`); });
+    h += `<td class="c gs">${inp(`onshore.model.${k}.tilt`, m.tilt||0, {w:56})}</td>${PERFIS.map((pf,i)=>`<td class="r${i===0?" gs":""}">${pct(tatP[pf][k])}</td>`).join("")}</tr>`; });
+  h += `<tr class="tot"><td colspan="2">Soma do mid</td>${PERFIS.map((pf,i)=>{ const L=PL[pf]; const s=on.classes.reduce((a,k)=>a+((on.model[k]||{})["est"+L]||0),0); return `<td class="gs"></td><td class="c">${pct(s)}</td><td></td>`; }).join("")}<td class="gs"></td>${PERFIS.map((p,i)=>`<td class="r${i===0?" gs":""}">100,0%</td>`).join("")}</tr>`;
+  h += `</tbody></table></div><div class="row mt small">Duration alvo (anos): Pré Fixado ${inp("onshore.durTargets.Pré Fixado", on.durTargets["Pré Fixado"], {step:0.1})} Inflação ${inp("onshore.durTargets.Inflação", on.durTargets["Inflação"], {step:0.1})} <span class="muted">· tolerância ${inp("params.durTolAnos", CFG.params.durTolAnos, {step:0.1})} ano</span></div></div>`;
+  // offshore
+  h += `<div class="card mt"><h2>Offshore · mid por perfil e tilts</h2><p class="sub">Cash Equiv &lt;12m é o resíduo da tática.</p><div class="tw mtab" style="max-height:none"><table>${cabMod(false)}<tbody>`;
+  const tatO = {}; PERFIS.forEach(pf=>tatO[pf]=tatica(off.strategicByProfile[pf],"off"));
+  off.classes.forEach(k=>{ h += `<tr><td><b>${esc(k)}</b></td>`;
+    PERFIS.forEach((pf,i)=>{ const b=(off.strategicByProfile[pf]||{})[k]||[0,0,0]; [0,1,2].forEach(j=>h+=`<td class="c ${gcl(i,j)}">${inp(`offshore.strategicByProfile.${pf}.${k}.${j}`, b[j], {pct:1})}</td>`); });
+    h += `<td class="c gs">${inp(`offshore.tilts.${k}`, off.tilts[k]||0, {w:56})}</td>${PERFIS.map((pf,i)=>`<td class="r${i===0?" gs":""}">${pct(tatO[pf][k])}</td>`).join("")}</tr>`; });
+  h += `<tr class="tot"><td>Soma do mid</td>${PERFIS.map(pf=>{ const s=off.classes.reduce((a,k)=>a+(((off.strategicByProfile[pf]||{})[k]||[0,0,0])[1]||0),0); return `<td class="gs"></td><td class="c">${pct(s)}</td><td></td>`; }).join("")}<td class="gs"></td>${PERFIS.map((p,i)=>`<td class="r${i===0?" gs":""}">100,0%</td>`).join("")}</tr>`;
+  h += `</tbody></table></div></div>`;
+  // clientes
+  const ps = Object.values(M.ports).filter(p=>S.uni==="all"||p.uni===S.uni).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{numeric:true}));
+  h += `<div class="card mt"><h2>Perfil e IPS por carteira</h2><p class="sub">Sem IPS próprio, a carteira usa as faixas do modelo do seu perfil. Marque "IPS próprio" para editar faixas específicas.</p><div class="tw"><table><thead><tr><th>Carteira</th><th>Mercado</th><th>Perfil</th><th class="c">IPS próprio</th><th>Faixas</th><th class="r">Patrimônio</th></tr></thead><tbody>`;
+  ps.forEach(p=>{ const sec = p.uni==="on"?"onshore":"offshore", cc = CFG[sec].clients[p.nome]||{};
+    const proprio = p.uni==="on" ? !!(cc.hasIPS && cc.bands && Object.keys(cc.bands).length) : !!(cc.bands && Object.keys(cc.bands).length);
+    const dis = podeEditar()||!DB?"":" disabled";
+    h += `<tr><td><b>${esc(nomeCart(p.nome))}</b></td><td>${p.uni==="on"?"Onshore":"Offshore"}</td>
+      <td><select data-perfil="${esc(p.nome)}" data-sec="${sec}"${dis}><option value="">–</option>${PERFIS.map(pf=>`<option${cc.profile===pf?" selected":""}>${pf}</option>`).join("")}</select></td>
+      <td class="c"><input type="checkbox" data-ips="${esc(p.nome)}" data-sec="${sec}"${proprio?" checked":""}${dis}></td>
+      <td>${proprio?`<button class="btn sec sm" data-edit="${esc(p.nome)}">${S.editBands===p.nome?"Fechar":"Editar faixas"}</button>`:`<span class="muted small">${p.profile?"Modelo "+esc(p.profile):"Sem IPS"}</span>`}</td>
+      <td class="r">${moeda(p.aum,p.ccy)}</td></tr>`;
+    if (S.editBands===p.nome && proprio){
+      const cls = classesDe(p.uni);
+      h += `<tr><td colspan="6" style="background:var(--creme-2)"><div class="small" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px 18px">${cls.map(k=>{ const b=cc.bands[k]||[0,0,0]; return `<div><b>${esc(k)}</b><br>${[0,1,2].map(i=>inp(`${sec}.clients.${p.nome}.bands.${k}.${i}`, b[i], {pct:1})).join(" ")}</div>`; }).join("")}</div><p class="small muted">Mín · mid · máx, em %.</p></td></tr>`;
+    }
+  });
+  h += `</tbody></table></div></div>`;
+  // parâmetros
+  const P = CFG.params;
+  h += `<div class="card mt"><h2>Parâmetros dos alertas</h2><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px 24px">
+    <label class="small">Drift: p.p. que equivalem à nota 100 ${inp("params.driftEscalaPP", P.driftEscalaPP)}</label>
+    <label class="small">Limite da maior posição (%) ${inp("params.concMaiorPos", P.concMaiorPos, {pct:1})}</label>
+    <label class="small">Limite das 5 maiores (%) ${inp("params.concTop5", P.concTop5, {pct:1})}</label>
+    <label class="small">Caixa parado acima de (%) ${inp("params.caixaParadaPct", P.caixaParadaPct, {pct:1})}</label>
+    <label class="small">Liquidez mínima até D+5 (%) ${inp("params.liqMinD5", P.liqMinD5, {pct:1})}</label>
+    <label class="small">Avisar vencimentos em até (dias) ${inp("params.vencDias", P.vencDias)}</label>
+    <label class="small">Preço defasado após (dias) ${inp("params.precoDefasadoDias", P.precoDefasadoDias)}</label>
+  </div></div>`;
+  return h;
+}
+
+function vClassificacao(){
+  const ps = portsVis();
+  const grupos = {};
+  ps.forEach(p=>p.pos.forEach(x=>{ if (x.cls!==NM) return; const k = p.uni+"|"+x.a;
+    const g = grupos[k] || (grupos[k] = {uni:p.uni, a:x.a, nome:x.nome, t:x.t, mc:x.mc, v:0, carts:new Set()}); g.v += x.v; g.carts.add(p.nome); }));
+  const lista = Object.values(grupos).sort((a,b)=>b.v*(b.uni==="off"?META.ptax:1)-a.v*(a.uni==="off"?META.ptax:1));
+  const dis = podeEditar()||!DB?"":" disabled";
+  let h = cabec("Classificação", lista.length ? `${lista.length} ativos ainda sem classe` : "Todos os ativos estão classificados",
+    "Onshore usa a classe da variável <i>mvclasse</i> da Comdinheiro; aqui você corrige ativo a ativo. Offshore é classificado por ISIN/CUSIP. Vale para toda a equipe.");
+  h += `<div class="card"><h2>Ativos sem classe</h2>${lista.length?`<div class="tw"><table><thead><tr><th>Ativo</th><th>Mercado</th><th>Tipo</th><th class="r">Saldo</th><th class="c">Carteiras</th><th>Classe</th></tr></thead><tbody>${lista.map(g=>`<tr><td title="${esc(g.a)}"><b>${esc(g.nome)}</b><br><span class="muted small">${esc(g.a)}</span></td><td>${g.uni==="on"?"Onshore":"Offshore"}</td><td>${esc(g.t)}</td><td class="r">${moeda(g.v,g.uni==="off"?"USD":"BRL")}</td><td class="c" data-tip="${esc([...g.carts].map(nomeCart).join("\n"))}">${g.carts.size}</td>
+    <td><select data-cls="${esc(g.a)}" data-sec="${g.uni==="on"?"onshore":"offshore"}"${dis}><option value="">Escolher…</option>${classesDe(g.uni).map(k=>`<option>${esc(k)}</option>`).join("")}<option value="__EXCLUDE__">Excluir do monitor</option></select></td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">Nada pendente.</p>`}</div>`;
+  // durations estimadas
+  const gd = {};
+  ps.forEach(p=>p.pos.forEach(x=>{ if (x.uni!=="on" || (x.cls!=="Pré Fixado" && x.cls!=="Inflação") || x.duFonte==="Comdinheiro") return;
+    const g = gd[x.a] || (gd[x.a] = {a:x.a, nome:x.nome, cls:x.cls, v:0, carts:new Set(), du:x.du, fonte:x.duFonte, info:x.duInfo||DURM[x.a]||null}); g.v += x.v; g.carts.add(p.nome); }));
+  const ld = Object.values(gd).sort((a,b)=>b.v-a.v);
+  const chipConf = c => c==="alta"?'<span class="chip st-ok">Alta</span>':c==="média"?'<span class="chip st-aten">Média</span>':c==="baixa"?'<span class="chip st-crit">Baixa</span>':'<span class="chip st-na">Não se aplica</span>';
+  h += `<div class="card mt"><h2>Duration de fundos (${ld.length} ativos sem duration da Comdinheiro)</h2><p class="sub">A duration é calculada a partir da carteira aberta de cada fundo na CVM, olhando também os fundos investidos, com as taxas indicativas da ANBIMA de ${dtBR(META.data_analise)}. Para fundos com parte da carteira em sigilo, usa o mês mais recente com carteira completa. A confiança mostra quanto do patrimônio do fundo entrou no cálculo. Preencha "Manual" para usar outro valor; vale para toda a equipe.</p>
+    ${ld.length?`<div class="tw"><table><thead><tr><th>Ativo</th><th>Classe</th><th class="r">Saldo</th><th class="c">Carteiras</th><th class="r">Estimada</th><th>Confiança</th><th>Fonte</th><th class="r">Manual</th></tr></thead><tbody>${ld.map(g=>{ const man=((CFG.onshore.durManual)||{})[g.a];
+      return `<tr><td title="${esc(g.a)}"><b>${esc(g.nome)}</b>${g.info&&g.info.cnpj?`<br><span class="muted small">${esc(g.info.cnpj)}</span>`:""}</td><td>${esc(g.cls)}</td><td class="r">${nf0.format(g.v)}</td><td class="c" data-tip="${esc([...g.carts].map(nomeCart).join("\n"))}">${g.carts.size}</td>
+      <td class="r">${g.info&&g.info.du!=null?nf2.format(g.info.du):"–"}</td><td>${g.info?chipConf(g.info.conf):'<span class="chip st-na">Sem cálculo</span>'}</td><td class="small muted" style="max-width:320px">${esc(g.info?g.info.metodo:"Não encontrado na base da CVM")}</td>
+      <td class="r"><input type="number" step="0.1" min="0" style="width:70px" id="dm${hash(g.a)}" data-durman="${esc(g.a)}" value="${man!=null?man:""}" placeholder="–"${dis}></td></tr>`; }).join("")}</tbody></table></div>`:`<p class="muted">Todos os ativos de Pré e Inflação têm duration da Comdinheiro.</p>`}
+    <div class="fonte">Fontes: CVM, Composição e Diversificação das Aplicações (CDA); ANBIMA, taxas indicativas de títulos públicos e debêntures. Durations em anos (Macaulay, 252 dias úteis).</div></div>`;
+  // overrides manuais
+  const ov = [];
+  ["onshore","offshore"].forEach(sec=>{ if (S.uni!=="all" && sec.slice(0,2)!==S.uni.slice(0,2)) return;
+    const nomes = {}; POS.forEach(p=>{ if ((sec==="offshore")===p.off) nomes[p.a] = nomeAtivo(p); });
+    Object.entries(CFG[sec].assetClass||{}).forEach(([a,c])=>{ if (nomes[a]!==undefined || sec==="onshore") ov.push({sec,a,c,nome:nomes[a]||a}); }); });
+  h += `<div class="card mt"><h2>Classificações manuais em uso (${ov.length})</h2><div class="tw" style="max-height:420px"><table><thead><tr><th>Ativo</th><th>Mercado</th><th>Classe</th><th></th></tr></thead><tbody>${ov.map(o=>`<tr><td>${esc(o.nome)}${o.nome!==o.a?`<br><span class="muted small">${esc(o.a)}</span>`:""}</td><td>${o.sec==="onshore"?"Onshore":"Offshore"}</td><td>
+    <select data-cls="${esc(o.a)}" data-sec="${o.sec}"${dis}>${classesDe(o.sec==="onshore"?"on":"off").map(k=>`<option${k===o.c?" selected":""}>${esc(k)}</option>`).join("")}<option value="__EXCLUDE__"${o.c==="__EXCLUDE__"?" selected":""}>Excluir do monitor</option></select></td>
+    <td><button class="btn sec sm" data-uncls="${esc(o.a)}" data-sec="${o.sec}"${dis}>Remover</button></td></tr>`).join("")}</tbody></table></div></div>`;
+  // carteiras excluídas
+  const naBase = new Set(POS.map(p=>p.c));
+  const todas = [...new Set([...naBase, ...CFG.onshore.exclude, ...CFG.offshore.exclude, ...Object.keys(CFG.onshore.clients), ...Object.keys(CFG.offshore.clients)])]
+    .filter(c=>S.uni==="all"||(/_offshore$/.test(c)?"off":"on")===S.uni).sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true}));
+  const semPos = todas.filter(c=>!naBase.has(c)).length;
+  h += `<div class="card mt"><h2>Carteiras no monitor</h2><p class="sub">Desmarque carteiras de teste, encerradas ou que não devem entrar nos totais.${semPos?` As marcadas com * têm IPS ou exclusão cadastrada, mas não aparecem nas posições da Comdinheiro de ${dtBR(META.data_analise)}; entram no monitor assim que tiverem posição.`:""}</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 16px" class="small">${todas.map(c=>{ const sec=/_offshore$/.test(c)?"offshore":"onshore"; return `<label${naBase.has(c)?"":' class="muted"'}><input type="checkbox" data-incl="${esc(c)}" data-sec="${sec}"${CFG[sec].exclude.includes(c)?"":" checked"}${dis}> ${esc(nomeCart(c))}${naBase.has(c)?"":" *"}</label>`; }).join("")}</div></div>`;
+  return h;
+}
+
+/* =====================================================================
+   Render e eventos
+   ===================================================================== */
+const VIEWS = {painel:vPainel, cliente:vCliente, alertas:vAlertas, liquidez:vLiquidez, modelo:vModelo, classificacao:vClassificacao};
+function render(){
+  if (!CFG || !POS.length) return;
+  calcular();
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.uni===S.uni));
+  document.querySelectorAll("#tabs a").forEach(a=>{ if (a.dataset.v===S.view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  const ps = new Set(portsVis().map(p=>p.nome));
+  const nAb = abertos(M.alertas.filter(a=>ps.has(a.cart) && a.sev!=="info")).length;
+  document.getElementById("bAl").textContent = nAb || "";
+  const sy = window.scrollY, foc = document.activeElement && document.activeElement.id;
+  const selStart = document.activeElement && document.activeElement.selectionStart;
+  document.getElementById("view").innerHTML = VIEWS[S.view]();
+  window.scrollTo(0, sy);
+  if (foc){ const el = document.getElementById(foc); if (el){ el.focus(); try{ if (selStart!=null) el.setSelectionRange(selStart, selStart); }catch(e){} } }
+}
+function irPara(v){ if (!VIEWS[v]) v = "painel"; S.view = v; if (location.hash !== "#"+v) history.replaceState(null, "", "#"+v); render(); window.scrollTo(0,0); }
+window.addEventListener("hashchange", ()=>{ const v = location.hash.slice(1); if (VIEWS[v] && v!==S.view){ S.view=v; render(); window.scrollTo(0,0); } });
+
+document.addEventListener("click", e=>{
+  const t = e.target.closest("button,[data-sort],[data-psort],a[data-v]"); if (!t) return;
+  if (t.dataset.uni){ S.uni = t.dataset.uni; lembrar(); render(); return; }
+  if (t.dataset.cli){ S.cli = t.dataset.cli; lembrar(); const p = M.ports[S.cli]; if (p && S.uni!=="all" && p.uni!==S.uni) S.uni = p.uni; irPara("cliente"); return; }
+  if (t.dataset.sort){ const k=t.dataset.sort; S.sort = {k, d: S.sort.k===k ? -S.sort.d : (k==="nome"||k==="uni"||k==="perfil"?1:-1)}; render(); return; }
+  if (t.dataset.psort){ const k=t.dataset.psort; S.psort = {k, d: S.psort.k===k ? -S.psort.d : (["nome","cls","t","if","vc","liq"].includes(k)?1:-1)}; render(); return; }
+  if (t.dataset.sev){ S.sev = t.dataset.sev; render(); return; }
+  if (t.dataset.sim){ S.simModo = t.dataset.sim; render(); return; }
+  if (t.dataset.ack){ reconhecer([t.dataset.ack], true); return; }
+  if (t.dataset.unack){ reconhecer([t.dataset.unack], false); return; }
+  if (t.id==="ackAll"){ const ps=new Set(portsVis().map(p=>p.nome)); const ids = M.alertas.filter(a=>ps.has(a.cart)&&!a.ack&&(S.sev==="todos"||a.sev===S.sev||(S.sev==="prio"&&a.sev!=="info"))&&(S.tipo==="todos"||a.tipo===S.tipo)&&(!S.aq||(nomeCart(a.cart)+" "+a.titulo+" "+a.det).toLowerCase().includes(S.aq.toLowerCase()))).map(a=>a.id); reconhecer(ids, true); return; }
+  if (t.dataset.edit){ S.editBands = S.editBands===t.dataset.edit ? null : t.dataset.edit; render(); return; }
+  if (t.dataset.uncls){ const sec=t.dataset.sec; delete CFG[sec].assetClass[t.dataset.uncls]; salvar(sec); render(); return; }
+});
+document.addEventListener("input", e=>{
+  const t = e.target;
+  if (t.id==="qCart"){ S.q = t.value; render(); }
+  else if (t.id==="aq"){ S.aq = t.value; render(); }
+  else if (t.dataset.dur!=null){ const parts = t.dataset.dur.split("|"), lado = parts.pop(), ch = parts.join("|");
+    S.durIn[ch] = S.durIn[ch] || {}; S.durIn[ch][lado] = t.value===""?null:+t.value; clearTimeout(window._durT); window._durT = setTimeout(render, 450); }
+  else if (t.id==="simV"){ S.simV = +t.value || 0; clearTimeout(window._simT); window._simT = setTimeout(render, 350); }
+});
+document.addEventListener("change", e=>{
+  const t = e.target;
+  if (t.id==="selCli"){ S.cli = t.value; lembrar(); render(); return; }
+  if (t.id==="selTipo"){ S.tipo = t.value; render(); return; }
+  if (t.id==="showAck"){ S.showAck = t.checked; render(); return; }
+  if (t.dataset.cfg!=null){ setCfg(t.dataset.cfg, t.type==="number" ? (t.value===""?0:(t.dataset.pct? +t.value/100 : +t.value)) : t.value); return; }
+  if (t.dataset.perfil!=null){ const sec=t.dataset.sec, n=t.dataset.perfil; const cc = CFG[sec].clients[n] || (CFG[sec].clients[n] = {}); cc.profile = t.value || null; salvar(sec); render(); return; }
+  if (t.dataset.ips!=null){ const sec=t.dataset.sec, n=t.dataset.ips; const cc = CFG[sec].clients[n] || (CFG[sec].clients[n] = {});
+    if (t.checked){ const f = faixasDe(n, sec==="onshore"?"on":"off"); const base = f.bands || {}; cc.bands = {}; classesDe(sec==="onshore"?"on":"off").forEach(k=>cc.bands[k] = (base[k]||[0,0,1]).slice()); if (sec==="onshore") cc.hasIPS = true; S.editBands = n; }
+    else { if (sec==="onshore") cc.hasIPS = false; delete cc.bands; }
+    salvar(sec); render(); return; }
+  if (t.dataset.cls!=null){ if (!t.value) return; const sec=t.dataset.sec; CFG[sec].assetClass = CFG[sec].assetClass || {}; CFG[sec].assetClass[t.dataset.cls] = t.value; salvar(sec); render(); return; }
+  if (t.dataset.durman!=null){ const m = CFG.onshore.durManual = CFG.onshore.durManual || {}; if (t.value==="") delete m[t.dataset.durman]; else m[t.dataset.durman] = +t.value; salvar("onshore"); render(); return; }
+  if (t.dataset.incl!=null){ const sec=t.dataset.sec, c=t.dataset.incl; const ex = new Set(CFG[sec].exclude); if (t.checked) ex.delete(c); else ex.add(c); CFG[sec].exclude = [...ex]; salvar(sec); render(); return; }
+});
+function setCfg(path, val){
+  const parts = path.split("."); const sec = parts[0];
+  // chaves de cliente/classe podem conter pontos? (não neste conjunto) — caminho simples
+  let o = CFG; for (let i=0;i<parts.length-1;i++){ const k = parts[i]; if (o[k]==null) o[k] = /^\d+$/.test(parts[i+1]) ? [] : {}; o = o[k]; }
+  const last = parts[parts.length-1]; o[/^\d+$/.test(last)?+last:last] = val;
+  salvar(sec); render();
+}
+// tooltip
+const tip = document.getElementById("tip");
+document.addEventListener("mousemove", e=>{ const t = e.target.closest && e.target.closest("[data-tip]");
+  if (!t){ tip.style.display="none"; return; }
+  tip.textContent = t.getAttribute("data-tip"); tip.style.display = "block";
+  const w = tip.offsetWidth, h = tip.offsetHeight; let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + w > innerWidth - 8) x = e.clientX - w - 14; if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+  tip.style.left = x+"px"; tip.style.top = y+"px"; });
+document.addEventListener("mouseleave", ()=>tip.style.display="none");
+
+/* =====================================================================
+   Criptografia (AES-256-GCM; chave de dados embrulhada por PBKDF2 da senha)
+   ===================================================================== */
+let KEY = null, RAWKEY = null, USUARIO = null, USUARIOS = null, ADMIN = false;
+const b64d = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+const b64e = u8 => { let s=""; for (let i=0;i<u8.length;i+=0x8000) s += String.fromCharCode.apply(null, u8.subarray(i,i+0x8000)); return btoa(s); };
+async function derivar(pw, salt, iter){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function importarChave(raw){ RAWKEY = raw; KEY = await crypto.subtle.importKey("raw", raw, {name:"AES-GCM"}, false, ["encrypt","decrypt"]); }
+async function decifrar(env){
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64d(env.iv)}, KEY, b64d(env.ct));
+  return JSON.parse(await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream("gzip"))).text());
+}
+async function cifrar(obj){
+  const gz = await new Response(new Blob([JSON.stringify(obj)]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:"AES-GCM", iv}, KEY, gz);
+  return {v:1, iv:b64e(iv), ct:b64e(new Uint8Array(ct))};
+}
+async function embrulhar(senha, admin){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const kek = await derivar(senha, salt, USUARIOS.iter);
+  const wk = await crypto.subtle.encrypt({name:"AES-GCM", iv}, kek, RAWKEY);
+  return {salt:b64e(salt), iv:b64e(iv), wk:b64e(new Uint8Array(wk)), admin:!!admin};
+}
+async function lerJSON(u){ const r = await fetch(u + "?t=" + Date.now(), {cache:"no-store"}); if (!r.ok) throw new Error(u); return r.json(); }
+
+/* =====================================================================
+   GitHub: edições são gravadas no repositório (config.enc e usuarios.json)
+   ===================================================================== */
+const GH = (()=>{ const h = location.hostname, p = location.pathname.split("/").filter(Boolean);
+  return {owner: h.endsWith(".github.io") ? h.split(".")[0] : "pedrochiarantano", repo: (h.endsWith(".github.io") && p[0]) ? p[0] : "monitor-carteiras", branch:"main"}; })();
+function ghToken(){ try { return localStorage.getItem("etti_gh_token") || ""; } catch (e) { return ""; } }
+async function ghReq(method, path, body){
+  const r = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}` + (method==="GET" ? `?ref=${GH.branch}&t=${Date.now()}` : ""),
+    {method, headers:{Authorization:"Bearer "+ghToken(), Accept:"application/vnd.github+json"}, body: body ? JSON.stringify(body) : undefined, cache:"no-store"});
+  if (!r.ok){ const t = await r.text(); const e = new Error(r.status+" "+t.slice(0,140)); e.status = r.status; throw e; }
+  return r.json();
+}
+async function ghLer(path){ const j = await ghReq("GET", path); const txt = new TextDecoder().decode(b64d(j.content.replace(/\n/g,""))); return {sha:j.sha, json:JSON.parse(txt)}; }
+async function ghGravar(path, obj, sha, msg){
+  return ghReq("PUT", path, {message:msg, content:b64e(new TextEncoder().encode(JSON.stringify(obj, null, path.endsWith(".enc")?0:1))), sha, branch:GH.branch});
+}
+
+/* Edições: guardadas neste navegador e, com o GitHub conectado, gravadas no repositório */
+const sujo = new Set(); let ackOps = {}; let gravando = false, timerG = null;
+function rascunho(){ try { localStorage.setItem("etti_rascunho_"+GH.repo, JSON.stringify({secs:[...sujo], acks:ackOps})); } catch (e) {} }
+async function guardarLocal(){ try { localStorage.setItem("etti_cfg_local_"+GH.repo, JSON.stringify(await cifrar(CFG))); } catch (e) {} }
+function salvar(sec){
+  sujo.add(sec); rascunho(); guardarLocal();
+  if (!ghToken()){ setSave("Alteração só neste navegador · conecte o GitHub em Acesso"); return; }
+  setSave("Salvando…"); clearTimeout(timerG); timerG = setTimeout(gravarGitHub, 900);
+}
+async function gravarGitHub(){
+  if (gravando){ clearTimeout(timerG); timerG = setTimeout(gravarGitHub, 900); return; }
+  if (!sujo.size && !Object.keys(ackOps).length) return;
+  gravando = true;
+  const secs = [...sujo], ops = Object.assign({}, ackOps);
+  for (let tent=0; tent<2; tent++){
+    try {
+      const {sha, json} = await ghLer("data/config.enc");
+      const remoto = await decifrar(json);
+      secs.forEach(sec=>{ if (sec!=="acks") remoto[sec] = clone(CFG[sec]); });
+      remoto.acks = remoto.acks || {};
+      Object.entries(ops).forEach(([id,v])=>{ if (v) remoto.acks[id] = v; else delete remoto.acks[id]; });
+      await ghGravar("data/config.enc", await cifrar(remoto), sha, `Monitor: ajustes de ${USUARIO} (${secs.join(", ")||"alertas"})`);
+      secs.forEach(x=>sujo.delete(x)); Object.keys(ops).forEach(k=>delete ackOps[k]); rascunho();
+      Object.keys(remoto).forEach(k=>{ if (!sujo.has(k)) CFG[k] = remoto[k]; }); ACKS = Object.assign({}, remoto.acks, ...Object.entries(ackOps).map(([k,v])=>({[k]:v})));
+      setSave("Salvo para a equipe · publica em ~1 min"); gravando = false; render(); return;
+    } catch (e) {
+      if (e.status===409 && tent===0) continue;
+      setSave(e.status===401||e.status===403||e.status===404 ? "GitHub recusou: confira o token em Acesso" : "Falha ao salvar; tentarei de novo");
+      if (!(e.status===401||e.status===403)) { clearTimeout(timerG); timerG = setTimeout(gravarGitHub, 15000); }
+      break;
+    }
+  }
+  gravando = false;
+}
+function setSave(t){ document.getElementById("saveState").textContent = t; }
+async function reconhecer(ids, sim){
+  const por = new Map(M.alertas.map(a=>[a.id,a]));
+  for (const id of ids){
+    const a = por.get(id); if (!a) continue;
+    if (sim){ const body = {chave:a.chave, em:new Date().toISOString(), por:USUARIO||""}; ACKS[id] = body; ackOps[id] = body; }
+    else { delete ACKS[id]; ackOps[id] = null; }
+  }
+  CFG.acks = Object.assign({}, ACKS);
+  salvar("acks"); render();
+}
+
+/* =====================================================================
+   Acesso: login, GitHub e usuários
+   ===================================================================== */
+function vAcesso(){
+  const tok = ghToken();
+  let h = cabec("Acesso", `Conectado como ${USUARIO}`, "As senhas nunca saem do seu navegador: cada usuário recebe a chave dos dados cifrada pela própria senha.");
+  h += `<div class="grid g2"><div class="card"><h2>Gravar alterações no GitHub</h2>
+    <p class="sub">Para que as edições (IPS, modelo, classificação, durations manuais e alertas reconhecidos) valham para toda a equipe, este navegador precisa de um token do GitHub com permissão de escrita no repositório <b>${esc(GH.owner)}/${esc(GH.repo)}</b>. O token fica guardado só neste navegador.</p>
+    <ol class="small" style="padding-left:18px;margin:0 0 12px">
+      <li>Abra <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a></li>
+      <li>Repository access: <b>Only select repositories</b> → ${esc(GH.repo)}</li>
+      <li>Permissions → Repository permissions → <b>Contents: Read and write</b></li>
+      <li>Gere o token e cole abaixo</li></ol>
+    <div class="row"><input type="password" id="ghTok" placeholder="github_pat_…" value="${tok?"••••••••••••":""}" style="flex:1;min-width:220px"><button class="btn sm" id="ghSalvar">Salvar token</button>${tok?'<button class="btn sec sm" id="ghTirar">Remover</button>':""}</div>
+    <p class="small muted" id="ghStatus">${tok?"Token configurado neste navegador.":"Sem token: as alterações ficam só neste navegador."}${sujo.size||Object.keys(ackOps).length?" Há alterações pendentes de gravação.":""}</p></div>`;
+  h += `<div class="card"><h2>Minha senha</h2><p class="sub">A troca é gravada no GitHub, então precisa do token configurado ao lado.</p>
+    <div class="row"><input type="password" id="pwNova" placeholder="Nova senha (mín. 10 caracteres)" style="flex:1"><input type="password" id="pwNova2" placeholder="Repita" style="flex:1"><button class="btn sm" id="pwTrocar">Trocar senha</button></div>
+    <p class="small muted" id="pwStatus"></p>
+    <div class="mt"><button class="btn sec sm" id="sair">Sair</button></div></div></div>`;
+  if (ADMIN){
+    const us = Object.entries(USUARIOS.users);
+    h += `<div class="card mt"><h2>Usuários (${us.length})</h2><p class="sub">Crie o usuário com uma senha provisória e passe a ele por um canal separado; ele pode trocar depois em "Minha senha". Remover um usuário tira o acesso pela página, mas quem já sabia a chave de dados poderia decifrar arquivos antigos: para cortar de vez, peça a rotação da chave.</p>
+      <div class="tw" style="max-height:none"><table><thead><tr><th>Usuário</th><th>Perfil</th><th></th></tr></thead><tbody>${us.map(([u,v])=>`<tr><td><b>${esc(u)}</b>${u===USUARIO?' <span class="muted small">(você)</span>':""}</td><td>${v.admin?"Administrador":"Usuário"}</td><td>${u!==USUARIO?`<button class="btn sec sm" data-rmuser="${esc(u)}">Remover</button>`:""}</td></tr>`).join("")}</tbody></table></div>
+      <div class="row mt"><input type="text" id="nuUser" placeholder="usuário (ex.: maria)" style="width:180px"><input type="password" id="nuPw" placeholder="senha provisória (mín. 10)" style="width:220px"><label class="small"><input type="checkbox" id="nuAdmin"> administrador</label><button class="btn sm" id="nuCriar">Criar usuário</button></div>
+      <p class="small muted" id="nuStatus"></p></div>`;
+  }
+  return h;
+}
+async function gravarUsuarios(muda, msg){
+  if (!ghToken()) throw new Error("Configure o token do GitHub primeiro.");
+  for (let t=0;t<2;t++){
+    try { const {sha, json} = await ghLer("data/usuarios.json"); muda(json); await ghGravar("data/usuarios.json", json, sha, msg); USUARIOS = json; return; }
+    catch (e){ if (e.status===409 && t===0) continue; throw e; }
+  }
+}
+document.addEventListener("click", async e=>{
+  const t = e.target.closest("button"); if (!t) return;
+  const st = (id, m) => { const el = document.getElementById(id); if (el) el.textContent = m; };
+  if (t.id==="ghSalvar"){ const v = document.getElementById("ghTok").value.trim(); if (!v || v.startsWith("•")) return;
+    try { localStorage.setItem("etti_gh_token", v); } catch (x) {}
+    st("ghStatus","Testando…"); try { await ghLer("data/usuarios.json"); st("ghStatus","Token funcionando."); if (sujo.size||Object.keys(ackOps).length) gravarGitHub(); render(); }
+    catch (x){ st("ghStatus","O GitHub recusou o token ("+x.message.slice(0,60)+")."); } }
+  if (t.id==="ghTirar"){ try { localStorage.removeItem("etti_gh_token"); } catch (x) {} render(); }
+  if (t.id==="sair"){ try { sessionStorage.removeItem("etti_sessao"); } catch (x) {} location.reload(); }
+  if (t.id==="pwTrocar"){ const a = document.getElementById("pwNova").value, b = document.getElementById("pwNova2").value;
+    if (a.length<10) return st("pwStatus","Use pelo menos 10 caracteres."); if (a!==b) return st("pwStatus","As senhas não conferem.");
+    st("pwStatus","Gravando…"); try { const ent = await embrulhar(a, USUARIOS.users[USUARIO].admin); await gravarUsuarios(j=>{ j.users[USUARIO] = ent; }, `Monitor: troca de senha (${USUARIO})`); st("pwStatus","Senha trocada. Vale a partir da próxima publicação (~1 min)."); }
+    catch (x){ st("pwStatus","Não consegui gravar: "+x.message.slice(0,90)); } }
+  if (t.id==="nuCriar"){ const u = document.getElementById("nuUser").value.trim().toLowerCase(), pw = document.getElementById("nuPw").value, ad = document.getElementById("nuAdmin").checked;
+    if (!/^[a-z0-9._-]{3,30}$/.test(u)) return st("nuStatus","Usuário: 3 a 30 letras minúsculas, números, ponto, hífen ou _.");
+    if (pw.length<10) return st("nuStatus","Senha provisória: pelo menos 10 caracteres.");
+    st("nuStatus","Gravando…"); try { const ent = await embrulhar(pw, ad); await gravarUsuarios(j=>{ j.users[u] = ent; }, `Monitor: novo usuário ${u}`); st("nuStatus",`Usuário ${u} criado. Vale a partir da próxima publicação (~1 min).`); render(); }
+    catch (x){ st("nuStatus","Não consegui gravar: "+x.message.slice(0,90)); } }
+  if (t.dataset.rmuser){ const u = t.dataset.rmuser; try { await gravarUsuarios(j=>{ delete j.users[u]; }, `Monitor: remove usuário ${u}`); render(); } catch (x){ setSave("Não consegui remover: "+x.message.slice(0,60)); } }
+});
+
+/* =====================================================================
+   Início
+   ===================================================================== */
+VIEWS.acesso = vAcesso;
+async function entrar(u, pw){
+  USUARIOS = await lerJSON("data/usuarios.json");
+  const ent = USUARIOS.users[u];
+  if (!ent) throw new Error("Usuário ou senha inválidos.");
+  let raw;
+  try { const kek = await derivar(pw, b64d(ent.salt), USUARIOS.iter); raw = new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:b64d(ent.iv)}, kek, b64d(ent.wk))); }
+  catch (e) { throw new Error("Usuário ou senha inválidos."); }
+  await importarChave(raw); USUARIO = u; ADMIN = !!ent.admin;
+  try { sessionStorage.setItem("etti_sessao", JSON.stringify({u, k:b64e(raw)})); } catch (e) {}
+}
+async function carregar(){
+  const env = await Promise.all(["posicoes","meta","historico","config","duracoes"].map(n=>lerJSON(`data/${n}.enc`).catch(()=>null)));
+  const [pos, meta, hist, cfg, dur] = await Promise.all(env.map(x=>x?decifrar(x):null));
+  if (!pos || !meta || !cfg) throw new Error("Arquivos de dados ausentes.");
+  POS = pos; META = meta; HIST = hist || []; DEF = cfg; CFG = clone(cfg); ACKS = Object.assign({}, cfg.acks||{});
+  DURM = {}; (dur||[]).forEach(x=>{ DURM[x.a] = x; if (x.cnpj && !DURM["cnpj:"+x.cnpj]) DURM["cnpj:"+x.cnpj] = x; });
+  // alterações feitas neste navegador e ainda não gravadas
+  try { const r = JSON.parse(localStorage.getItem("etti_rascunho_"+GH.repo)||"null"), loc = localStorage.getItem("etti_cfg_local_"+GH.repo);
+    if (r && loc && (r.secs.length || Object.keys(r.acks||{}).length)){ const c = await decifrar(JSON.parse(loc));
+      r.secs.forEach(sec=>{ if (sec!=="acks" && c[sec]) { CFG[sec] = c[sec]; sujo.add(sec); } });
+      Object.entries(r.acks||{}).forEach(([k,v])=>{ ackOps[k]=v; if (v) ACKS[k]=v; else delete ACKS[k]; });
+      setSave(ghToken() ? "Gravando alterações pendentes…" : "Há alterações só neste navegador"); if (ghToken()) gravarGitHub(); } } catch (e) {}
+}
+async function iniciar(){
+  try {
+    await carregar();
+  } catch (e) {
+    document.getElementById("view").innerHTML = `<div class="empty">Não foi possível carregar os dados (${esc(e.message)}).</div>`; return;
+  }
+  document.getElementById("login").style.display = "none";
+  document.querySelector(".top").style.display = ""; document.getElementById("tabs").style.display = "";
+  document.getElementById("hdrSub").textContent = `Posições de ${dtBR(META.data_analise)} · PTAX ${nf4.format(META.ptax||0)} · atualizado em ${dtBR((META.gerado_em||"").slice(0,10))} ${(META.gerado_em||"").slice(11,16)}`;
+  document.getElementById("usr").textContent = USUARIO;
+  document.getElementById("foot").innerHTML = `Etti Partners | Uso interno e confidencial. Fonte: ${esc(META.fonte||"Comdinheiro")}. Posições de ${dtBR(META.data_analise)}; ${META.carteiras} carteiras e ${nf0.format(META.posicoes)} posições na base.`;
+  const h = location.hash.slice(1); S.view = VIEWS[h] ? h : "painel";
+  render();
+}
+document.getElementById("formLogin").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const u = document.getElementById("lgUser").value.trim().toLowerCase(), pw = document.getElementById("lgPw").value;
+  const msg = document.getElementById("lgMsg"), btn = document.getElementById("lgBtn");
+  msg.textContent = ""; btn.disabled = true; btn.textContent = "Entrando…";
+  try { await entrar(u, pw); await iniciar(); }
+  catch (x){ msg.textContent = x.message || "Não foi possível entrar."; }
+  btn.disabled = false; btn.textContent = "Entrar";
+});
+(async ()=>{
+  try { const s = JSON.parse(sessionStorage.getItem("etti_sessao")||"null");
+    if (s && s.u && s.k){ USUARIOS = await lerJSON("data/usuarios.json");
+      if (USUARIOS.users[s.u]){ await importarChave(b64d(s.k)); USUARIO = s.u; ADMIN = !!USUARIOS.users[s.u].admin; await iniciar(); return; } } } catch (e) {}
+  document.getElementById("lgUser").focus();
+})();
+</script>
+</body>
+</html>

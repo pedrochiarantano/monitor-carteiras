@@ -1,0 +1,80 @@
+name: Atualizar e publicar
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 10 * * 1-5"   # dias úteis, 07:17 em São Paulo: posições da Comdinheiro
+    - cron: "41 11 16 * *"    # dia 16 de cada mês, 08:41: durations dos fundos (CVM/ANBIMA)
+  workflow_dispatch:
+    inputs:
+      tarefa:
+        description: "O que atualizar antes de publicar"
+        type: choice
+        options: [posicoes, duracoes, ambos, so-publicar]
+        default: posicoes
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install cryptography numpy
+      - name: Posições (Comdinheiro + PTAX)
+        if: (github.event_name == 'schedule' && github.event.schedule == '17 10 * * 1-5') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'posicoes' || inputs.tarefa == 'ambos'))
+        env:
+          COMDINHEIRO_USER: ${{ secrets.COMDINHEIRO_USER }}
+          COMDINHEIRO_PASS: ${{ secrets.COMDINHEIRO_PASS }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: python tools/atualizar_monitor.py data
+      - name: Durations dos fundos (CVM + ANBIMA)
+        if: (github.event_name == 'schedule' && github.event.schedule == '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'duracoes' || inputs.tarefa == 'ambos'))
+        env:
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: python tools/atualizar_duracoes.py data
+      - name: Gravar no repositório
+        run: |
+          git config user.name "monitor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then echo "Sem mudanças"; exit 0; fi
+          git commit -m "Dados: atualização $(date -u +%F)"
+          git pull --rebase origin main
+          git push
+
+  publicar:
+    needs: atualizar
+    if: ${{ !cancelled() && needs.atualizar.result != 'failure' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Montar site
+        run: |
+          mkdir _site
+          cp index.html _site/
+          cp -r data _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
