@@ -6,6 +6,12 @@
    "iv": "ttGksM6LiuXCqJS1",
    "wk": "48rnRAR3vm3hNtunb9EEcf6S+d+nrDETMnEfrhFWPWUY3cVfy8sveSaQ0OZ2+Zh+",
    "admin": true
+  },
+  "gestao": {
+   "salt": "aMlz747Dag/zc1IMToSFbA==",
+   "iv": "WCpMfgXfjbk8crsM",
+   "wk": "ZkWdqoWRgRV24eL1Z53egbnxCKQedeJdJQ0s0ZyTKUTFyQvgJ5A1N7EsZxFp595T",
+   "admin": false
   }
  }
 }
