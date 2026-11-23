@@ -2,9 +2,9 @@
  "iter": 310000,
  "users": {
   "pedro": {
-   "salt": "dQzh/zXlwufm0YGZepV0bg==",
-   "iv": "7Z3QC3Covuu6iBeO",
-   "wk": "Bi7JbfrHfAzCT6JHAfs/zWUkP1utJ5Km8Fi+xRW1LmmkxYsbxvn2NKcVzhFirOsf",
+   "salt": "ikk5Plrmys/hKk9L0sARPQ==",
+   "iv": "ttGksM6LiuXCqJS1",
+   "wk": "48rnRAR3vm3hNtunb9EEcf6S+d+nrDETMnEfrhFWPWUY3cVfy8sveSaQ0OZ2+Zh+",
    "admin": true
   }
  }
