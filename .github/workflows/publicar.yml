@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "17 10 * * 1-5"   # dias úteis, 07:17 em São Paulo: posições da Comdinheiro
-    - cron: "47 11 * * 1-5"   # reserva 08:47 (só roda se ainda não atualizou hoje)
+    - cron: "17 10 * * 1-5"   # dias úteis, 07:17 em São Paulo: posições da Comdinheiro e Monitor de Fundos
+    - cron: "47 11 * * 1-5"   # reserva 08:47 (só roda o que ainda não atualizou hoje)
     - cron: "23 13 * * 1-5"   # reserva 10:23 (idem)
     - cron: "41 11 16 * *"    # dia 16 de cada mês, 08:41: durations dos fundos (CVM/ANBIMA)
   workflow_dispatch:
@@ -13,8 +13,8 @@ on:
       tarefa:
         description: "O que atualizar antes de publicar"
         type: choice
-        options: [posicoes, duracoes, ambos, so-publicar]
-        default: posicoes
+        options: [posicoes, fundos, posicoes-e-fundos, duracoes, tudo, so-publicar]
+        default: posicoes-e-fundos
 
 permissions:
   contents: write
@@ -27,26 +27,54 @@ concurrency:
 
 jobs:
   atualizar:
-    if: github.event_name != 'push'
+    # no push, só roda quando o cadastro de fundos mudou (ativo novo, classe, benchmark...)
+    if: github.event_name != 'push' || contains(toJSON(github.event.commits), 'fundos_cadastro.enc')
     runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
+      - name: Base histórica dos fundos (ramo base-fundos)
+        uses: actions/checkout@v4
+        with:
+          ref: base-fundos
+          path: _base
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install cryptography numpy
+      - run: pip install cryptography numpy pandas
       - name: Posições (Comdinheiro + PTAX)
-        if: (github.event_name == 'schedule' && github.event.schedule != '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'posicoes' || inputs.tarefa == 'ambos'))
+        if: (github.event_name == 'schedule' && github.event.schedule != '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["posicoes","posicoes-e-fundos","tudo"]'), inputs.tarefa))
         env:
           COMDINHEIRO_USER: ${{ secrets.COMDINHEIRO_USER }}
           COMDINHEIRO_PASS: ${{ secrets.COMDINHEIRO_PASS }}
           DATA_KEY: ${{ secrets.DATA_KEY }}
         run: python tools/atualizar_monitor.py data ${{ github.event_name == 'schedule' && '--se-necessario' || '' }}
+      - name: Monitor de Fundos (CVM, ANBIMA, B3, Banco Central, Yahoo)
+        if: (github.event_name == 'schedule' && github.event.schedule != '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["fundos","posicoes-e-fundos","tudo"]'), inputs.tarefa))
+        continue-on-error: true
+        env:
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: python tools/atualizar_fundos.py data _base --modo diario ${{ github.event_name == 'schedule' && '--se-necessario' || '' }}
+      - name: Monitor de Fundos (histórico dos ativos recém-cadastrados)
+        if: github.event_name == 'push'
+        env:
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: python tools/atualizar_fundos.py data _base --modo novos
       - name: Durations dos fundos (CVM + ANBIMA)
-        if: (github.event_name == 'schedule' && github.event.schedule == '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'duracoes' || inputs.tarefa == 'ambos'))
+        if: (github.event_name == 'schedule' && github.event.schedule == '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'duracoes' || inputs.tarefa == 'tudo'))
         env:
           DATA_KEY: ${{ secrets.DATA_KEY }}
         run: python tools/atualizar_duracoes.py data
+      - name: Gravar base dos fundos (ramo base-fundos, sem histórico de versões)
+        run: |
+          cd _base
+          git config user.name "monitor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan novo
+          git add -A
+          git commit -q -m "Base do Monitor de Fundos $(date -u +%F)"
+          git push -f origin novo:base-fundos
       - name: Gravar no repositório
         run: |
           git config user.name "monitor-bot"
@@ -54,7 +82,12 @@ jobs:
           git add data
           if git diff --cached --quiet; then echo "Sem mudanças"; exit 0; fi
           git commit -m "Dados: atualização $(date -u +%F)"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            # o cadastro foi editado na página durante a atualização: fica a versão da página
+            git checkout origin/main -- data/fundos_cadastro.enc
+            git add data/fundos_cadastro.enc
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push
 
   publicar:
@@ -68,11 +101,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - uses: actions/checkout@v4
+        with:
+          ref: base-fundos
+          path: _base
       - name: Montar site
         run: |
           mkdir _site
           cp index.html _site/
           cp -r data _site/
+          cp _base/fundos.enc _base/fundos_series.enc _site/data/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
