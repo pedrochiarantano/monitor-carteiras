@@ -243,6 +243,20 @@ main.wide{max-width:none;padding:16px 24px 24px}
 .ftab.fx tr.gh td:first-child{position:static;box-shadow:none;overflow:visible}
 .ftab .ghl{position:sticky;left:10px;display:inline-block}
 .ftab tr.bm td{background:var(--creme-2) !important;color:var(--verde-etti);font-style:italic;font-weight:700}
+
+/* ---------- Monitor de Performance ---------- */
+.pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+h3.ch{font-size:13.5px;margin:4px 0 6px;display:flex;align-items:center}
+.ptab td,.ptab th{white-space:nowrap}
+.ptab th:first-child,.ptab td:first-child{position:static;box-shadow:none}
+.ptab td:first-child{min-width:230px}
+.ptab th.r{text-align:right}
+.ptab tr.tot td{border-top:1.5px solid var(--verde-etti);font-weight:700;background:#eef5ea !important}
+.ptab.ind td:first-child{min-width:0}
+.ptab tr.pc td{color:var(--ink-corpo);font-size:12px;border-bottom:2px solid var(--borda)}
+.mtab2 td:first-child{min-width:60px;vertical-align:middle;background:var(--card)}
+.mtab2 td:nth-child(2){min-width:130px}
+.mtab2 tr.bm td:first-child,.mtab2 tr.pc td:first-child{min-width:130px}
 </style>
 </head>
 <body class="lg">
@@ -266,6 +280,7 @@ main.wide{max-width:none;padding:16px 24px 24px}
   <nav class="sd-nav">
     <button data-secao="c" title="Monitor de Carteiras"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z" fill="currentColor"/></svg><span>Monitor de Carteiras</span></button>
     <button data-secao="f" title="Monitor de Fundos"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="5.5" y="11" width="3" height="7" rx="1" fill="currentColor"/><rect x="10.5" y="6" width="3" height="12" rx="1" fill="currentColor"/><rect x="15.5" y="9" width="3" height="9" rx="1" fill="currentColor"/></svg><span>Monitor de Fundos</span></button>
+    <button data-secao="p" title="Monitor de Performance"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 18.5 9.5 12l3.5 3.5L20 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Monitor de Performance</span></button>
   </nav>
   <div class="sd-fim">
     <a href="#acesso" data-v="acesso" title="Acesso"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Acesso · <b id="usr"></b></span></a>
@@ -289,6 +304,9 @@ main.wide{max-width:none;padding:16px 24px 24px}
   <a class="tf" href="#fiis" data-v="fiis">FIIs</a>
   <a class="tf" href="#resumo" data-v="resumo">Resumo e fontes</a>
   <a class="tf" href="#cadastro" data-v="cadastro">Cadastro<span class="badge" id="bCad"></span></a>
+  <a class="tp" href="#performance" data-v="performance">Resultado</a>
+  <a class="tp" href="#risco" data-v="risco">Risco e volatilidade</a>
+  <a class="tp" href="#mensal" data-v="mensal">Retornos mensais</a>
   <span style="flex:1"></span>
   <span class="save" id="saveState"></span>
 </nav>
@@ -303,7 +321,7 @@ main.wide{max-width:none;padding:16px 24px 24px}
    ===================================================================== */
 const S = {view:"painel", uni:"all", cli:null, q:"", sort:{k:"aum",d:-1}, psort:{k:"v",d:-1},
            sev:"prio", tipo:"todos", showAck:false, aq:"", simV:100000, simModo:"aporte", editBands:null, durIn:{},
-           secao:"c", ultC:"painel", ultF:"fundos"};
+           secao:"c", ultC:"painel", ultF:"fundos", ultP:"performance"};
 let POS = [], META = {}, HIST = [], CFG = null, DEF = null, DURM = {};
 let DB = true, ACKS = {}, canWrite = null;
 let M = null;            // métricas calculadas
@@ -909,14 +927,17 @@ function vClassificacao(){
 const VIEWS = {painel:vPainel, cliente:vCliente, alertas:vAlertas, liquidez:vLiquidez, modelo:vModelo, classificacao:vClassificacao};
 function render(){
   if (!CFG || !POS.length) return;
-  if (SEC_F.has(S.view)) { S.secao = "f"; S.ultF = S.view; } else if (S.view!=="acesso") { S.secao = "c"; S.ultC = S.view; }
-  const fs = S.secao==="f";
+  if (SEC_F.has(S.view)) { S.secao = "f"; S.ultF = S.view; }
+  else if (SEC_P.has(S.view)) { S.secao = "p"; S.ultP = S.view; }
+  else if (S.view!=="acesso") { S.secao = "c"; S.ultC = S.view; }
+  const fs = S.secao!=="c";
   cabecalho();
   document.querySelectorAll("#segUni button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.uni===S.uni));
   document.querySelectorAll("[data-secao]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.secao===S.secao));
   document.getElementById("segUni").style.display = fs ? "none" : "";
-  document.querySelectorAll("#tabs a.tc").forEach(a=>a.style.display = fs ? "none" : "");
-  document.querySelectorAll("#tabs a.tf").forEach(a=>a.style.display = fs ? "" : "none");
+  document.querySelectorAll("#tabs a.tc").forEach(a=>a.style.display = S.secao==="c" ? "" : "none");
+  document.querySelectorAll("#tabs a.tf").forEach(a=>a.style.display = S.secao==="f" ? "" : "none");
+  document.querySelectorAll("#tabs a.tp").forEach(a=>a.style.display = S.secao==="p" ? "" : "none");
   document.getElementById("view").classList.toggle("wide", S.view==="fundos" || S.view==="fiis");
   document.querySelectorAll("#tabs a, #side a[data-v]").forEach(a=>{ if (a.dataset.v===S.view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   if (FCAD){ const n = (FCAD.cad||[]).filter(a=>a.origem==="Sugerida (revisar)" && a.ativo!=="N").length; document.getElementById("bCad").textContent = n || ""; }
@@ -933,8 +954,11 @@ function render(){
 }
 function cabecalho(){
   const sub = document.getElementById("hdrSub"), ft = document.getElementById("foot");
-  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Monitor de Fundos" : "Monitor de Carteiras";
-  if (S.secao==="f"){
+  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Monitor de Fundos" : S.secao==="p" ? "Monitor de Performance" : "Monitor de Carteiras";
+  if (S.secao==="p"){
+    sub.textContent = PF ? `Cotas até ${dtBR(PF.ref)} · atualizado em ${dtBR((PF.gerado_em||"").slice(0,10))} ${(PF.gerado_em||"").slice(11,16)}` : "";
+    ft.innerHTML = `Etti Partners | Uso interno e confidencial. Fonte: Comdinheiro (Histórico de Cotação das carteiras recomendadas e dos índices, número-índice desde ${PF?dtBR(PF.inicio):"30/12/2022"}).`;
+  } else if (S.secao==="f"){
     sub.textContent = FD ? `Cotas até ${dtBR(FD.ref)} · atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} ${(FD.gerado_em||"").slice(11,16)}` : "";
     ft.innerHTML = `Etti Partners | Uso interno e confidencial. Fontes: CVM, ANBIMA, B3, Banco Central e Yahoo Finance.${FD?` ${nf0.format(FD.linhas.length)} ativos monitorados; rentabilidades alinhadas à última data completa da CVM (${dtBR(FD.ref)}).`:""}`;
   } else {
@@ -1610,7 +1634,7 @@ function adicionarAtivo(){
 document.addEventListener("click", e=>{
   const t = e.target.closest("button,[data-fsort],[data-isort],[data-fclose]"); if (!t) return;
   const d = t.dataset;
-  if (d.secao){ irPara(d.secao==="f" ? (S.ultF||"fundos") : (S.ultC||"painel")); return; }
+  if (d.secao){ irPara(d.secao==="f" ? (S.ultF||"fundos") : d.secao==="p" ? (S.ultP||"performance") : (S.ultC||"painel")); return; }
   if (d.fgrp){ F.grupo = d.fgrp; F.classe = ""; render(); return; }
   if (t.id==="sdToggle"){ const m = !document.body.classList.contains("sd-min"); document.body.classList.toggle("sd-min", m); try { localStorage.setItem("etti_menu_min", m?"1":""); } catch (x) {} return; }
   if (d.fsort){ const k = d.fsort; F.sort = {k, d: F.sort.k===k ? -F.sort.d : (k==="nome"||k==="rank"?1:-1)}; render(); return; }
@@ -1656,6 +1680,245 @@ document.addEventListener("change", e=>{
 VIEWS.fundos = vFundos; VIEWS.fiis = vFiis; VIEWS.resumo = vResumoF; VIEWS.cadastro = vCadastro;
 
 /* =====================================================================
+   Monitor de Performance (carteiras recomendadas por perfil de risco)
+   ===================================================================== */
+const SEC_P = new Set(["performance","risco","mensal"]);
+let PF = null, pCarga = null, pErro = null;
+const P = {per:"inicio", comp:"ano", vol:"6m", todosIdx:false, mPerfil:"Conservador"};
+const COR_P = {"Conservador":"#13a678", "Moderado":"#3f73ad", "Arrojado":"#cf7d45"};
+const REF_P = {"CDI":{cor:"#8b918a", dash:"6 4"}, "Ibovespa":{cor:"#224725", dash:"2 3"}};
+const PERFIS_P = ["Conservador","Moderado","Arrojado"];
+
+function carregarPerf(){
+  if (pCarga) return pCarga;
+  pCarga = lerJSON("data/performance.enc").then(decifrar).then(x=>{ PF = x; PF._t = PF.datas.map(d=>new Date(d+"T12:00:00").getTime()); })
+    .catch(e=>{ pErro = /404/.test(e.message||"") ? "ainda não gerado" : e.message; }).then(()=>render());
+  return pCarga;
+}
+function semPerf(){
+  if (pErro) return `<div class="empty">O Monitor de Performance ${pErro==="ainda não gerado" ? "aparece aqui depois da próxima atualização automática." : `não carregou (${esc(pErro)}).`}</div>`;
+  if (!PF) { carregarPerf(); return `<div class="empty">Carregando o Monitor de Performance…</div>`; }
+  return null;
+}
+const pctP = x => rt(x);
+function corRet(x){ return x==null ? "" : x<0 ? ` class="r neg"` : ` class="r"`; }
+
+/* ---------- gráfico de linhas genérico com régua de leitura ---------- */
+window._gc = window._gc || {};
+function grafLinhas(id, xs, series, o){
+  o = Object.assign({h:300, W:1000, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v), zero:true, rotFim:true}, o||{});
+  const W = o.W, H = o.h, L = 52, R = o.rotFim ? 118 : 16, T = 14, B = 28;
+  const vals = []; series.forEach(s=>s.ys.forEach(v=>{ if (v!=null && isFinite(v)) vals.push(v); }));
+  if (!vals.length || xs.length<2) return `<div class="empty small">Sem dados no período.</div>`;
+  let mn = Math.min(...vals), mx = Math.max(...vals); if (o.zero){ mn = Math.min(mn,0); mx = Math.max(mx,0); }
+  const pad = (mx-mn)*0.06 || 0.01; mn -= pad; mx += pad;
+  const x0 = xs[0], x1 = xs[xs.length-1];
+  const X = t => L + (W-L-R)*(t-x0)/((x1-x0)||1), Y = v => T + (H-T-B)*(1-(v-mn)/(mx-mn));
+  const passo = (()=>{ const r = (mx-mn)/5, p = Math.pow(10, Math.floor(Math.log10(r))); const m = r/p; return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p; })();
+  let s = `<svg data-gc="${id}" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(o.aria||"Gráfico de linhas")}">`;
+  for (let v = Math.ceil(mn/passo)*passo; v <= mx; v += passo){
+    const z = Math.abs(v) < passo/1e6;
+    s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${z?"#b9bdb6":"#ebede7"}"${z?' stroke-width="1.2"':""}/><text x="${L-8}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="#5f645f">${o.yfmt(z?0:v)}</text>`;
+  }
+  // marcas de eixo x: anos (ou meses em janelas curtas)
+  const dias = (x1-x0)/864e5, marcas = [];
+  const d0 = new Date(x0), d1 = new Date(x1);
+  if (dias > 500){ for (let y = d0.getFullYear()+1; y <= d1.getFullYear(); y++) marcas.push([new Date(y,0,1).getTime(), String(y)]); }
+  else { const st = dias > 200 ? 3 : 1; for (let m = new Date(d0.getFullYear(), d0.getMonth()+1, 1); m <= d1; m = new Date(m.getFullYear(), m.getMonth()+st, 1)) marcas.push([m.getTime(), m.toLocaleDateString("pt-BR",{month:"short"}).replace(".","") + (m.getMonth()===0||dias>200?"/"+String(m.getFullYear()).slice(2):"")]); }
+  marcas.forEach(([t,l])=>{ s += `<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" stroke="#f2f3ee"/><text x="${X(t)}" y="${H-9}" font-size="11" text-anchor="middle" fill="#5f645f">${l}</text>`; });
+  // linhas: referências primeiro (atrás)
+  const ord = series.slice().sort((a,b)=>(a.dash?0:1)-(b.dash?0:1));
+  ord.forEach(se=>{
+    let d = "", pen = false;
+    se.ys.forEach((v,i)=>{ if (v==null || !isFinite(v)) { pen = false; return; } d += (pen?"L":"M") + X(xs[i]).toFixed(1) + "," + Y(v).toFixed(1); pen = true; });
+    s += `<path d="${d}" fill="none" stroke="${se.cor}" stroke-width="${se.dash?1.6:2}" ${se.dash?`stroke-dasharray="${se.dash}"`:""} stroke-linejoin="round" stroke-linecap="round"/>`;
+  });
+  // rótulos no fim, sem sobreposição
+  if (o.rotFim){
+    const fins = series.map(se=>{ let i = se.ys.length-1; while (i>=0 && (se.ys[i]==null||!isFinite(se.ys[i]))) i--; return i<0?null:{se, v:se.ys[i], y:Y(se.ys[i]), x:X(xs[i])}; }).filter(Boolean).sort((a,b)=>a.y-b.y);
+    for (let i=1;i<fins.length;i++) if (fins[i].y - fins[i-1].y < 14) fins[i].y = fins[i-1].y + 14;
+    fins.forEach(f=>{ s += `<circle cx="${f.x}" cy="${Y(f.v)}" r="3.5" fill="${f.se.cor}" stroke="#fff" stroke-width="1.5"/><text x="${W-R+8}" y="${f.y+4}" font-size="11.5" font-weight="${f.se.dash?400:700}" fill="${f.se.dash?"#5f645f":f.se.cor}">${esc(f.se.nome)} ${o.tipfmt(f.v).replace(/<[^>]+>/g,"")}</text>`; });
+  }
+  s += `<line class="gcx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#224725" stroke-width="1" visibility="hidden"/><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent"/></svg>`;
+  window._gc[id] = {xs, series, X, W, L, R, fmt:o.tipfmt};
+  const leg = `<div class="legend">${series.map(se=>`<span><i style="background:${se.dash?`repeating-linear-gradient(90deg,${se.cor} 0 5px,transparent 5px 8px)`:se.cor};height:3px;width:18px"></i>${esc(se.nome)}</span>`).join("")}</div>`;
+  return leg + s;
+}
+document.addEventListener("mousemove", e=>{
+  const sv = e.target.closest && e.target.closest("svg[data-gc]"); if (!sv) return;
+  const g = window._gc[sv.dataset.gc]; if (!g) return;
+  const r = sv.getBoundingClientRect(), xv = (e.clientX - r.left) * g.W / r.width;
+  const t = g.xs[0] + (xv - g.L) / (g.W - g.L - g.R) * (g.xs[g.xs.length-1] - g.xs[0]);
+  let lo = 0, hi = g.xs.length-1; while (hi-lo>1){ const m = (lo+hi)>>1; if (g.xs[m] <= t) lo = m; else hi = m; }
+  const i = Math.abs(g.xs[hi]-t) < Math.abs(g.xs[lo]-t) ? hi : lo;
+  const ln = sv.querySelector(".gcx"); if (ln){ ln.setAttribute("x1", g.X(g.xs[i])); ln.setAttribute("x2", g.X(g.xs[i])); ln.setAttribute("visibility","visible"); }
+  const linhas = g.series.map(se=>({n:se.nome, v:se.ys[i]})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
+  tip.textContent = new Date(g.xs[i]).toLocaleDateString("pt-BR") + "\n" + linhas.map(x=>`${x.n}: ${g.fmt(x.v).replace(/<[^>]+>/g,"")}`).join("\n");
+  tip.style.display = "block"; const w = tip.offsetWidth; let x = e.clientX + 16; if (x + w > innerWidth - 8) x = e.clientX - w - 16;
+  tip.style.left = x+"px"; tip.style.top = (e.clientY+14)+"px";
+});
+document.addEventListener("mouseout", e=>{ const sv = e.target.closest && e.target.closest("svg[data-gc]"); if (sv && !sv.contains(e.relatedTarget)) { const ln = sv.querySelector(".gcx"); if (ln) ln.setAttribute("visibility","hidden"); } });
+
+function iniPeriodo(per){
+  const ref = new Date(PF.ref+"T12:00:00");
+  if (per==="inicio") return 0;
+  const alvo = per==="ano" ? new Date(ref.getFullYear()-1, 11, 31, 12).getTime()
+             : new Date(ref.getFullYear(), ref.getMonth() - (per==="r12"?12:per==="r24"?24:6), ref.getDate(), 12).getTime();
+  let i = 0; for (let j=0;j<PF._t.length;j++) if (PF._t[j] <= alvo) i = j;
+  return i;
+}
+function chipsP(campo, opcoes){ return opcoes.map(([v,l])=>`<button class="chipbtn" data-pset="${campo}" data-pv="${v}" aria-pressed="${P[campo]===v}">${l}</button>`).join(""); }
+
+/* ---------- aba Resultado ---------- */
+function vPerf(){
+  const sp = semPerf(); if (sp) return sp;
+  const J = PF.janelas, jm = J.filter(j=>/^m\d/.test(j.k)), jp = J.filter(j=>!/^m\d/.test(j.k));
+  const pf = {}; PF.perfis.forEach(p=>pf[p.perfil] = p);
+  const idx = {}; PF.indices.forEach(x=>idx[x.nome] = x.ret);
+  let h = cabec("Monitor de Performance", "Carteiras recomendadas por perfil", `Retorno das carteiras recomendadas onshore desde o início da Etti (${dtBR(PF.inicio)}), com a composição entre CDI, alocação estratégica, tática e seleção de ativos. Cotas até <b>${dtBR(PF.ref)}</b>.`);
+  h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · ${pctCdi(t.ano, idx.CDI.ano)} do CDI<br>${rt(t.inicio)} desde o início · ${pctCdi(t.inicio, idx.CDI.inicio)} do CDI</div></div>`; }).join("")}
+    <div class="tile dest"><div class="k">CDI</div><div class="v">${rt(idx.CDI.ano)}</div><div class="s">no ano<br>${rt(idx.CDI.inicio)} desde o início</div></div></div>`;
+  // gráfico desde o início
+  const i0 = iniPeriodo(P.per), xs = PF._t.slice(i0);
+  const ser = n => { const v = PF.series[n].slice(i0), b = v[0]; return v.map(x=>x!=null && b ? x/b-1 : null); };
+  const series = PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:ser(p)})).concat(["CDI","Ibovespa"].map(n=>({nome:n, cor:REF_P[n].cor, dash:REF_P[n].dash, ys:ser(n)})));
+  h += `<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Retorno acumulado</h2><p class="sub">Carteiras recomendadas contra o CDI e o Ibovespa, base zero no início do período.</p></div><div class="flt" style="margin:0">${chipsP("per", [["inicio","Desde o início"],["r24","24 meses"],["r12","12 meses"],["ano","No ano"]])}</div></div>${grafLinhas("pAcum", xs, series, {h:320, aria:"Retorno acumulado das carteiras recomendadas"})}</div>`;
+  // tabela de resultado por perfil
+  const cab = `<thead><tr><th>Carteira</th>${jp.map(j=>`<th class="r" data-tip="${dtBR(j.ini)} a ${dtBR(j.fim)}">${esc(j.rotulo)}</th>`).join("")}${jm.map((j,i)=>`<th class="r${i===0?" gs":""}" data-tip="${dtBR(j.ini)} a ${dtBR(j.fim)}">${esc(j.rotulo)}</th>`).join("")}</tr></thead>`;
+  const lin = (nome, r, cls, fmt) => `<tr${cls?` class="${cls}"`:""}><td>${nome}</td>${jp.map(j=>`<td class="r">${(fmt||rt)(r[j.k])}</td>`).join("")}${jm.map((j,i)=>`<td class="r${i===0?" gs":""}">${(fmt||rt)(r[j.k])}</td>`).join("")}</tr>`;
+  const nc = J.length + 1;
+  let t = `<div class="tw" style="max-height:none"><table class="ftab ptab">${cab}<tbody>`;
+  t += `<tr class="gh"><td colspan="${nc}"><span class="ghl">Resumo</span></td></tr>`;
+  PERFIS_P.forEach(p=>{ t += lin(`<span class="pt" style="background:${COR_P[p]}"></span><b>${p}</b>`, pf[p].total); });
+  t += lin("CDI", idx.CDI, "bm") + lin("Ibovespa", idx.Ibovespa, "bm");
+  PERFIS_P.forEach(p=>{
+    const x = pf[p];
+    t += `<tr class="gh"><td colspan="${nc}"><span class="ghl">${p} · composição do retorno</span></td></tr>`;
+    t += lin("CDI", x.cdi) + lin(`Estratégico <span class="muted small">alocação neutra − CDI</span>`, x.estrategico) + lin(`Tático <span class="muted small">alocação tática − estratégica</span>`, x.tatico) + lin(`Selection <span class="muted small">fundos escolhidos − alocação tática</span>`, x.selection);
+    t += lin(`<b>${p}</b>`, x.total, "tot") + lin("Ganho sobre o CDI", x.ganho_cdi, "bm", ppF);
+  });
+  h += `<div class="card mt"><h2>Resultado por perfil de risco</h2><p class="sub">Composição: CDI + Estratégico + Tático + Selection = retorno da carteira recomendada. Passe o mouse no título da coluna para ver as datas.</p>${t}</tbody></table></div></div>`;
+  // composição (cascata)
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Composição do retorno</h2><p class="sub">Quanto cada decisão somou ao retorno de cada perfil. Barras para cima somaram; para baixo, tiraram.</p></div><div class="flt" style="margin:0">${chipsP("comp", jp.concat(jm.slice(0,1)).map(j=>[j.k, j.rotulo]))}</div></div>
+    <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${PERFIS_P.map(p=>cascata(pf[p], P.comp, p)).join("")}</div></div>`;
+  // índices
+  let ti = `<div class="tw" style="max-height:none"><table class="ftab ptab">${cab.replace("Carteira","Índice")}<tbody>`;
+  PF.indices.forEach(x=>{ ti += lin(esc(x.nome), x.ret); });
+  h += `<div class="card mt"><h2>Índices de referência</h2><p class="sub">Mesmas janelas da tabela das carteiras.</p>${ti}</tbody></table></div></div>`;
+  return h;
+}
+function pctCdi(r, c){ if (r==null || !c) return "–"; const v = r/c*100; return (v<0?"−":"") + nf0.format(Math.abs(v)) + "%"; }
+function cascata(x, k, p){
+  const passos = [["CDI", x.cdi[k]], ["Estratégico", x.estrategico[k]], ["Tático", x.tatico[k]], ["Selection", x.selection[k]]];
+  const tot = x.total[k];
+  if (passos.some(s=>s[1]==null) || tot==null) return `<div><h3 class="ch">${p}</h3><div class="empty small">Sem dados na janela.</div></div>`;
+  let acc = 0; const barras = passos.map(([n,v])=>{ const a = acc; acc += v; return {n, v, a, b:acc}; });
+  barras.push({n:"Total", v:tot, a:0, b:tot, tot:true});
+  const vals = barras.flatMap(b=>[b.a,b.b]).concat([0]); let mn = Math.min(...vals), mx = Math.max(...vals); const pad = (mx-mn)*0.12 || 0.001; mn -= pad; mx += pad;
+  const W = 330, H = 230, T = 18, B = 34, L = 6, R = 6, bw = (W-L-R)/barras.length;
+  const Y = v => T + (H-T-B)*(1-(v-mn)/(mx-mn));
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Composição do retorno ${esc(p)}"><line x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}" stroke="#b9bdb6"/>`;
+  barras.forEach((b,i)=>{
+    const x = L + i*bw + bw*0.18, w = bw*0.64, y1 = Y(Math.max(b.a,b.b)), y2 = Y(Math.min(b.a,b.b)), hh = Math.max(1.5, y2-y1);
+    const cor = b.tot ? COR_P[p] : b.n==="CDI" ? "#8b918a" : b.v>=0 ? "#13a678" : "#f0a77a";
+    const dica = (b.n + ": " + (b.tot ? rt(b.v) : ppF(b.v))).replace(/<[^>]+>/g,"");
+    s += `<rect x="${x}" y="${y1}" width="${w}" height="${hh}" rx="3" fill="${cor}" data-tip="${esc(dica)}"/>`;
+    if (i < barras.length-1) s += `<line x1="${x+w}" x2="${x+bw}" y1="${Y(b.b)}" y2="${Y(b.b)}" stroke="#b9bdb6" stroke-dasharray="2 2"/>`;
+    const lab = b.tot ? rt(b.v) : ppF(b.v);
+    const yl = b.v>=0 || b.tot&&b.v>=0 ? y1-5 : y2+13;
+    s += `<text x="${x+w/2}" y="${yl}" font-size="11" text-anchor="middle" font-weight="${b.tot?700:600}" fill="#224725">${lab.replace(/<[^>]+>/g,"").replace(" p.p.","")}</text>`;
+    s += `<text x="${x+w/2}" y="${H-12}" font-size="11" text-anchor="middle" fill="#5f645f">${b.n}</text>`;
+  });
+  return `<div><h3 class="ch"><span class="pt" style="background:${COR_P[p]}"></span>${p}</h3>${s}</svg></div>`;
+}
+
+/* ---------- aba Risco e volatilidade ---------- */
+function vRiscoP(){
+  const sp = semPerf(); if (sp) return sp;
+  const rk = {}; PF.risco.forEach(x=>rk[x.nome] = x);
+  let h = cabec("Monitor de Performance", "Risco e volatilidade", `Volatilidade anualizada pelo desvio-padrão dos retornos diários (× √252), desde ${dtBR(PF.inicio)} até ${dtBR(PF.ref)} (${PF.dias_uteis} dias úteis).`);
+  // retorno x vol
+  const base = ["CDI","Ibovespa","IMA-B","IMA-B 5","IDA-IPCA","IHFA","IFIX","JGP Idex CDI"];
+  const pts = PERFIS_P.map(n=>rk[n]).concat((P.todosIdx ? PF.risco.filter(x=>!PERFIS_P.includes(x.nome)) : base.map(n=>rk[n])).filter(Boolean));
+  h += `<div class="grid g3"><div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Retorno x volatilidade desde o início</h2><p class="sub">Retorno anualizado contra a volatilidade anualizada.</p></div><div class="flt" style="margin:0"><button class="chipbtn" data-ptodos="1" aria-pressed="${P.todosIdx}">Todos os índices</button></div></div>${dispersao(pts)}</div>`;
+  // indicadores
+  const lin = x => `<tr${PERFIS_P.includes(x.nome)?"":` class="bm"`}><td>${PERFIS_P.includes(x.nome)?`<span class="pt" style="background:${COR_P[x.nome]}"></span><b>${x.nome}</b>`:esc(x.nome)}</td><td class="r">${rt(x.ret_anual)}</td><td class="r">${rt(x.vol,1)}</td><td class="r">${x.sharpe!=null?num2(x.sharpe):dashF}</td><td class="r">${rt(x.max_dd,1)}</td><td class="r">${x.meses_acima_cdi!=null?pct(x.meses_acima_cdi,0):dashF}</td></tr>`;
+  h += `<div class="card"><h2>Indicadores desde o início</h2><p class="sub">Sharpe: retorno anualizado acima do CDI dividido pela volatilidade.</p><div class="tw" style="max-height:none"><table class="ftab ptab ind"><thead><tr><th></th><th class="r">Retorno a.a.</th><th class="r">Vol a.a.</th><th class="r">Sharpe</th><th class="r" data-tip="Maior queda de um pico ao vale seguinte">Queda máx.</th><th class="r" data-tip="Parcela dos meses com retorno acima do CDI">Meses &gt; CDI</th></tr></thead><tbody>${PERFIS_P.map(n=>lin(rk[n])).join("")}${["CDI","Ibovespa","IMA-B","IHFA"].map(n=>rk[n]?lin(rk[n]):"").join("")}</tbody></table></div>
+    <div class="mini" style="grid-template-columns:repeat(3,1fr)">${PERFIS_P.map(n=>`<div><span style="color:${COR_P[n]}">${n}</span><b style="font-size:13px">Melhor ${mesRot(rk[n].melhor_mes)} ${rt(rk[n].melhor_mes_v)}</b><b style="font-size:13px;font-weight:600">Pior ${mesRot(rk[n].pior_mes)} ${rt(rk[n].pior_mes_v)}</b></div>`).join("")}</div></div></div>`;
+  // vol móvel 6m e 12m
+  const vm = (k) => { const i = PF.datas.findIndex((d,j)=>PERFIS_P.some(p=>PF.vol_movel[p][k][j]!=null)); return grafLinhas("pVol"+k, PF._t.slice(i), PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:PF.vol_movel[p][k].slice(i)})), {h:300, W:600, zero:true, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v), aria:"Volatilidade móvel "+k}); };
+  h += `<div class="grid g2 mt"><div class="card"><h2>Volatilidade móvel de 6 meses</h2><p class="sub">Janela de 126 dias úteis, anualizada.</p>${vm("6m")}</div><div class="card"><h2>Volatilidade móvel de 12 meses</h2><p class="sub">Janela de 252 dias úteis, anualizada.</p>${vm("12m")}</div></div>`;
+  // drawdown
+  const dd = n => { let pk = -Infinity; return PF.series[n].map(v=>{ if (v==null) return null; pk = Math.max(pk, v); return v/pk-1; }); };
+  h += `<div class="card mt"><h2>Distância do pico (drawdown)</h2><p class="sub">Quanto cada carteira está abaixo do seu maior valor anterior. Zero é um novo recorde.</p>${grafLinhas("pDD", PF._t, PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:dd(p)})).concat([{nome:"Ibovespa", cor:REF_P.Ibovespa.cor, dash:REF_P.Ibovespa.dash, ys:dd("Ibovespa")}]), {h:240, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v,1), aria:"Drawdown"})}</div>`;
+  return h;
+}
+function mesRot(k){ if (!k) return "–"; const [y,m] = k.split("-"); return ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][+m-1] + "/" + y.slice(2); }
+function dispersao(pts){
+  pts = pts.filter(x=>x && x.vol!=null && x.ret_anual!=null);
+  const W = 640, H = 380, L = 56, R = 24, T = 16, B = 44;
+  let xmx = Math.max(...pts.map(x=>x.vol)) * 1.1, ymn = Math.min(0, ...pts.map(x=>x.ret_anual)), ymx = Math.max(...pts.map(x=>x.ret_anual));
+  const py = (ymx-ymn)*0.12; ymn -= ymn<0?py:0; ymx += py;
+  const X = v => L + (W-L-R)*v/xmx, Y = v => T + (H-T-B)*(1-(v-ymn)/(ymx-ymn));
+  const tick = (a,b)=>{ const r=(b-a)/5, p=Math.pow(10,Math.floor(Math.log10(r))), m=r/p; return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p; };
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Retorno anualizado contra volatilidade">`;
+  const ty = tick(ymn,ymx); for (let v = Math.ceil(ymn/ty)*ty; v <= ymx; v += ty) s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${Math.abs(v)<1e-9?"#b9bdb6":"#ebede7"}"/><text x="${L-8}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="#5f645f">${nf0.format(v*100)}%</text>`;
+  const tx = tick(0,xmx); for (let v = 0; v <= xmx; v += tx) s += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H-B}" stroke="#f2f3ee"/><text x="${X(v)}" y="${H-B+16}" font-size="11" text-anchor="middle" fill="#5f645f">${nf0.format(v*100)}%</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" font-size="11.5" text-anchor="middle" fill="#5f645f">Volatilidade anualizada</text><text x="14" y="${(T+H-B)/2}" font-size="11.5" text-anchor="middle" fill="#5f645f" transform="rotate(-90 14 ${(T+H-B)/2})">Retorno anualizado</text>`;
+  const ord = pts.slice().sort((a,b)=>(PERFIS_P.includes(b.nome)?1:0)-(PERFIS_P.includes(a.nome)?1:0));
+  const rots = [];
+  ord.forEach(x=>{
+    const pf = PERFIS_P.includes(x.nome), cx = X(x.vol), cy = Y(x.ret_anual);
+    s += `<circle cx="${cx}" cy="${cy}" r="${pf?7:5}" fill="${pf?COR_P[x.nome]:"#a4aaa2"}" stroke="#fff" stroke-width="2" data-tip="${esc(x.nome)}\nRetorno ${rt(x.ret_anual).replace(/<[^>]+>/g,"")} a.a.\nVolatilidade ${rt(x.vol,1).replace(/<[^>]+>/g,"")}"/>`;
+    const lw = x.nome.length * (pf?7.4:6.4), off = pf?11:9;
+    const cand = [[cx+off, cy+4, "start"], [cx+off, cy-9, "start"], [cx+off, cy+17, "start"], [cx-off, cy+4, "end"], [cx, cy-12, "middle"], [cx, cy+20, "middle"], [cx-off, cy-9, "end"], [cx-off, cy+17, "end"]];
+    const caixa = ([x0,y0,a]) => { const xl = a==="start" ? x0 : a==="end" ? x0-lw : x0-lw/2; return {x1:xl, x2:xl+lw, y1:y0-10, y2:y0+3}; };
+    const bate = b => b.x1 < L || b.x2 > W-R+20 || rots.some(r=>!(b.x2 < r.x1 || b.x1 > r.x2 || b.y2 < r.y1 || b.y1 > r.y2)) || pts.some(q=>{ const qx = X(q.vol), qy = Y(q.ret_anual); return q!==x && qx > b.x1-4 && qx < b.x2+4 && qy > b.y1-4 && qy < b.y2+4; });
+    let esc0 = cand.find(c=>!bate(caixa(c))) || cand[0];
+    const [lx, ly, anc] = esc0; rots.push(caixa(esc0));
+    s += `<text x="${lx}" y="${ly}" font-size="${pf?12:11}" font-weight="${pf?700:400}" text-anchor="${anc}" fill="${pf?"#224725":"#5f645f"}">${esc(x.nome)}</text>`;
+  });
+  return s + `</svg>`;
+}
+
+/* ---------- aba Retornos mensais ---------- */
+function vMensal(){
+  const sp = semPerf(); if (sp) return sp;
+  const p = P.mPerfil, M = PF.mensal[p], C = PF.mensal.CDI;
+  let h = cabec("Monitor de Performance", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e a proporção do CDI. Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
+  h += `<div class="flt">${PERFIS_P.map(x=>`<button class="chipbtn" data-pset="mPerfil" data-pv="${x}" aria-pressed="${p===x}">${x}</button>`).join("")}</div>`;
+  const anos = Object.keys(M.anos).sort().reverse();
+  const cel = (v, ref) => { if (v==null) return `<td class="r"></td>`; const a = Math.min(1, Math.abs(v)/0.03); const bg = v>=0 ? `rgba(19,166,120,${(0.08+0.32*a).toFixed(2)})` : `rgba(240,167,122,${(0.12+0.45*a).toFixed(2)})`; return `<td class="r" style="background:${bg}">${rt(v)}</td>`; };
+  let t = `<div class="tw" style="max-height:none"><table class="ftab ptab mtab2"><thead><tr><th>Ano</th><th></th>${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"].map(m=>`<th class="r">${m}</th>`).join("")}<th class="r gs">Ano</th><th class="r" data-tip="Retorno acumulado desde o início até o fim do ano">Acumulado</th></tr></thead><tbody>`;
+  const acum = {}; { let a = 1; Object.keys(M.anos).sort().forEach(y=>{ a *= 1 + (M.anos[y]||0); acum[y] = a-1; }); }
+  const acumC = {}; { let a = 1; Object.keys(C.anos).sort().forEach(y=>{ a *= 1 + (C.anos[y]||0); acumC[y] = a-1; }); }
+  anos.forEach(y=>{
+    const ms = [...Array(12)].map((_,i)=>`${y}-${String(i+1).padStart(2,"0")}`);
+    t += `<tr class="yr"><td rowspan="3"><b>${y}</b></td><td><span class="pt" style="background:${COR_P[p]}"></span><b>${p}</b></td>${ms.map(k=>cel(M.meses[k])).join("")}<td class="r gs"><b>${rt(M.anos[y])}</b></td><td class="r"><b>${rt(acum[y])}</b></td></tr>`;
+    t += `<tr class="bm"><td>CDI</td>${ms.map(k=>`<td class="r">${C.meses[k]!=null?rt(C.meses[k]):""}</td>`).join("")}<td class="r gs">${rt(C.anos[y])}</td><td class="r">${rt(acumC[y])}</td></tr>`;
+    t += `<tr class="pc"><td>% do CDI</td>${ms.map(k=>`<td class="r">${M.meses[k]!=null&&C.meses[k]?pctCdi(M.meses[k],C.meses[k]):""}</td>`).join("")}<td class="r gs"><b>${pctCdi(M.anos[y],C.anos[y])}</b></td><td class="r">${pctCdi(acum[y],acumC[y])}</td></tr>`;
+  });
+  h += `<div class="card">${t}</tbody></table></div><p class="fonte">Verde: mês positivo; pêssego: mês negativo (quanto mais forte, maior o movimento). Fonte: Comdinheiro.</p></div>`;
+  // excesso mensal sobre o CDI, em barras
+  const ks = Object.keys(M.meses).sort();
+  const ex = ks.map(k=>({k, v: C.meses[k]!=null ? M.meses[k]-C.meses[k] : null})).filter(x=>x.v!=null);
+  const W = 1000, H = 220, L = 46, R = 10, T = 12, B = 26, mx = Math.max(...ex.map(x=>Math.abs(x.v)))*1.1 || 0.01;
+  const Y = v => T + (H-T-B)*(1-(v+mx)/(2*mx)), bw = (W-L-R)/ex.length;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Retorno mensal acima do CDI">`;
+  const pz = mx*100 > 2 ? 0.01 : 0.005; for (let v = -Math.floor(mx/pz)*pz; v <= mx + 1e-12; v += pz){ const z = Math.abs(v) < 1e-9; s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${z?"#b9bdb6":"#ebede7"}"/><text x="${L-6}" y="${Y(v)+4}" font-size="10.5" text-anchor="end" fill="#5f645f">${z?"0":(v<0?"−":"+")+nf1.format(Math.abs(v*100))}</text>`; }
+  ex.forEach((x,i)=>{ const y1 = Y(Math.max(0,x.v)), y2 = Y(Math.min(0,x.v)); s += `<rect x="${L+i*bw+1}" y="${y1}" width="${Math.max(1,bw-2)}" height="${Math.max(1,y2-y1)}" rx="2" fill="${x.v>=0?"#13a678":"#f0a77a"}" data-tip="${mesRot(x.k)}: ${ppF(x.v).replace(/<[^>]+>/g,"")} sobre o CDI"/>`; if (x.k.endsWith("-01")) s += `<text x="${L+i*bw}" y="${H-8}" font-size="11" fill="#5f645f">${x.k.slice(0,4)}</text>`; });
+  h += `<div class="card mt"><h2>Retorno mensal acima do CDI · ${p}</h2><p class="sub">Diferença, em pontos percentuais (p.p.), entre o retorno do mês e o CDI do mês. ${ex.filter(x=>x.v>0).length} de ${ex.length} meses acima do CDI.</p>${s}</svg></div>`;
+  return h;
+}
+
+document.addEventListener("click", e=>{
+  const t = e.target.closest("button"); if (!t) return; const d = t.dataset;
+  if (d.pset){ P[d.pset] = d.pv; render(); return; }
+  if (d.ptodos){ P.todosIdx = !P.todosIdx; render(); return; }
+});
+VIEWS.performance = vPerf; VIEWS.risco = vRiscoP; VIEWS.mensal = vMensal;
+
+/* =====================================================================
    Início
    ===================================================================== */
 VIEWS.acesso = vAcesso;
@@ -1696,6 +1959,7 @@ async function iniciar(){
   document.getElementById("usr").textContent = USUARIO;
   const h = location.hash.slice(1); S.view = VIEWS[h] ? h : "painel";
   if (SEC_F.has(S.view)) carregarFundos();
+  if (SEC_P.has(S.view)) carregarPerf();
   render();
 }
 document.getElementById("formLogin").addEventListener("submit", async e=>{
