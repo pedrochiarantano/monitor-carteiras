@@ -5,6 +5,8 @@ on:
     branches: [main]
   schedule:
     - cron: "17 10 * * 1-5"   # dias úteis, 07:17 em São Paulo: posições da Comdinheiro
+    - cron: "47 11 * * 1-5"   # reserva 08:47 (só roda se ainda não atualizou hoje)
+    - cron: "23 13 * * 1-5"   # reserva 10:23 (idem)
     - cron: "41 11 16 * *"    # dia 16 de cada mês, 08:41: durations dos fundos (CVM/ANBIMA)
   workflow_dispatch:
     inputs:
@@ -34,12 +36,12 @@ jobs:
           python-version: "3.12"
       - run: pip install cryptography numpy
       - name: Posições (Comdinheiro + PTAX)
-        if: (github.event_name == 'schedule' && github.event.schedule == '17 10 * * 1-5') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'posicoes' || inputs.tarefa == 'ambos'))
+        if: (github.event_name == 'schedule' && github.event.schedule != '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'posicoes' || inputs.tarefa == 'ambos'))
         env:
           COMDINHEIRO_USER: ${{ secrets.COMDINHEIRO_USER }}
           COMDINHEIRO_PASS: ${{ secrets.COMDINHEIRO_PASS }}
           DATA_KEY: ${{ secrets.DATA_KEY }}
-        run: python tools/atualizar_monitor.py data
+        run: python tools/atualizar_monitor.py data ${{ github.event_name == 'schedule' && '--se-necessario' || '' }}
       - name: Durations dos fundos (CVM + ANBIMA)
         if: (github.event_name == 'schedule' && github.event.schedule == '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && (inputs.tarefa == 'duracoes' || inputs.tarefa == 'ambos'))
         env:

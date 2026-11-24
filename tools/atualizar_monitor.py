@@ -11,7 +11,8 @@ Não toca em config.enc (IPS, modelo, classificações, durations manuais) nem e
 duracoes.enc (durations estimadas): essas informações sobrevivem a cada atualização.
 
 Variáveis de ambiente: COMDINHEIRO_USER, COMDINHEIRO_PASS, DATA_KEY.
-Uso: python tools/atualizar_monitor.py data [--data dd/mm/aaaa] [--raw resposta.json]
+Uso: python tools/atualizar_monitor.py data [--data dd/mm/aaaa] [--raw resposta.json] [--se-necessario]
+(--se-necessario: não faz nada se os dados já foram atualizados hoje; usado nos horários de reserva)
 """
 import os, sys, json, re, datetime as dt, urllib.request, urllib.parse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -87,6 +88,12 @@ def ptax(d):
 def main():
     saida = sys.argv[1]
     key = cripto.chave()
+    if "--se-necessario" in sys.argv:
+        hoje_br = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=3)).date().isoformat()
+        ant = cripto.ler(os.path.join(saida, "meta.enc"), key, {}) or {}
+        if (ant.get("gerado_em") or "")[:10] == hoje_br:
+            print("Dados de hoje já atualizados em %s; nada a fazer." % ant["gerado_em"])
+            return
     hoje = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None) - dt.timedelta(hours=3)
     if "--data" in sys.argv:
         alvo = dt.datetime.strptime(sys.argv[sys.argv.index("--data") + 1], "%d/%m/%Y").date()
