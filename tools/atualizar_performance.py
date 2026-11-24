@@ -41,6 +41,18 @@ def main():
     j = P.consultar(os.environ["COMDINHEIRO_USER"], os.environ["COMDINHEIRO_PASS"])
     datas, cols = P.ler_series(j)
     if len(datas) < 500:
+        # diagnóstico sem dados sensíveis: tamanho da resposta e cobertura de cada série
+        tabs = j.get("tables", {})
+        for k, t in tabs.items():
+            ls = [t[l] for l in sorted(t, key=lambda l: int(l[3:]))]
+            print("tabela %s: %d linhas; primeira coluna de %r a %r" % (k, len(ls), ls[1].get("col0") if len(ls) > 1 else None, ls[-1].get("col0")))
+            if len(ls) > 2 and str(ls[0].get("col0", "")).strip().lower() == "data":
+                for i in range(1, len(ls[0])):
+                    ok = sum(1 for x in ls[1:] if (x.get("col%d" % i) or "nd").strip() not in ("nd", "", "-"))
+                    print("   %-22s %4d valores" % (ls[0]["col%d" % i], ok))
+            elif len(ls) <= 4:
+                for x in ls: print("   ", {kk: x[kk] for kk in list(x)[:6]})
+        print("meta:", {k: v for k, v in (j.get("meta") or {}).items() if k not in ("username", "password")})
         raise SystemExit("Série curta demais (%d datas); arquivo anterior mantido." % len(datas))
     res = P.calcular(datas, cols)
     res["gerado_em"] = agora.strftime("%Y-%m-%dT%H:%M")
