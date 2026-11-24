@@ -8,13 +8,18 @@ inteira a cada consulta.
 Uso: python tools/atualizar_performance.py _base [--se-necessario]
 Variáveis de ambiente: COMDINHEIRO_PERF_USER e COMDINHEIRO_PERF_PASS (login dono das carteiras
 recomendadas na Comdinheiro; se ausentes, usa COMDINHEIRO_USER e COMDINHEIRO_PASS), DATA_KEY.
-  --se-necessario  não consulta se o arquivo já tem a cota do último dia útil.
+  --se-necessario  não consulta se o arquivo já tem a cota da data de referência.
+
+Data de referência: 3 dias úteis antes de hoje (D-3, como o "dmenos3" da Comdinheiro), porque nos
+dias mais recentes as cotas dos fundos das carteiras ainda não estão completas.
 """
 import os, sys, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cripto
 import performance as P
 from atualizar_monitor import dia_util_anterior
+
+DU_ATRASO = 3   # D-3
 
 def limpo(o):
     if isinstance(o, float):
@@ -33,7 +38,9 @@ def main():
     arq = os.path.join(pasta, "performance.enc")
     key = cripto.chave()
     agora = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=3)
-    alvo = dia_util_anterior(agora.date())
+    alvo = agora.date()
+    for _ in range(DU_ATRASO):
+        alvo = dia_util_anterior(alvo)
     if "--se-necessario" in sys.argv and os.path.exists(arq):
         ant = cripto.ler(arq, key, {})
         if (ant.get("ref") or "") >= alvo.isoformat():
@@ -63,8 +70,9 @@ def main():
                 for x in ls: print("   ", {kk: x[kk] for kk in list(x)[:6]})
         print("meta:", {k: v for k, v in (j.get("meta") or {}).items() if k not in ("username", "password")})
         raise SystemExit("Série curta demais (%d datas); arquivo anterior mantido." % len(datas))
-    res = P.calcular(datas, cols)
+    res = P.calcular(datas, cols, alvo)
     res["gerado_em"] = agora.strftime("%Y-%m-%dT%H:%M")
+    res["ultima_cota_comdinheiro"] = datas[-1].isoformat()
     res["fonte"] = "Comdinheiro · Histórico de Cotação (número-índice)"
     cripto.gravar(arq, limpo(res), key)
     print("Performance: %d datas, de %s a %s" % (len(res["datas"]), res["datas"][0], res["ref"]))
