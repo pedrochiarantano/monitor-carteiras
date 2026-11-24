@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url || steps.deploy2.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -128,4 +128,12 @@ jobs:
         with:
           path: _site
       - id: deploy
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Esperar o GitHub (falha passageira na publicação)
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 60
+      - id: deploy2
+        name: Publicar de novo
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v4
