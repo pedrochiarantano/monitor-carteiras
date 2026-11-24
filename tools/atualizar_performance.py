@@ -6,7 +6,8 @@ Consulta o Histórico de Cotação na Comdinheiro (desde 30/12/2022), recalcula 
 inteira a cada consulta.
 
 Uso: python tools/atualizar_performance.py _base [--se-necessario]
-Variáveis de ambiente: COMDINHEIRO_USER, COMDINHEIRO_PASS, DATA_KEY.
+Variáveis de ambiente: COMDINHEIRO_PERF_USER e COMDINHEIRO_PERF_PASS (login dono das carteiras
+recomendadas na Comdinheiro; se ausentes, usa COMDINHEIRO_USER e COMDINHEIRO_PASS), DATA_KEY.
   --se-necessario  não consulta se o arquivo já tem a cota do último dia útil.
 """
 import os, sys, datetime as dt
@@ -38,7 +39,15 @@ def main():
         if (ant.get("ref") or "") >= alvo.isoformat():
             print("Performance já tem a cota de %s; nada a fazer." % ant["ref"])
             return
-    j = P.consultar(os.environ["COMDINHEIRO_USER"], os.environ["COMDINHEIRO_PASS"])
+    usuario = os.environ.get("COMDINHEIRO_PERF_USER") or os.environ["COMDINHEIRO_USER"]
+    senha = os.environ.get("COMDINHEIRO_PERF_PASS") or os.environ["COMDINHEIRO_PASS"]
+    j = P.consultar(usuario, senha)
+    info = j.get("tables", {}).get("tab0", {})
+    antigas = info.get("lin1", {})
+    if antigas and not (antigas.get("col1") or "").strip():
+        raise SystemExit("A conta da Comdinheiro usada não enxerga as carteiras recomendadas (CarteiraConsOn etc.). "
+                         "Cadastre no GitHub os segredos COMDINHEIRO_PERF_USER e COMDINHEIRO_PERF_PASS com o login dono "
+                         "dessas carteiras. Arquivo anterior mantido.")
     datas, cols = P.ler_series(j)
     if len(datas) < 500:
         # diagnóstico sem dados sensíveis: tamanho da resposta e cobertura de cada série

@@ -62,6 +62,8 @@ jobs:
         env:
           COMDINHEIRO_USER: ${{ secrets.COMDINHEIRO_USER }}
           COMDINHEIRO_PASS: ${{ secrets.COMDINHEIRO_PASS }}
+          COMDINHEIRO_PERF_USER: ${{ secrets.COMDINHEIRO_PERF_USER }}
+          COMDINHEIRO_PERF_PASS: ${{ secrets.COMDINHEIRO_PERF_PASS }}
           DATA_KEY: ${{ secrets.DATA_KEY }}
         run: python tools/atualizar_performance.py _base ${{ github.event_name == 'schedule' && '--se-necessario' || '' }}
       - name: Monitor de Fundos (histórico dos ativos recém-cadastrados)
