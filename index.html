@@ -29,7 +29,7 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit;font-var
 /* ---------- topo ---------- */
 .top{background:var(--verde-etti);color:var(--creme);display:flex;align-items:center;gap:22px;padding:12px 28px;flex-wrap:wrap}
 .top img{height:30px;display:block}
-.top .tit{border-left:1px solid rgba(182,215,168,.45);padding-left:20px}
+.top .tit{padding-left:0}
 .top .tit b{display:block;font-size:17px;font-weight:700;letter-spacing:.2px}
 .top .tit span{font-size:12px;color:var(--verde-claro)}
 .top .sp{flex:1}
@@ -202,6 +202,47 @@ body.lg{background:var(--verde-etti)}
 .ctab select{max-width:190px;padding:4px 6px}
 .ctab td{padding:5px 8px}
 .ctab input[type=text]{padding:4px 6px;width:100%}
+
+/* ---------- menu lateral ---------- */
+:root{--sw:236px}
+body.sd-min{--sw:64px}
+body.comside{padding-left:var(--sw)}
+#side{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:#16301a;color:var(--verde-claro);display:flex;flex-direction:column;z-index:30;transition:width .15s}
+.sd-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 14px 10px 20px;min-height:62px}
+.sd-logo{height:28px;display:block}
+.sd-tg{background:none;border:0;color:var(--verde-claro);cursor:pointer;padding:6px;border-radius:6px;display:flex}
+.sd-tg:hover{background:rgba(182,215,168,.12);color:var(--creme)}
+.sd-eb{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--verde-vivo);padding:8px 20px 10px;white-space:nowrap}
+.sd-nav{display:flex;flex-direction:column;gap:2px;padding:0 10px}
+.sd-nav button,.sd-fim a{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;color:var(--verde-claro);text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13.5px;text-decoration:none;white-space:nowrap;overflow:hidden}
+.sd-nav button svg,.sd-fim a svg{flex:none}
+.sd-nav button:hover,.sd-fim a:hover{background:rgba(182,215,168,.10);color:var(--creme)}
+.sd-nav button[aria-pressed="true"]{background:var(--verde-etti);color:var(--creme);box-shadow:inset 3px 0 0 var(--verde-vivo)}
+.sd-fim{margin-top:auto;padding:10px 10px 18px;border-top:1px solid rgba(182,215,168,.15)}
+.sd-fim a[aria-current="page"]{color:var(--creme)}
+body.sd-min .sd-logo,body.sd-min .sd-eb,body.sd-min .sd-nav span,body.sd-min .sd-fim span{display:none}
+body.sd-min .sd-top{padding:16px 0 10px;justify-content:center}
+body.sd-min .sd-tg svg{transform:rotate(180deg)}
+body.sd-min .sd-nav button,body.sd-min .sd-fim a{justify-content:center;padding:10px 0}
+@media (max-width:900px){body.comside{--sw:64px}.sd-logo,.sd-eb,.sd-nav span,.sd-fim span{display:none}.sd-top{justify-content:center;padding:16px 0 10px}.sd-tg{display:none}.sd-nav button,.sd-fim a{justify-content:center;padding:10px 0}}
+
+/* ---------- tabelas do Monitor de Fundos (largura fixa, como na planilha) ---------- */
+main.wide{max-width:none;padding:16px 24px 24px}
+.fhead{display:flex;align-items:flex-end;gap:16px 24px;flex-wrap:wrap;margin-bottom:12px}
+.fhead h1{margin:4px 0 0;font-size:22px}
+.fhead .fsub{font-size:12.5px;color:var(--ink-corpo);margin-top:2px}
+.fhead .flt{margin:0;margin-left:auto}
+.tw.ft{height:calc(100vh - 222px);max-height:none;min-height:360px;background:var(--card)}
+.ftab.fx{table-layout:fixed;width:auto}
+.ftab.fx th{white-space:normal;line-height:1.2;vertical-align:bottom;text-align:center;padding:7px 6px}
+.ftab.fx th:first-child{text-align:left}
+.ftab.fx td{overflow:hidden;text-overflow:ellipsis;padding:5px 8px}
+.ftab.fx td.r{padding-right:10px}
+.ftab tr.gh td{background:var(--verde-vivo) !important;color:var(--verde-etti);font-weight:700;border-top:0;padding:6px 10px;font-size:12.5px}
+.ftab tr.gh .gm{color:var(--verde-etti);font-weight:600;opacity:.85}
+.ftab.fx tr.gh td:first-child{position:static;box-shadow:none;overflow:visible}
+.ftab .ghl{position:sticky;left:10px;display:inline-block}
+.ftab tr.bm td{background:var(--creme-2) !important;color:var(--verde-etti);font-style:italic;font-weight:700}
 </style>
 </head>
 <body class="lg">
@@ -217,12 +258,21 @@ body.lg{background:var(--verde-etti)}
     <p class="lg-nota">Os dados ficam criptografados e só abrem com usuário e senha válidos.</p>
   </form>
 </div>
-<header class="top" style="display:none">
-  <img alt="Etti Partners" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcsAAACfCAMAAAChtAIgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAALxUExURf///////////wAAAP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7SE4wAAAD7dFJOU4vflQCf/6vggMHAN0AmJWruVig/MAYO2yK3HTZ42fjtNQGd86UbrOQKegNIVdHoaQlG8dIatgR9fP2nCy32vip7pgJzOkzrD+y/yWFk+YoHXG60LC6UolggKYFCicL8yGg+X437EyuEw/cvb1sIj1MNZtUe5bu6GEUQ4tQMkRfFBYb04zgW/r2ZbDmw+pqcHKTYgu9NSxXy5teeg1fHUNyxQc+zNMojrbhyJ2ebknDGO6jEMzyhyxKMWd3WMhHpQx9JY1JdRBQhGXeFJJCIYHm12qnQ0+pU5228oPCXk95OXrlrmEr1zUfhYo5lssyvMXR/dqp+rk+Wo3U9nBfhfgAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAEDRJREFUeF7tnWl0FUUWgMlULkSIbGOC7EQUMUJAkcgiiLhAhEAQl8gqIbINAVmUxYgRh4hjEKMiKLKMgAqCoKCiiIKKKyoIwzDEfWAct5nR2efXnKrqpep2d15Xp99LXp/6fuSkbt2u6ve+193Ve716KZpa5BckPOqlgqYWqY+F1ADtsnbRLqND6C4bpGlqgQbxcHkajmoSQUPtMjJol9FBu4wO2mV00C6jg3YZHbTL6KBdRgftMjpol9FBu4wO2mV00C6jg3YZHbTL6KBdRgftMjpol9FBu4wO2mV0SJjLRunhcHrjJk2bobab46TQ+KXUzxm4OjwypI4IwfWYTJRPSZjLFvhKzhpwJmq7JU4ID6kfXBkiraSOYnfVGuVTEuayTVs8O4Fph9tujzPCo4PQTRauDJHmQj+Us5riDJGOZ5+D8ikJc0lIh054lgJyLmq4M04IkfOEfrJxZYicL/TD6dIV55jkdOuOkxkJdEnIBRfi2QpED9TsRTghRHoK/eTiyhC5WOjHpFdvnMXo0xcnGiTUJbmkH56xIPRHrV6KE0Kko9BPJq4MkZZCPxYDcBblsoE4zSSxLsnleM6CgO8xvAInhEg/oZ8rcWWIXCX0Y+Oymu04CCdZJNhlpnPBHJznm6v5FENQo0NxkyGSL/QzDFeGyXChI4sCnAUwAufYJNgl6YnnDa7BKdUwko3urkXR68ymGlzf5ob0kYWu3Ch1ShmFUwzSRw8ZM9ZMGif0M94MpqS2uSEdT2bSzurA4CacYTAhvWji2GIz62ahIxtHYzAJp9gk2uVkPG9KLkkjAOiNg1NYO1Ovm4YrRPrifuFXOEWk7/QePKvEjhnTzcD7DzJTxT4oM3GGyC2zZvOsObiGMRc35uGckWiXI/C8qbkktwLk4FhH2sxt83BYRtElIVkFzMp8KzCQTdVngZTlRM0lIaQbm8J9eVuIG4NcnGKTbC7nA9yOQqW0lTtQ0IGyS0Ja5dA1sVVku5fVbK4MlF2S5nRXrQuOMpwucYZAsrlcBDAWheYAwFko5iSASzJoKsCdVqkMAO6S6l1Rd0maLwYYhoOMSLskd0MqilzrXFRdCOKS/BpgsVVY4qufIC5JQTncg2OMaLtcCveiyATIvxSFXAjkMutWmGoVCqBcGAh5EsQlGe88yMyItstZ8BsUaQL3oYgbgVySEqiw/l8G90t1HgRyeVE+dMYxSrRdLi/Cp/qWdYwxhGUEc0kesPeAKh07Q64EcknugSU4RIm2y6AEdKlOMJceaJduaJfKaJfaZdzRLpXRLrXLuKNdKqNdapfVMShlKQ6po10qEw+XjWAMDqmjXSoTD5cPwk04pI52qUwcXJY9BA/jmDrapTJxcLkCYCSOqaNdKhO+ywXnVvsB/KJdKhO6y0d6AqzEwQBol8qou6z++tg7KwBgFW4lANqlMuouffAobiUA2qUycXE5BbcSAO1Smbi4FG+2Cop2qUxcXD6GWwmAdqlMXFyuxq0EQLtUJi4uH8etBEC7VEbd5Rr8iAyTtU2WreMpjXArAdAulVF3Wd2xguz5t9MUtwctqKJdKhOuS0JK1lc//77RLpUJ2yUpud3j/m9FtEtlQndJfgvrcCgI2qUy4bssW/wEDgVBu1QmfJdkQ0McCYJ2qUwcXIaDdqmMdqldxh3tUhntUruMO9qlMtqldhl3tEtltEvtMu5ol8okxOXMlI04FBPtUplEuOyeE+DiZ+1SmUS47AabcCg22qUyCXBZmA+TcSw22qUy8XdZ2gPgSRyMjXapTNxdDn/K+YISP2iXysTbZelTAPA0jvpAu1QmlsvNeN7UXG5hT0F/Bod9oF0qE8vlVjxv1SVjCrexKSq8XpxTHQtwv3AZTgkH680GJs/iDAWcLvFTOgUS7TIFzxvkjyjyxdAx240p2uJG/fAk6hZgLk4JhdNxN74eBu2F8w1t1TxfNcEud+BZC8JzuFU/3I9bgeLlOCcMnsfdAMR6c4I3E3BTAOk4xyaxLjsbb/6pGfZrJvwzDTdSwwXGiw4u71Pbno2z/GK8u0Skq/dKNqEuO9NBaI25EDfrg53OF/AAQEPXFy/VhF2OrSXlBe/vvzoyNuCGKPXdX5iYYJdXhvNu2hdxuzF5aTduw6D9yzi1RszZWo574Cxs5vlyPG+6vIKb4ex53ON9Mwlz+eoo46atGqP4QLW9RffhFgRe2/06niAg+2b19DBJWbh7Vxaeojr237EKN2HTdOtat4UzYS7DWSYp+G3RMXgDT49wf5mEOjFfWq20QscTY2r1fdFv4n2MoEzHLcegMW4A8RaeICAHcMMYpREQnhjzNp4gkS41cUe7jA7zCgsLH8HBGqBdRgftMjpol9FBu4wO2mV00C6jg3YZHbTL6KBdRgftMjpol9FBu4wO2mV00C6jg3YZHbTL6KBd1hLvdMYR37x7YGja5NTU1LT3Ht9ZIsTroMu1L6Y4aJF32fsFH+BMQsq2VfIEj5tADuKGKA2f+/Cjd+S8rTjHAb+Yfe0TvPS0q4n3+My0/ZgXpx2Sm5CoaGVMNKwtrkpJOZz3yZiXzQSJ7tM/eU28Jqx47ADrieh10CXJuEucW4Ee52XiXJKbxqryPa6a23sEN2LQdbN4CWx7XO3AvAFiFL8Qs3KJMLVF6T0AMNa+7mN6Pm7Gxlqi9h3FVQabZuFrrnPb/I7VrFqTl5qaes34wbRQfP2xB1ltXXRJStgM//6Y/Y6FotX9WSz/OM4lpfyD/wHHDfi9fyeE9zUUzdjDYlVX2lkrAY4OS7Og1XfbxfoVAI3N1HN5f1dNsqe2yVgMIK4+1tDUdULnBkvF+4sPsAY/fd2qnT/0swYs9vkEoS1CzulKr/de+oX9i3634D565f1ZrFAnXZJN9IO0kWPNT2Mf7wU5SrLoogAAvT0eO5PFatF1yw8vZtFZVqAffCmm0MrtQvmchtDF/N+8Z6TdBUKCxUKAQUJxIs08IgRMDn0lFFh7FwkBQkgBW+Yq3hRCmfTC+G141dT4UBK4/BoFM+g1iA7FrQH6Habx9nLcxNUlKenIwu+a5YorpGpaJ7okZMpu87/ZAHyhgREuNyr4ddloolBgrS0SApQzuUxhKf8jAPC1qcwdyefSuL22oxTLqILyk8tZRZpUYeLuksxn4a5m0RitmNA62eXwQ+Z/swHeOZtNDZ+VSTkUvy6JtZx7uTRuSb/fKme2A+iHl0rG+uRzaazeXhVDq5mQT2m8QvwSLTxcEvrOVfs+A7SE0SrZJbEGNNQluXgcm7yl4zYR3y5F3F12Zn2csi6f3w8ALeQUgxuT0OVB9qE3C5ElXCEfLP1JqLDwcskfU+C6a+Hq0oK5JG/1Y9NX4tueQ3RJ5rK4tR09Dl7LJdnJ/iaVywfYhxPWTtlHAdiGbCatKN8l5Jp4ueQ3eDqWK05sl2RjFWtg8CVybZguV7K4dZd2ES3NkFMkksll9oU0PE7Yk/zG3Hxm/5lWPWTXWHi4LOH3Q3vc/+PDJXmbr/Hzz5dq/bi8BZU9XF7BwvbDHhqx8oYbpSSRZHLJnwbQww50bwflo/m/H7C6g3adiYfLr1j4Lhw2oHWxXJLhvA14VtzY+nC5/Jhc9nJ5KwuPsAPG8Hn2tm8bOZIpzOURaT+21rD3sFxddmCrxVP2UZWsZQBXm/+z2/HHOYc/7i7rsWiOxw3L/lwSMowv3N8Jw1kfLvs4nt/AWkF6yk6w6BHh0I94Z2pxSl6fel+vaC5OwlzWEexHOjldDmy9lOW8cqkdKwTIt744PvzZY9cauLhcNIu92REaOFZ2JrTWh0vyPR8N/2APodxc7ikUmLS79w4hgcEakVwuv4nfy/zjzWKUj/0kVuYNsB42WIddHs6zqeRDlao2wsYyd6H0NuMhNKFcOC7HsVxabZmPLKrnsbFUcEnS+TGHo5YIN5eYLUICg0UXEdLSmMPnjeOEp9LQOPvlu+WWOP2NH0cddokob7F1pnQAvQiktzNm59CsfCHCsFyewfciOFXru3nsjjBoii+XZAt/0pY1nPXj0vGqVxZdRMhJPjbmXPWXIud6I3f6D/zwo4xwbL2OgFxeL9wiPj19Cz4RUgpQLh15m8QaOSGGpHXsPOPpEN+en16IkjA0zZ9LkjGWNWoOZ91cStvLkWtgr1imsBboov0q+z1CVbf9O1zPw1ByO3w0cf2P7ACfDRvE1XtbXJnXLvbP0Lm9dJDVEmCNHGEDv3FoDCFsL0v4XkRl7Mfz0TSfLglZxr/OJmw4G9Ml6VslFSlsejbfc9qy/7dLm0lXcgvTC3o9xzf8ADCNusQ5dQIfLv8KULFF/i00Z58qRc6Txj53skJOzIexse8TBw0cLsnHfAR0kA5nY7sk78tFeewz6EdWqNyHczx4pBv/gS5LYpcZ7LiBK/LumzyO5Q8Sm+pxfsyCJvl3SY6dYs1u6OvLpRM2tbE+KTvESqvOwEle5H5H8+kAPlldXsw+sSsVUiLaJzEGI47ddRmaouCSjOSb4qPzau6SED6CqfpGzqmGnnR/M3ldLgIY94wwNjKYxb6G9WIm3r88zq/x+JuY40DVJbmZnvEHGDwyBJfkJ1auKJJyyFD5YKFAs6R2mb0doCcOUnFT6IS9xY0Ndkke5jI/w4eCRJRdkgy+9s7vF4JL8i0/o9ZLzCH786SiwGjjyGZyuhwNcArvozAGsS/hNSHicEla8yNv9V2uCjBRd0nIKPPppT5d7rB/cWwycfy9gu8LLxWPZuyC74WSyOX00pFkddm5HXh9sJ/Zl3CvHXC6JPv47vZYr6OxwVySAuM5qf5clrWwD1Y4XJKNfP9xg3BAozFUiNci2JQ2ACimB/KS0eXAvwN8joMG2ezQSbF9CbCLS7KIHwpr6zyuYhDIJZnAr8z053J9f/t/p0uyhZ8UWWPvaL5Ej+K7nIpuRXe0/kH/q5suP6ef4yccNaHv2WiGgyYfse/AfunUQBeXpIQfJMxBJ5JNMmml11OkK+WrJkX2sT190SW7MKipc3Nw7WnCRYD8Oia0RznvCRZta58JocX2H6JZbjyG/nj5ubs66XIJ+xiHcZgz8Dxa+SkOG2R1YtNCJzNwkhUd13XV52nHXUdAj7G6UhxmDH/I/WI4RgY9pSm6ZD9KuDoVMX4cP1LDGcCShgqTUQbx85enrPhkvks995+ri76hpwgPFPXqxJbew//iCXXQZfaKR/kX3Uk4v2VVXpDH6novc9vfH/gmPzpKT459SQPdnzWKafiB+PwMJvSY6bD5wUE+iln3hcuJlHR2nXSa67lgyr9FlxtvM+fGSYW5GVjwE7/0qOJn8UdAt6j/4ZmbThrzkfnGVy6PLu8/3dzu10GX8+0Lxh1nFEiBXelyv8UQuzYt7b+EEKGIcy834gdwRS9rEuce3X6zCt8dYHHcPqU6zWrIBWtx22zHrEYM7jXiHaxI9//998R488RXcYuWM2YKR27roMskZ6f38Dg09tLDz46tsHYZHbTL6KBdRgftMjpol9FBu4wO2mV00C6jg3YZHbTL6KBdRgftMjpol9Hh/x+9mxLeDLniAAAAAElFTkSuQmCC">
-  <div class="tit"><b>Painel de Controle</b><span id="hdrSub"></span></div>
-  <div class="seg secao" role="group" aria-label="Seção">
-    <button data-secao="c">Monitor de Carteiras</button><button data-secao="f">Monitor de Fundos</button>
+<aside id="side" style="display:none" aria-label="Navegação principal">
+  <div class="sd-top"><img class="sd-logo" alt="Etti Partners" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcsAAACfCAMAAAChtAIgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAALxUExURf///////////wAAAP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7SE4wAAAD7dFJOU4vflQCf/6vggMHAN0AmJWruVig/MAYO2yK3HTZ42fjtNQGd86UbrOQKegNIVdHoaQlG8dIatgR9fP2nCy32vip7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">
+    <button class="sd-tg" id="sdToggle" aria-label="Recolher ou expandir o menu" title="Recolher menu"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
+  <div class="sd-eb">Painel de Controle</div>
+  <nav class="sd-nav">
+    <button data-secao="c" title="Monitor de Carteiras"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z" fill="currentColor"/></svg><span>Monitor de Carteiras</span></button>
+    <button data-secao="f" title="Monitor de Fundos"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="5.5" y="11" width="3" height="7" rx="1" fill="currentColor"/><rect x="10.5" y="6" width="3" height="12" rx="1" fill="currentColor"/><rect x="15.5" y="9" width="3" height="9" rx="1" fill="currentColor"/></svg><span>Monitor de Fundos</span></button>
+  </nav>
+  <div class="sd-fim">
+    <a href="#acesso" data-v="acesso" title="Acesso"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Acesso · <b id="usr"></b></span></a>
+  </div>
+</aside>
+<header class="top" style="display:none">
+  <div class="tit"><b id="hdrTit">Monitor de Carteiras</b><span id="hdrSub"></span></div>
   <div class="sp"></div>
   <div class="seg" id="segUni" role="group" aria-label="Mercado">
     <button data-uni="all">Consolidado</button><button data-uni="on">Onshore</button><button data-uni="off">Offshore</button>
@@ -241,7 +291,6 @@ body.lg{background:var(--verde-etti)}
   <a class="tf" href="#cadastro" data-v="cadastro">Cadastro<span class="badge" id="bCad"></span></a>
   <span style="flex:1"></span>
   <span class="save" id="saveState"></span>
-  <a href="#acesso" data-v="acesso">Acesso · <span id="usr"></span></a>
 </nav>
 <main id="view" style="display:none"></main>
 <footer id="foot" style="display:none"></footer>
@@ -868,7 +917,8 @@ function render(){
   document.getElementById("segUni").style.display = fs ? "none" : "";
   document.querySelectorAll("#tabs a.tc").forEach(a=>a.style.display = fs ? "none" : "");
   document.querySelectorAll("#tabs a.tf").forEach(a=>a.style.display = fs ? "" : "none");
-  document.querySelectorAll("#tabs a").forEach(a=>{ if (a.dataset.v===S.view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  document.getElementById("view").classList.toggle("wide", S.view==="fundos" || S.view==="fiis");
+  document.querySelectorAll("#tabs a, #side a[data-v]").forEach(a=>{ if (a.dataset.v===S.view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   if (FCAD){ const n = (FCAD.cad||[]).filter(a=>a.origem==="Sugerida (revisar)" && a.ativo!=="N").length; document.getElementById("bCad").textContent = n || ""; }
   if (!fs || !M) calcular();
   const ps = new Set(portsVis().map(p=>p.nome));
@@ -877,16 +927,18 @@ function render(){
   const sy = window.scrollY, foc = document.activeElement && document.activeElement.id;
   const selStart = document.activeElement && document.activeElement.selectionStart;
   document.getElementById("view").innerHTML = VIEWS[S.view]();
+  ajustarAltura();
   window.scrollTo(0, sy);
   if (foc){ const el = document.getElementById(foc); if (el){ el.focus(); try{ if (selStart!=null) el.setSelectionRange(selStart, selStart); }catch(e){} } }
 }
 function cabecalho(){
   const sub = document.getElementById("hdrSub"), ft = document.getElementById("foot");
+  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Monitor de Fundos" : "Monitor de Carteiras";
   if (S.secao==="f"){
-    sub.textContent = FD ? `Monitor de Fundos · cotas até ${dtBR(FD.ref)} · atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} ${(FD.gerado_em||"").slice(11,16)}` : "Monitor de Fundos";
+    sub.textContent = FD ? `Cotas até ${dtBR(FD.ref)} · atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} ${(FD.gerado_em||"").slice(11,16)}` : "";
     ft.innerHTML = `Etti Partners | Uso interno e confidencial. Fontes: CVM, ANBIMA, B3, Banco Central e Yahoo Finance.${FD?` ${nf0.format(FD.linhas.length)} ativos monitorados; rentabilidades alinhadas à última data completa da CVM (${dtBR(FD.ref)}).`:""}`;
   } else {
-    sub.textContent = `Monitor de Carteiras · posições de ${dtBR(META.data_analise)} · PTAX ${nf4.format(META.ptax||0)} · atualizado em ${dtBR((META.gerado_em||"").slice(0,10))} ${(META.gerado_em||"").slice(11,16)}`;
+    sub.textContent = `Posições de ${dtBR(META.data_analise)} · PTAX ${nf4.format(META.ptax||0)} · atualizado em ${dtBR((META.gerado_em||"").slice(0,10))} ${(META.gerado_em||"").slice(11,16)}`;
     ft.innerHTML = `Etti Partners | Uso interno e confidencial. Fonte: ${esc(META.fonte||"Comdinheiro")}. Posições de ${dtBR(META.data_analise)}; ${META.carteiras} carteiras e ${nf0.format(META.posicoes)} posições na base.`;
   }
 }
@@ -1100,12 +1152,10 @@ document.addEventListener("click", async e=>{
    ===================================================================== */
 const SEC_F = new Set(["fundos","fiis","resumo","cadastro"]);
 let FD = null, FCAD = null, FSER = null, fCarga = null, fErro = null, fSerCarga = null;
-const F = {grupo:"todos", classe:"", q:"", sort:{k:"rank",d:1}, cols:{ret:true, risco:true, pat:false},
-           seg:"", iq:"", isort:{k:"rank",d:1}, icols:{renda:true, ret:true, risco:false},
+const F = {grupo:"todos", classe:"", q:"", sort:{k:"rank",d:1},
+           seg:"", iq:"", isort:{k:"rank",d:1},
            det:null, cq:"", ccls:"", crev:false, cinat:false, cmax:80,
            novo:{modo:"cnpj", nome:"", cnpj:"", ticker:"", fidc:false, classe:"", seg:"", bench:"", msg:"", ok:false}};
-try { const s = JSON.parse(localStorage.getItem("etti_fundos_ui")||"{}"); if (s.cols) F.cols = s.cols; if (s.icols) F.icols = s.icols; } catch (e) {}
-function lembrarF(){ try { localStorage.setItem("etti_fundos_ui", JSON.stringify({cols:F.cols, icols:F.icols})); } catch (e) {} }
 
 function carregarFundos(){
   if (fCarga) return fCarga;
@@ -1140,7 +1190,7 @@ function mediana(a){ a = a.filter(x=>x!=null && !isNaN(x)).sort((x,y)=>x-y); if 
 function cmpF(sort){ return (a,b)=>{ const k = sort.k;
   if (k==="nome") return sort.d*String(a.nome||"").localeCompare(String(b.nome||""),"pt-BR");
   const x = a[k], y = b[k]; if (x==null && y==null) return 0; if (x==null) return 1; if (y==null) return -1; return sort.d*(x-y); }; }
-function thF(c, sort, attr){ const on = sort.k===c.k; return `<th class="r s${c.gs?" gs":""}" data-${attr}="${c.k}"${c.tip?` data-tip="${esc(c.tip)}"`:""}>${esc(c.l)}${on?(sort.d>0?" ▲":" ▼"):""}</th>`; }
+function thF(c, sort, attr){ const on = sort.k===c.k; return `<th class="s${c.gs?" gs":""}" data-${attr}="${c.k}"${c.tip?` data-tip="${esc(c.tip)}"`:""}>${esc(c.l)}${on?(sort.d>0?" ▲":" ▼"):""}</th>`; }
 function defasadaTip(L){ return L.mensal ? "Cota mensal (FIDC) com mais de 70 dias" : "Cota sem atualização há mais de 7 dias em relação à data de referência"; }
 function celData(L){ if (!L.data) return dashF; return L.defasada ? `<span class="chip st-aten" data-tip="${esc(defasadaTip(L))}">${dtCurta(L.data)}</span>` : dtCurta(L.data); }
 function semFundos(){
@@ -1155,105 +1205,110 @@ function aviso(){
 
 /* colunas da aba Fundos */
 const COLS_F = [
-  {k:"dia", l:"Dia", g:"ret", f:x=>rt(x), gs:1}, {k:"mes", l:"Mês", g:"ret", f:x=>rt(x)}, {k:"ano", l:"Ano", g:"ret", f:x=>rt(x)},
-  {k:"r12", l:"12m", g:"ret", f:x=>rt(x)}, {k:"r24", l:"24m", g:"ret", f:x=>rt(x)}, {k:"r36", l:"36m", g:"ret", f:x=>rt(x)},
-  {k:"r48", l:"48m", g:"ret", f:x=>rt(x)}, {k:"r60", l:"60m", g:"ret", f:x=>rt(x)},
-  {k:"pcdi_ano", l:"%CDI ano", g:"ret", f:pcdi, tip:"Retorno no ano dividido pelo CDI do ano"}, {k:"pcdi12", l:"%CDI 12m", g:"ret", f:pcdi},
-  {k:"vs_bmk", l:"vs bench 12m", g:"risco", f:ppF, gs:1, tip:"Retorno em 12 meses menos o do benchmark do fundo"},
-  {k:"vol12", l:"Vol 12m", g:"risco", f:x=>rt(x,1), tip:"Volatilidade anualizada (diária × √252; FIDC mensal × √12)"}, {k:"vol36", l:"Vol 36m", g:"risco", f:x=>rt(x,1)},
-  {k:"sharpe36", l:"Sharpe 36m", g:"risco", f:num2, tip:"Excesso de retorno anual sobre o CDI em 36 meses, dividido pela volatilidade de 36 meses"},
-  {k:"dd12", l:"Queda máx. 12m", g:"risco", f:x=>rt(x,1), tip:"Maior queda de um pico ao vale seguinte (drawdown) em 12 meses"}, {k:"dd36", l:"Queda máx. 36m", g:"risco", f:x=>rt(x,1)},
-  {k:"pl", l:"PL R$ mi", g:"pat", f:mi, gs:1}, {k:"cot", l:"Cotistas", g:"pat", f:inteiro},
-  {k:"cap_mes", l:"Captação mês R$ mi", g:"pat", f:mi, tip:"Captação líquida (aplicações − resgates) no mês da data da cota"}, {k:"cap12", l:"Captação 12m R$ mi", g:"pat", f:mi},
+  {k:"dia", w:64, l:"Dia", g:"ret", f:x=>rt(x), gs:1}, {k:"mes", w:64, l:"Mês", g:"ret", f:x=>rt(x)}, {k:"ano", w:66, l:"Ano", g:"ret", f:x=>rt(x)},
+  {k:"r12", w:68, l:"12m", g:"ret", f:x=>rt(x)}, {k:"r24", w:68, l:"24m", g:"ret", f:x=>rt(x)}, {k:"r36", w:68, l:"36m", g:"ret", f:x=>rt(x)},
+  {k:"r48", w:68, l:"48m", g:"ret", f:x=>rt(x)}, {k:"r60", w:68, l:"60m", g:"ret", f:x=>rt(x)},
+  {k:"pcdi_ano", w:66, l:"%CDI ano", g:"ret", f:pcdi, tip:"Retorno no ano dividido pelo CDI do ano"}, {k:"pcdi12", w:66, l:"%CDI 12m", g:"ret", f:pcdi},
+  {k:"vs_bmk", w:74, l:"vs bench 12m", g:"risco", f:ppF, gs:1, tip:"Retorno em 12 meses menos o do benchmark do fundo"},
+  {k:"vol12", w:62, l:"Vol 12m", g:"risco", f:x=>rt(x,1), tip:"Volatilidade anualizada (diária × √252; FIDC mensal × √12)"}, {k:"vol36", w:62, l:"Vol 36m", g:"risco", f:x=>rt(x,1)},
+  {k:"sharpe36", w:64, l:"Sharpe 36m", g:"risco", f:num2, tip:"Excesso de retorno anual sobre o CDI em 36 meses, dividido pela volatilidade de 36 meses"},
+  {k:"dd12", w:70, l:"Queda máx. 12m", g:"risco", f:x=>rt(x,1), tip:"Maior queda de um pico ao vale seguinte (drawdown) em 12 meses"}, {k:"dd36", w:70, l:"Queda máx. 36m", g:"risco", f:x=>rt(x,1)},
+  {k:"pl", w:74, l:"PL R$ mi", g:"pat", f:mi, gs:1}, {k:"cot", w:76, l:"Cotistas", g:"pat", f:inteiro},
+  {k:"cap_mes", w:80, l:"Captação mês R$ mi", g:"pat", f:mi, tip:"Captação líquida (aplicações − resgates) no mês da data da cota"}, {k:"cap12", w:80, l:"Captação 12m R$ mi", g:"pat", f:mi},
 ];
-const GRP_F = {ret:"Retornos", risco:"Risco", pat:"Patrimônio e captação"};
 
 function linhaBm(bm, cols, nome){
   if (!bm) return "";
-  return `<tr class="bm"><td>${esc(bm.nome||nome)} <span class="small">· benchmark</span></td><td>${dtCurta(bm.data)}</td>${cols.map(c=>`<td class="r${c.gs?" gs":""}">${["dia","mes","ano","r12","r24","r36","r48","r60"].includes(c.k)?rt(bm[c.k]):""}</td>`).join("")}<td></td><td></td></tr>`;
+  return `<tr class="bm"><td>${esc(bm.nome||nome)} · benchmark</td><td class="c">${dtCurta(bm.data)}</td>${cols.map(c=>`<td class="r${c.gs?" gs":""}">${["dia","mes","ano","r12","r24","r36","r48","r60"].includes(c.k)?rt(bm[c.k]):""}</td>`).join("")}<td class="gs"></td><td></td></tr>`;
 }
 
+function colgroup(ws){ return `<colgroup>${ws.map(w=>`<col style="width:${w}px">`).join("")}</colgroup>`; }
+function largura(ws){ return ws.reduce((a,b)=>a+b,0); }
+function cabF(tit, sub, filtros){
+  return `<div class="fhead"><div><div class="eyebrow">Monitor de Fundos</div><h1>${esc(tit)}</h1><div class="fsub">${sub}</div></div><div class="flt">${filtros}</div></div>`;
+}
 function vFundos(){
   const sf = semFundos(); if (sf) return sf;
   const ci = clsInfo(), gs = gruposF().filter(g=>g!=="Imobiliário");
-  let h = cabec("Monitor de Fundos", "Fundos e ativos listados", `Rentabilidade, risco e patrimônio por classe, com ranking e quartil em 12 meses dentro de cada classe. ${FD?`Cotas até <b>${dtBR(FD.ref)}</b>, a última data completa da CVM; fundos com cota mais antiga aparecem marcados.`:""}`);
-  h += aviso(); if (!FD) return h;
-  const cols = COLS_F.filter(c=>F.cols[c.g]);
+  if (!FD) return cabF("Fundos e ativos listados", "", "") + aviso();
+  const cols = COLS_F;
   const q = F.q.trim().toLowerCase();
   let ls = FD.linhas.filter(L=>L.classe!=="FII");
   if (F.grupo!=="todos") ls = ls.filter(L=>(ci[L.classe]||{}).grupo===F.grupo);
   if (F.classe) ls = ls.filter(L=>L.classe===F.classe);
   if (q) ls = ls.filter(L=>(L.nome+" "+(L.ident||"")+" "+(L.nomecvm||"")).toLowerCase().includes(q) || (L.ident||"").replace(/\D/g,"").includes(q.replace(/\D/g,"")||"#"));
   const clsOpts = (FCAD.classes||[]).filter(c=>c.codigo!=="FII" && (F.grupo==="todos"||c.grupo===F.grupo));
-  h += `<div class="flt"><button class="chipbtn" data-fgrp="todos" aria-pressed="${F.grupo==="todos"}">Todos</button>${gs.map(g=>`<button class="chipbtn" data-fgrp="${esc(g)}" aria-pressed="${F.grupo===g}">${esc(g)}</button>`).join("")}
+  const filtros = `<button class="chipbtn" data-fgrp="todos" aria-pressed="${F.grupo==="todos"}">Todos</button>${gs.map(g=>`<button class="chipbtn" data-fgrp="${esc(g)}" aria-pressed="${F.grupo===g}">${esc(g)}</button>`).join("")}
     <select id="fCls" aria-label="Classe"><option value="">Todas as classes</option>${clsOpts.map(c=>`<option value="${esc(c.codigo)}"${F.classe===c.codigo?" selected":""}>${esc(c.nome)}</option>`).join("")}</select>
-    <input type="search" id="fQ" placeholder="Buscar por nome ou CNPJ" value="${esc(F.q)}" style="width:220px">
-    <span style="flex:1"></span><span class="small muted">Colunas</span>${Object.entries(GRP_F).map(([k,l])=>`<button class="chipbtn" data-fcol="${k}" aria-pressed="${!!F.cols[k]}">${l}</button>`).join("")}</div>`;
+    <input type="search" id="fQ" placeholder="Buscar por nome ou CNPJ" value="${esc(F.q)}" style="width:210px">`;
+  let h = cabF("Fundos e ativos listados", `${ls.length} ativos · cotas até <b>${dtBR(FD.ref)}</b> (última data completa da CVM) · clique no nome para ver o gráfico`, filtros);
   const porC = {}; ls.forEach(L=>(porC[L.classe] = porC[L.classe] || []).push(L));
   const ordem = Object.keys(porC).sort((a,b)=>((ci[a]||{}).ordem??999)-((ci[b]||{}).ordem??999) || a.localeCompare(b));
-  if (!ordem.length) return h + `<div class="card"><div class="empty">Nenhum fundo com esses filtros.</div></div>`;
-  let t = `<div class="tw ft"><table class="ftab"><thead><tr><th class="s" data-fsort="nome">Fundo${F.sort.k==="nome"?(F.sort.d>0?" ▲":" ▼"):""}</th><th>Data cota</th>${cols.map(c=>thF(c, F.sort, "fsort")).join("")}<th class="r s gs" data-fsort="rank" data-tip="Posição em 12 meses dentro da classe">Rank 12m${F.sort.k==="rank"?(F.sort.d>0?" ▲":" ▼"):""}</th><th class="c">Quartil</th></tr></thead><tbody>`;
-  const nc = cols.length + 4;
+  if (!ordem.length) return h + `<div class="card"><div class="empty">Nenhum fundo com esses filtros.</div></div>` + detalheF();
+  const ws = [330, 78, ...cols.map(c=>c.w), 66, 62];
+  let t = `<div class="tw ft"><table class="ftab fx" style="width:${largura(ws)}px">${colgroup(ws)}<thead><tr><th class="s" data-fsort="nome">Fundo${F.sort.k==="nome"?(F.sort.d>0?" ▲":" ▼"):""}</th><th>Data cota</th>${cols.map(c=>thF(c, F.sort, "fsort")).join("")}<th class="s gs" data-fsort="rank" data-tip="Posição em 12 meses dentro da classe">Rank 12m${F.sort.k==="rank"?(F.sort.d>0?" ▲":" ▼"):""}</th><th>Quartil</th></tr></thead><tbody>`;
+  const nc = ws.length;
   ordem.forEach(k=>{
     const arr = porC[k].slice().sort(cmpF(F.sort)), c = ci[k] || {nome:k};
     const med = mediana(arr.map(L=>L.r12)), bm = FD.bm_grupo[k];
-    t += `<tr class="gh"><td colspan="${nc}">${esc(c.nome||k)}<span class="gm">${arr.length} ${arr.length===1?"ativo":"ativos"} · mediana 12m ${rt(med)}${bm?` · ${esc(bm.nome)} 12m ${rt(bm.r12)}`:""}</span></td></tr>`;
+    t += `<tr class="gh"><td colspan="${nc}"><span class="ghl">${esc(c.nome||k)}<span class="gm">${arr.length} ${arr.length===1?"ativo":"ativos"} · mediana 12m ${rt(med)}</span></span></td></tr>`;
     t += linhaBm(bm, cols);
     arr.forEach(L=>{
-      t += `<tr class="fr"><td><button class="link nm" data-fd="${esc(L.chave)}" title="${esc(L.nome)}">${esc(L.nome)}</button><span class="id">${esc(L.ident||"")}${L.bmk&&L.bmk!==(c.bench||"")?` · bench ${esc(L.bmk)}`:""}</span></td><td>${celData(L)}</td>`
+      t += `<tr class="fr"><td><button class="link nm" data-fd="${esc(L.chave)}" title="${esc(L.nome)}">${esc(L.nome)}</button><span class="id">${esc(L.ident||"")}${L.bmk&&L.bmk!==(c.bench||"")?` · bench ${esc(L.bmk)}`:""}</span></td><td class="c">${celData(L)}</td>`
         + cols.map(c=>`<td class="r${c.gs?" gs":""}">${c.f(L[c.k])}</td>`).join("")
         + `<td class="r gs">${L.rank?`${L.rank}<span class="muted small">/${L.n}</span>`:dashF}</td><td class="c">${quart(L.quartil)}</td></tr>`;
     });
   });
-  h += `<div class="card" style="padding:12px">${t}</tbody></table></div><p class="fonte">${ls.length} ativos. Clique no nome para ver o gráfico de 36 meses contra o benchmark. Ranking e quartil comparam o retorno de 12 meses dentro da classe. Fontes: CVM (Informe Diário e Informe Mensal de FIDC), Yahoo Finance (listados), ANBIMA, B3 e Banco Central.</p></div>`;
-  return h + detalheF();
+  return h + t + `</tbody></table></div>` + detalheF();
 }
+function ajustarAltura(){ const tw = document.querySelector(".tw.ft"); if (!tw) return;
+  const topo = tw.getBoundingClientRect().top + window.scrollY; tw.style.height = Math.max(360, innerHeight - topo - 14) + "px"; }
+window.addEventListener("resize", ()=>{ clearTimeout(window._ajT); window._ajT = setTimeout(ajustarAltura, 120); });
 
 /* aba FIIs */
 const COLS_I = [
-  {k:"preco", l:"Preço", g:"renda", f:num2, gs:1}, {k:"vp", l:"VP/cota", g:"renda", f:num2, tip:"Valor patrimonial por cota (Informe Mensal da CVM)"},
-  {k:"pvp", l:"P/VP", g:"renda", f:num2}, {k:"dy12", l:"DY 12m", g:"renda", f:x=>rt(x), tip:"Proventos com data-ex nos últimos 12 meses sobre o preço"},
-  {k:"dym", l:"DY mês", g:"renda", f:x=>rt(x), tip:"Último provento (nos últimos 2 meses) sobre o preço"},
-  {k:"ult_prov", l:"Últ. provento", g:"renda", f:num2}, {k:"dt_ex", l:"Data-ex", g:"renda", f:x=>x?dtCurta(x):dashF},
-  {k:"dia", l:"Dia", g:"ret", f:x=>rt(x), gs:1}, {k:"mes", l:"Mês", g:"ret", f:x=>rt(x)}, {k:"ano", l:"Ano", g:"ret", f:x=>rt(x)},
-  {k:"r12", l:"12m", g:"ret", f:x=>rt(x)}, {k:"r24", l:"24m", g:"ret", f:x=>rt(x)}, {k:"r36", l:"36m", g:"ret", f:x=>rt(x)}, {k:"r60", l:"60m", g:"ret", f:x=>rt(x)},
-  {k:"vs_bmk", l:"vs IFIX 12m", g:"ret", f:ppF},
-  {k:"vol12", l:"Vol 12m", g:"risco", f:x=>rt(x,1), gs:1}, {k:"dd12", l:"Queda máx. 12m", g:"risco", f:x=>rt(x,1)},
-  {k:"liq", l:"Liquidez R$ mil/dia", g:"risco", f:inteiro, tip:"Volume financeiro médio dos últimos 21 pregões"},
-  {k:"pl", l:"PL R$ mi", g:"risco", f:mi}, {k:"cot", l:"Cotistas", g:"risco", f:inteiro},
+  {k:"preco", l:"Preço", w:72, f:num2, gs:1}, {k:"vp", l:"VP/cota", w:72, f:num2, tip:"Valor patrimonial por cota (Informe Mensal da CVM)"},
+  {k:"pvp", l:"P/VP", w:58, f:num2}, {k:"dy12", l:"DY 12m", w:66, f:x=>rt(x), tip:"Proventos com data-ex nos últimos 12 meses sobre o preço"},
+  {k:"dym", l:"DY mês", w:62, f:x=>rt(x), tip:"Último provento (nos últimos 2 meses) sobre o preço"},
+  {k:"ult_prov", l:"Últ. provento", w:72, f:num2}, {k:"dt_ex", l:"Data-ex", w:80, c:1, f:x=>x?dtCurta(x):dashF},
+  {k:"dia", l:"Dia", w:66, f:x=>rt(x), gs:1}, {k:"mes", l:"Mês", w:66, f:x=>rt(x)}, {k:"ano", l:"Ano", w:68, f:x=>rt(x)},
+  {k:"r12", l:"12m", w:68, f:x=>rt(x)}, {k:"r24", l:"24m", w:68, f:x=>rt(x)}, {k:"r36", l:"36m", w:68, f:x=>rt(x)}, {k:"r60", l:"60m", w:68, f:x=>rt(x)},
+  {k:"vs_bmk", l:"vs IFIX 12m", w:74, f:ppF},
+  {k:"vol12", l:"Vol 12m", w:62, f:x=>rt(x,1), gs:1}, {k:"dd12", l:"Queda máx. 12m", w:70, f:x=>rt(x,1)},
+  {k:"liq", l:"Liquidez R$ mil/dia", w:80, f:inteiro, tip:"Volume financeiro médio dos últimos 21 pregões"},
+  {k:"pl", l:"PL R$ mi", w:70, f:mi}, {k:"cot", l:"Cotistas", w:74, f:inteiro},
 ];
-const GRP_I = {renda:"Preço e proventos", ret:"Retornos", risco:"Risco e liquidez"};
 
 function vFiis(){
   const sf = semFundos(); if (sf) return sf;
-  let h = cabec("Monitor de Fundos", "Fundos imobiliários", `Preço, proventos e retorno total (com proventos reinvestidos) por segmento, com ranking e quartil em 12 meses dentro do segmento.${FD?` Preços até <b>${dtBR(FD.ref)}</b>.`:""}`);
-  h += aviso(); if (!FD) return h;
-  const cols = COLS_I.filter(c=>F.icols[c.g]);
+  if (!FD) return cabF("Fundos imobiliários", "", "") + aviso();
+  const cols = COLS_I;
   const q = F.iq.trim().toLowerCase();
   let ls = FD.linhas.filter(L=>L.classe==="FII");
   const segsTodos = (FCAD.segs||[]).slice(); ls.forEach(L=>{ if (L.seg && !segsTodos.includes(L.seg)) segsTodos.push(L.seg); });
   if (F.seg) ls = ls.filter(L=>L.seg===F.seg);
   if (q) ls = ls.filter(L=>(L.nome+" "+(L.ident||"")).toLowerCase().includes(q));
-  h += `<div class="flt"><select id="iSeg" aria-label="Segmento"><option value="">Todos os segmentos</option>${segsTodos.map(s=>`<option${F.seg===s?" selected":""}>${esc(s)}</option>`).join("")}</select>
-    <input type="search" id="iQ" placeholder="Buscar por ticker ou nome" value="${esc(F.iq)}" style="width:220px">
-    <span style="flex:1"></span><span class="small muted">Colunas</span>${Object.entries(GRP_I).map(([k,l])=>`<button class="chipbtn" data-icol="${k}" aria-pressed="${!!F.icols[k]}">${l}</button>`).join("")}</div>`;
+  const filtros = `<select id="iSeg" aria-label="Segmento"><option value="">Todos os segmentos</option>${segsTodos.map(s=>`<option${F.seg===s?" selected":""}>${esc(s)}</option>`).join("")}</select>
+    <input type="search" id="iQ" placeholder="Buscar por ticker ou nome" value="${esc(F.iq)}" style="width:210px">`;
+  let h = cabF("Fundos imobiliários", `${ls.length} FIIs · preços até <b>${dtBR(FD.ref)}</b> · retorno total com proventos reinvestidos · clique no ticker para ver o gráfico`, filtros);
   const porS = {}; ls.forEach(L=>(porS[L.seg||"(sem segmento)"] = porS[L.seg||"(sem segmento)"] || []).push(L));
   const ordem = Object.keys(porS).sort((a,b)=>{ const ia = segsTodos.indexOf(a), ib = segsTodos.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); });
-  if (!ordem.length) return h + `<div class="card"><div class="empty">Nenhum FII com esses filtros.</div></div>`;
-  const nc = cols.length + 4;
-  let t = `<div class="tw ft"><table class="ftab"><thead><tr><th class="s" data-isort="nome">FII${F.isort.k==="nome"?(F.isort.d>0?" ▲":" ▼"):""}</th><th>Data</th>${cols.map(c=>thF(c, F.isort, "isort")).join("")}<th class="r s gs" data-isort="rank" data-tip="Posição em 12 meses dentro do segmento">Rank 12m${F.isort.k==="rank"?(F.isort.d>0?" ▲":" ▼"):""}</th><th class="c">Quartil</th></tr></thead><tbody>`;
+  if (!ordem.length) return h + `<div class="card"><div class="empty">Nenhum FII com esses filtros.</div></div>` + detalheF();
+  const ws = [200, 78, ...cols.map(c=>c.w), 66, 62];
+  const nc = ws.length;
+  let t = `<div class="tw ft"><table class="ftab fx" style="width:${largura(ws)}px">${colgroup(ws)}<thead><tr><th class="s" data-isort="nome">FII${F.isort.k==="nome"?(F.isort.d>0?" ▲":" ▼"):""}</th><th>Data</th>${cols.map(c=>thF(c, F.isort, "isort")).join("")}<th class="s gs" data-isort="rank" data-tip="Posição em 12 meses dentro do segmento">Rank 12m${F.isort.k==="rank"?(F.isort.d>0?" ▲":" ▼"):""}</th><th>Quartil</th></tr></thead><tbody>`;
   ordem.forEach(sg=>{
     const arr = porS[sg].slice().sort(cmpF(F.isort)), bm = FD.bm_grupo["FII|"+sg];
-    t += `<tr class="gh"><td colspan="${nc}">${esc(sg)}<span class="gm">${arr.length} ${arr.length===1?"FII":"FIIs"} · mediana 12m ${rt(mediana(arr.map(L=>L.r12)))} · DY 12m mediano ${rt(mediana(arr.map(L=>L.dy12)))} · P/VP mediano ${num2(mediana(arr.map(L=>L.pvp)))}</span></td></tr>`;
-    if (bm) t += `<tr class="bm"><td>${esc(bm.nome)} <span class="small">· benchmark</span></td><td>${dtCurta(bm.data)}</td>${cols.map(c=>`<td class="r${c.gs?" gs":""}">${["dia","mes","ano","r12","r24","r36","r60"].includes(c.k)?rt(bm[c.k]):""}</td>`).join("")}<td></td><td></td></tr>`;
+    t += `<tr class="gh"><td colspan="${nc}"><span class="ghl">${esc(sg)}<span class="gm">${arr.length} ${arr.length===1?"FII":"FIIs"} · mediana 12m ${rt(mediana(arr.map(L=>L.r12)))} · DY 12m mediano ${rt(mediana(arr.map(L=>L.dy12)))} · P/VP mediano ${num2(mediana(arr.map(L=>L.pvp)))}</span></span></td></tr>`;
+    if (bm) t += `<tr class="bm"><td>${esc(bm.nome)} · benchmark</td><td class="c">${dtCurta(bm.data)}</td>${cols.map(c=>`<td class="r${c.gs?" gs":""}">${["dia","mes","ano","r12","r24","r36","r60"].includes(c.k)?rt(bm[c.k]):""}</td>`).join("")}<td class="gs"></td><td></td></tr>`;
     arr.forEach(L=>{
-      t += `<tr class="fr"><td><button class="link nm" data-fd="${esc(L.chave)}" title="${esc(L.nome)}">${esc(L.ident||L.nome)}</button><span class="id" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">${esc(L.ident && L.nome!==L.ident ? L.nome : (L.tipo && L.tipo!=="FII" ? L.tipo : ""))}</span></td><td>${celData(L)}</td>`
-        + cols.map(c=>`<td class="r${c.gs?" gs":""}">${c.f(L[c.k])}</td>`).join("")
+      const sub = L.ident && L.nome!==L.ident ? L.nome : (L.tipo && L.tipo!=="FII" ? L.tipo : "");
+      t += `<tr class="fr"><td><button class="link nm" data-fd="${esc(L.chave)}" title="${esc(L.nome)}">${esc(L.ident||L.nome)}</button>${sub?`<span class="id">${esc(sub)}</span>`:""}</td><td class="c">${celData(L)}</td>`
+        + cols.map(c=>`<td class="${c.c?"c":"r"}${c.gs?" gs":""}">${c.f(L[c.k])}</td>`).join("")
         + `<td class="r gs">${L.rank?`${L.rank}<span class="muted small">/${L.n}</span>`:dashF}</td><td class="c">${quart(L.quartil)}</td></tr>`;
     });
   });
-  h += `<div class="card" style="padding:12px">${t}</tbody></table></div><p class="fonte">${ls.length} FIIs. Retornos pelo índice de retorno total (preço + proventos, ajustado por desdobramentos). Fontes: Yahoo Finance (preços e proventos), CVM (Informe Mensal de FII: VP, PL e cotistas) e B3 (IFIX).</p></div>`;
-  return h + detalheF();
+  return h + t + `</tbody></table></div>` + detalheF();
 }
 
 /* resumo e status das fontes */
@@ -1557,8 +1612,7 @@ document.addEventListener("click", e=>{
   const d = t.dataset;
   if (d.secao){ irPara(d.secao==="f" ? (S.ultF||"fundos") : (S.ultC||"painel")); return; }
   if (d.fgrp){ F.grupo = d.fgrp; F.classe = ""; render(); return; }
-  if (d.fcol){ F.cols[d.fcol] = !F.cols[d.fcol]; lembrarF(); render(); return; }
-  if (d.icol){ F.icols[d.icol] = !F.icols[d.icol]; lembrarF(); render(); return; }
+  if (t.id==="sdToggle"){ const m = !document.body.classList.contains("sd-min"); document.body.classList.toggle("sd-min", m); try { localStorage.setItem("etti_menu_min", m?"1":""); } catch (x) {} return; }
   if (d.fsort){ const k = d.fsort; F.sort = {k, d: F.sort.k===k ? -F.sort.d : (k==="nome"||k==="rank"?1:-1)}; render(); return; }
   if (d.isort){ const k = d.isort; F.isort = {k, d: F.isort.k===k ? -F.isort.d : (k==="nome"||k==="rank"?1:-1)}; render(); return; }
   if (d.fd){ F.det = d.fd; render(); return; }
@@ -1637,6 +1691,8 @@ async function iniciar(){
   }
   document.getElementById("login").style.display = "none";
   document.querySelector(".top").style.display = ""; document.getElementById("tabs").style.display = "";
+  document.getElementById("side").style.display = ""; document.body.classList.add("comside");
+  try { if (localStorage.getItem("etti_menu_min")) document.body.classList.add("sd-min"); } catch (e) {}
   document.getElementById("usr").textContent = USUARIO;
   const h = location.hash.slice(1); S.view = VIEWS[h] ? h : "painel";
   if (SEC_F.has(S.view)) carregarFundos();
