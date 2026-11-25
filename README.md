@@ -11,6 +11,7 @@ Site estático (GitHub Pages) com login por usuário e senha. **Os dados de clie
 - `data/duracoes.enc`: duration estimada dos fundos (carteira aberta na CVM + taxas ANBIMA), recalculada todo dia 16. Estimativas anteriores são mantidas quando um ativo não é recalculado.
 - `data/fundos_cadastro.enc`: cadastro do Monitor de Fundos (ativos, classes, segmentos e benchmarks), editável na aba **Cadastro**.
 - Ramo `base-fundos` (regravado a cada atualização, sem histórico, para o repositório não crescer): `fundos_base.enc` (cotas, índices, captação e proventos dos últimos ~5 anos), `fundos.enc` (métricas, ranking e status das fontes) e `fundos_series.enc` (séries semanais para os gráficos) e `performance.enc` (Monitor de Performance). Atualizado todo dia útil junto com as posições; quando alguém cadastra um ativo, o histórico dele é baixado na hora (`tools/atualizar_fundos.py --modo novos`).
+- `data/cotas_carteiras.enc`: lista das cotas das carteiras dos clientes na Comdinheiro (Ext_<carteira>_Cota) e datas de início da gestão; `tools/atualizar_cotas.py` gera `cotas.enc` (rentabilidade mensal desde o início contra CDI e CDI+, mostrada na aba Carteiras) até o último fechamento mensal.
 - `data/config.enc`: IPS, carteira modelo, classificações, durations manuais e alertas reconhecidos. **Os jobs automáticos nunca alteram este arquivo**; só a página, quando alguém edita.
 
 ## Secrets do repositório (Settings → Secrets and variables → Actions)

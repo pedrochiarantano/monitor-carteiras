@@ -750,6 +750,7 @@ function vCliente(){
   const pos = base.slice().sort((a,b)=>{ const x=pk(a),y=pk(b); return (x>y?1:x<y?-1:0)*S.psort.d; });
   const th = (k,l,c) => `<th class="s ${c||""}" data-psort="${k}" aria-sort="${S.psort.k===k?(S.psort.d>0?"ascending":"descending"):"none"}">${l}${S.psort.k===k?(S.psort.d>0?" ▲":" ▼"):""}</th>`;
   const agr = S.pAgr !== false;
+  h += secaoRentab(P_);
   h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="margin:0">Posições (${agr ? `${pos.length} ativos · ${nApl} aplicações` : nApl})</h2><button class="chipbtn" data-pagr="1" aria-pressed="${agr}" title="Junta as aplicações do mesmo ativo numa linha só">Agrupar</button></div><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
   pos.forEach(p=>{
     const lotes = p._n>1 ? `<span class="muted small" data-tip="${esc(p._lotes.map(l=>`${l.if||"–"}: ${moeda(l.v,ccy)}${l.ap?` · aplicação de ${dtBR(l.ap)}`:""}`).join("\n"))}"> · ${p._n} aplicações</span>` : "";
@@ -1737,7 +1738,7 @@ function corRet(x){ return x==null ? "" : x<0 ? ` class="r neg"` : ` class="r"`;
 /* ---------- gráfico de linhas genérico com régua de leitura ---------- */
 window._gc = window._gc || {};
 function grafLinhas(id, xs, series, o){
-  o = Object.assign({h:300, W:1000, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v), zero:true, rotFim:true}, o||{});
+  o = Object.assign({h:300, W:1000, yfmt:null, tipfmt:v=>rt(v), zero:true, rotFim:true}, o||{});
   const W = o.W, H = o.h, L = 52, R = o.rotFim ? 118 : 16, T = 14, B = 28;
   const vals = []; series.forEach(s=>s.ys.forEach(v=>{ if (v!=null && isFinite(v)) vals.push(v); }));
   if (!vals.length || xs.length<2) return `<div class="empty small">Sem dados no período.</div>`;
@@ -1746,6 +1747,7 @@ function grafLinhas(id, xs, series, o){
   const x0 = xs[0], x1 = xs[xs.length-1];
   const X = t => L + (W-L-R)*(t-x0)/((x1-x0)||1), Y = v => T + (H-T-B)*(1-(v-mn)/(mx-mn));
   const passo = (()=>{ const r = (mx-mn)/5, p = Math.pow(10, Math.floor(Math.log10(r))); const m = r/p; return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p; })();
+  if (!o.yfmt){ const dc = passo*100 >= 1 - 1e-9 ? 0 : passo*100 >= 0.1 - 1e-9 ? 1 : 2; const f = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:dc, maximumFractionDigits:dc}); o.yfmt = v=>(v<0?"−":"")+f.format(Math.abs(v*100))+"%"; }
   let s = `<svg data-gc="${id}" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(o.aria||"Gráfico de linhas")}">`;
   for (let v = Math.ceil(mn/passo)*passo; v <= mx; v += passo){
     const z = Math.abs(v) < passo/1e6;
@@ -1807,7 +1809,7 @@ function vPerf(){
   const pf = {}; PF.perfis.forEach(p=>pf[p.perfil] = p);
   const idx = {}; PF.indices.forEach(x=>idx[x.nome] = x.ret);
   let h = cabec("Performances", "Carteiras recomendadas por perfil", `Retorno das carteiras recomendadas onshore desde o início da Etti (${dtBR(PF.inicio)}), com a composição entre CDI, alocação estratégica, tática e seleção de ativos. Cotas até <b>${dtBR(PF.ref)}</b>.`);
-  h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · ${pctCdi(t.ano, idx.CDI.ano)} do CDI<br>${rt(t.inicio)} desde o início · ${pctCdi(t.inicio, idx.CDI.inicio)} do CDI</div></div>`; }).join("")}
+  h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · CDI${ppF(t.ano - idx.CDI.ano).replace(/^([+−])/, " $1 ")}<br>${rt(t.inicio)} desde o início · CDI${ppF(t.inicio - idx.CDI.inicio).replace(/^([+−])/, " $1 ")}</div></div>`; }).join("")}
     <div class="tile dest"><div class="k">CDI</div><div class="v">${rt(idx.CDI.ano)}</div><div class="s">no ano<br>${rt(idx.CDI.inicio)} desde o início</div></div></div>`;
   // gráfico desde o início
   const i0 = iniPeriodo(P.per), xs = PF._t.slice(i0);
@@ -1837,6 +1839,26 @@ function vPerf(){
   PF.indices.forEach(x=>{ ti += lin(esc(x.nome), x.ret); });
   h += `<div class="card mt"><h2>Índices de referência</h2><p class="sub">Mesmas janelas da tabela das carteiras.</p>${ti}</tbody></table></div></div>`;
   return h;
+}
+/* tabela de retornos mensais: carteira, CDI e CDI+ (diferença para o CDI, em p.p.) */
+function tabelaMensal(o){
+  const M = o.meses||{}, A = o.anos||{}, CM = o.cdiMeses, CA = o.cdiAnos, parc = new Set(o.parciais||[]), comCdi = !!CM;
+  const anos = Object.keys(A).sort().reverse(), nr = comCdi ? 3 : 1;
+  const cel = (v, k) => { if (v==null) return `<td class="r"></td>`; const a = Math.min(1, Math.abs(v)/0.03); const bg = v>=0 ? `rgba(19,166,120,${(0.08+0.32*a).toFixed(2)})` : `rgba(240,167,122,${(0.12+0.45*a).toFixed(2)})`;
+    return `<td class="r" style="background:${bg}"${parc.has(k)?' data-tip="Mês parcial: a carteira começou ou terminou no meio do mês"':""}>${rt(v)}${parc.has(k)?"*":""}</td>`; };
+  const acum = {}, acumC = {}; let a = 1, c = 1;
+  Object.keys(A).sort().forEach(y=>{ a *= 1 + (A[y]||0); acum[y] = a-1; if (comCdi && CA[y]!=null){ c *= 1 + CA[y]; acumC[y] = c-1; } });
+  const dif = (x, y) => x!=null && y!=null ? ppF(x-y) : "";
+  let t = `<div class="tw" style="max-height:none"><table class="ftab ptab mtab2"><thead><tr><th>Ano</th><th></th>${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"].map(m=>`<th class="r">${m}</th>`).join("")}<th class="r gs">Ano</th><th class="r" data-tip="Retorno acumulado desde o início até o fim do ano">Acumulado</th></tr></thead><tbody>`;
+  anos.forEach(y=>{
+    const ms = [...Array(12)].map((_,i)=>`${y}-${String(i+1).padStart(2,"0")}`);
+    t += `<tr class="yr"><td rowspan="${nr}"><b>${y}</b></td><td>${o.cor?`<span class="pt" style="background:${o.cor}"></span>`:""}<b>${esc(o.nome)}</b></td>${ms.map(k=>cel(M[k], k)).join("")}<td class="r gs"><b>${rt(A[y])}</b></td><td class="r"><b>${rt(acum[y])}</b></td></tr>`;
+    if (comCdi){
+      t += `<tr class="bm"><td>CDI</td>${ms.map(k=>`<td class="r">${M[k]!=null&&CM[k]!=null?rt(CM[k]):""}</td>`).join("")}<td class="r gs">${rt(CA[y])}</td><td class="r">${rt(acumC[y])}</td></tr>`;
+      t += `<tr class="pc"><td>CDI+</td>${ms.map(k=>`<td class="r">${M[k]!=null?dif(M[k],CM[k]):""}</td>`).join("")}<td class="r gs"><b>${dif(A[y],CA[y])}</b></td><td class="r">${dif(acum[y],acumC[y])}</td></tr>`;
+    }
+  });
+  return t + `</tbody></table></div>`;
 }
 function pctCdi(r, c){ if (r==null || !c) return "–"; const v = r/c*100; return (v<0?"−":"") + nf0.format(Math.abs(v)) + "%"; }
 function cascata(x, k, p){
@@ -1916,20 +1938,10 @@ function dispersao(pts){
 function vMensal(){
   const sp = semPerf(); if (sp) return sp;
   const p = P.mPerfil, M = PF.mensal[p], C = PF.mensal.CDI;
-  let h = cabec("Performances", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e a proporção do CDI. Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
+  let h = cabec("Performances", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e o CDI+ (quanto a carteira ficou acima ou abaixo do CDI). Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
   h += `<div class="flt">${PERFIS_P.map(x=>`<button class="chipbtn" data-pset="mPerfil" data-pv="${x}" aria-pressed="${p===x}">${x}</button>`).join("")}</div>`;
-  const anos = Object.keys(M.anos).sort().reverse();
-  const cel = (v, ref) => { if (v==null) return `<td class="r"></td>`; const a = Math.min(1, Math.abs(v)/0.03); const bg = v>=0 ? `rgba(19,166,120,${(0.08+0.32*a).toFixed(2)})` : `rgba(240,167,122,${(0.12+0.45*a).toFixed(2)})`; return `<td class="r" style="background:${bg}">${rt(v)}</td>`; };
-  let t = `<div class="tw" style="max-height:none"><table class="ftab ptab mtab2"><thead><tr><th>Ano</th><th></th>${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"].map(m=>`<th class="r">${m}</th>`).join("")}<th class="r gs">Ano</th><th class="r" data-tip="Retorno acumulado desde o início até o fim do ano">Acumulado</th></tr></thead><tbody>`;
-  const acum = {}; { let a = 1; Object.keys(M.anos).sort().forEach(y=>{ a *= 1 + (M.anos[y]||0); acum[y] = a-1; }); }
-  const acumC = {}; { let a = 1; Object.keys(C.anos).sort().forEach(y=>{ a *= 1 + (C.anos[y]||0); acumC[y] = a-1; }); }
-  anos.forEach(y=>{
-    const ms = [...Array(12)].map((_,i)=>`${y}-${String(i+1).padStart(2,"0")}`);
-    t += `<tr class="yr"><td rowspan="3"><b>${y}</b></td><td><span class="pt" style="background:${COR_P[p]}"></span><b>${p}</b></td>${ms.map(k=>cel(M.meses[k])).join("")}<td class="r gs"><b>${rt(M.anos[y])}</b></td><td class="r"><b>${rt(acum[y])}</b></td></tr>`;
-    t += `<tr class="bm"><td>CDI</td>${ms.map(k=>`<td class="r">${C.meses[k]!=null?rt(C.meses[k]):""}</td>`).join("")}<td class="r gs">${rt(C.anos[y])}</td><td class="r">${rt(acumC[y])}</td></tr>`;
-    t += `<tr class="pc"><td>% do CDI</td>${ms.map(k=>`<td class="r">${M.meses[k]!=null&&C.meses[k]?pctCdi(M.meses[k],C.meses[k]):""}</td>`).join("")}<td class="r gs"><b>${pctCdi(M.anos[y],C.anos[y])}</b></td><td class="r">${pctCdi(acum[y],acumC[y])}</td></tr>`;
-  });
-  h += `<div class="card">${t}</tbody></table></div><p class="fonte">Verde: mês positivo; pêssego: mês negativo (quanto mais forte, maior o movimento). Fonte: Comdinheiro.</p></div>`;
+  const t = tabelaMensal({nome:p, cor:COR_P[p], meses:M.meses, anos:M.anos, cdiMeses:C.meses, cdiAnos:C.anos});
+  h += `<div class="card">${t}<p class="fonte">CDI+: retorno da carteira menos o CDI, em pontos percentuais. Verde: mês positivo; pêssego: mês negativo (quanto mais forte, maior o movimento). Fonte: Comdinheiro.</p></div>`;
   // excesso mensal sobre o CDI, em barras
   const ks = Object.keys(M.meses).sort();
   const ex = ks.map(k=>({k, v: C.meses[k]!=null ? M.meses[k]-C.meses[k] : null})).filter(x=>x.v!=null);
@@ -1950,6 +1962,33 @@ document.addEventListener("click", e=>{
 });
 VIEWS.performance = vPerf; VIEWS.risco = vRiscoP; VIEWS.mensal = vMensal;
 
+/* rentabilidade da carteira do cliente desde o início da gestão (cotas da Comdinheiro, fechamento mensal) */
+let CT = null, ctCarga = null, ctErro = null;
+function carregarCotas(){
+  if (ctCarga) return ctCarga;
+  ctCarga = lerJSON("data/cotas.enc").then(decifrar).then(x=>{ CT = x; }).catch(e=>{ ctErro = e.message || "erro"; }).then(()=>render());
+  return ctCarga;
+}
+function secaoRentab(P_){
+  const tit = `<h2>Rentabilidade desde o início</h2>`;
+  if (!CT && !ctErro){ carregarCotas(); return `<div class="card mt">${tit}<div class="empty small">Carregando…</div></div>`; }
+  if (!CT) return `<div class="card mt">${tit}<p class="sub">A rentabilidade aparece aqui depois da próxima atualização automática.</p></div>`;
+  const r = CT.carteiras[P_.nome];
+  if (!r) return `<div class="card mt">${tit}<p class="sub">Esta carteira ainda não tem cota na Comdinheiro.</p></div>`;
+  if (r.erro) return `<div class="card mt">${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
+  const off = P_.uni==="off", ano = r.fim.slice(0,4);
+  const outras = (r.inicio_planilha||[]).filter(d=>d!==r.inicio);
+  let h = `<div class="card mt">${tit}<p class="sub">Cota da carteira de ${dtBR(r.inicio)} (início da gestão${r.inicio_fonte==="comdinheiro"?", pela primeira cota na Comdinheiro":""}) até ${dtBR(r.fim)}, último fechamento mensal.${outras.length?` Outras datas de início registradas: ${outras.map(dtBR).join(", ")}.`:""}${off?" Carteira em dólar: a comparação com o CDI não se aplica.":""}</p>`;
+  h += `<div class="mini" style="grid-template-columns:repeat(${off?2:4},1fr)"><div><span>Desde o início</span><b>${rt(r.total)}</b></div>`
+    + (off ? "" : `<div><span>CDI no período</span><b>${rt(r.total_cdi)}</b></div><div><span>CDI+</span><b>${r.total_cdi!=null?ppF(r.total-r.total_cdi):"–"}</b></div>`)
+    + `<div><span>Em ${ano}</span><b>${rt(r.anos[ano])}</b></div></div>`;
+  const d0 = new Date(r.d0+"T12:00:00").getTime(), xs = r.x.map(d=>d0 + d*864e5);
+  const series = [{nome:"Carteira", cor:"#224725", ys:r.ret}].concat(off ? [] : [{nome:"CDI", cor:"#8b918a", dash:"6 4", ys:r.cdi}]);
+  h += grafLinhas("cRet", xs, series, {h:280, aria:"Retorno acumulado da carteira desde o início"});
+  h += `<h3 class="ch" style="margin-top:18px">Retornos mensais</h3>` + tabelaMensal({nome:"Carteira", meses:r.meses, anos:r.anos, cdiMeses: off?null:r.cdi_meses, cdiAnos: off?null:r.cdi_anos, parciais:r.parciais});
+  h += `<p class="fonte">${off?"":"CDI+: retorno da carteira menos o CDI, em pontos percentuais. "}${(r.parciais||[]).length?"* mês parcial (a gestão começou no meio do mês). ":""}Fonte: Comdinheiro (cota da carteira).</p></div>`;
+  return h;
+}
 /* =====================================================================
    Início
    ===================================================================== */

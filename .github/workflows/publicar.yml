@@ -13,7 +13,7 @@ on:
       tarefa:
         description: "O que atualizar antes de publicar"
         type: choice
-        options: [diario, posicoes, fundos, performance, duracoes, tudo, so-publicar]
+        options: [diario, posicoes, fundos, performance, cotas, duracoes, tudo, so-publicar]
         default: diario
 
 permissions:
@@ -66,6 +66,16 @@ jobs:
           COMDINHEIRO_PERF_PASS: ${{ secrets.COMDINHEIRO_PERF_PASS }}
           DATA_KEY: ${{ secrets.DATA_KEY }}
         run: python tools/atualizar_performance.py _base ${{ github.event_name == 'schedule' && '--se-necessario' || '' }}
+      - name: Rentabilidade das carteiras dos clientes (cotas na Comdinheiro)
+        if: (github.event_name == 'schedule' && github.event.schedule != '41 11 16 * *') || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["cotas","diario","tudo"]'), inputs.tarefa))
+        continue-on-error: true
+        env:
+          COMDINHEIRO_USER: ${{ secrets.COMDINHEIRO_USER }}
+          COMDINHEIRO_PASS: ${{ secrets.COMDINHEIRO_PASS }}
+          COMDINHEIRO_COTAS_USER: ${{ secrets.COMDINHEIRO_COTAS_USER }}
+          COMDINHEIRO_COTAS_PASS: ${{ secrets.COMDINHEIRO_COTAS_PASS }}
+          DATA_KEY: ${{ secrets.DATA_KEY }}
+        run: python tools/atualizar_cotas.py data _base ${{ github.event_name == 'schedule' && '--se-necessario' || '' }}
       - name: Monitor de Fundos (histórico dos ativos recém-cadastrados)
         if: github.event_name == 'push'
         env:
@@ -121,7 +131,7 @@ jobs:
           cp index.html _site/
           cp -r data _site/
           cp _base/fundos.enc _base/fundos_series.enc _site/data/
-          if [ -f _base/performance.enc ]; then cp _base/performance.enc _site/data/; fi
+          for f in performance.enc cotas.enc; do if [ -f _base/$f ]; then cp _base/$f _site/data/; fi; done
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
