@@ -4,8 +4,10 @@
 Consulta na Comdinheiro o Histórico de Cotação das cotas de cada carteira (Ext_<carteira>_Cota,
 número-índice) e do CDI, até o último dia útil do mês anterior (fechamento mensal, como o script
 comdinheiro_clientes.py). Para cada carteira calcula, a partir da data de início da gestão:
-  - retorno de cada mês e de cada ano, CDI do período e CDI+ (retorno − CDI, em p.p.);
-  - retorno acumulado diário (para o gráfico), contra o CDI.
+  - retorno de cada mês e de cada ano, benchmark do período e benchmark+ (retorno − benchmark);
+  - retorno acumulado diário (para o gráfico), contra o benchmark.
+Benchmark: CDI nas carteiras em reais; T-Bill nas offshore (US:BIL, ETF SPDR Bloomberg 1-3 Month
+T-Bill, com proventos reinvestidos).
 
 Entradas: data/cotas_carteiras.enc {"carteiras": [...], "inicio": {carteira: [datas]}}
           (usa a data de início mais antiga; sem data, usa o início da cota na Comdinheiro)
@@ -21,6 +23,11 @@ import cripto
 
 URL = "https://api.comdinheiro.com.br/v1/ep1/import-data"
 DATA_INI = dt.date(2022, 12, 30)
+BENCH = {"CDI": ("CDI", "CDI"), "TBILL": ("US:BIL", "T-Bill")}   # chave -> (código na Comdinheiro, nome exibido)
+TBILL_DESC = "ETF SPDR Bloomberg 1-3 Month T-Bill, com proventos"
+
+def bench_de(carteira, moeda):
+    return "TBILL" if ("offshore" in carteira.lower() or (moeda or "").upper() == "USD") else "CDI"
 PARAMS = ("&data_ini=%s&data_fim=ult_du_mmenos1&pagina=1&d=MOEDA_ORIGINAL&g=1&m=0&info_desejada=numero_indice"
           "&retorno=discreto&tipo_data=du_br&tipo_ajuste=todosajustes&num_casas=2&enviar_email=0&ordem_legenda=1"
           "&cabecalho_excel=modo1&classes_ativos=1qae8ggyq4ngn3&ordem_data=0&rent_acum=rent_acum&minY=&maxY=&deltaY="
@@ -28,7 +35,7 @@ PARAMS = ("&data_ini=%s&data_fim=ult_du_mmenos1&pagina=1&d=MOEDA_ORIGINAL&g=1&m=
           "&titulo_grafico=&legenda_eixoy=&tipo_grafico=line&tooltip=unica&pageviews=1")
 
 def consultar(usuario, senha, carteiras, tentativas=3):
-    x = "+".join(["Ext_%s_Cota" % c for c in carteiras] + ["CDI"])
+    x = "+".join(["Ext_%s_Cota" % c for c in carteiras] + [b[0] for b in BENCH.values()])
     url_interna = "HistoricoCotacao002.php?&x=" + x + PARAMS % DATA_INI.strftime("%d/%m/%Y")
     corpo = urllib.parse.urlencode([("username", usuario), ("password", senha), ("URL", url_interna), ("format", "json3")]).encode()
     err = None
@@ -93,13 +100,15 @@ def fim_mes(d):
     return (d.replace(day=28) + dt.timedelta(days=4)).replace(day=1) - dt.timedelta(days=1)
 
 def calcular(datas, cols, meta, carteiras, inicios):
-    cdi = cols.get("CDI")
     ultima = datas[-1]
     out = {}
     for c in carteiras:
         k = "Ext_%s_Cota" % c
         v, mt = cols.get(k), meta.get(k, {})
         reg = {"inicio_planilha": inicios.get(c, []), "moeda": mt.get("moeda") or ""}
+        bk = bench_de(c, reg["moeda"]); cdi = cols.get(BENCH[bk][0])
+        reg["bench"] = BENCH[bk][1]
+        if bk == "TBILL": reg["bench_desc"] = TBILL_DESC
         if not v or not mt.get("recente"):
             reg["erro"] = "sem cotas na Comdinheiro"
             out[c] = reg; continue
@@ -120,14 +129,19 @@ def calcular(datas, cols, meta, carteiras, inicios):
             out[c] = reg; continue
         reg["inicio"] = datas[i0].isoformat(); reg["fim"] = datas[i1].isoformat()
         # série diária (completa os buracos com a cota anterior)
-        xs, ys, cs, ult_v, ult_c = [], [], [], v[i0], cdi[i0] if cdi else None
+        def ult_ok(serie, j):
+            while j >= 0 and serie[j] is None:
+                j -= 1
+            return serie[j] if j >= 0 else None
+        b0 = ult_ok(cdi, i0) if cdi else None
+        xs, ys, cs, ult_v, ult_c = [], [], [], v[i0], b0
         for i in range(i0, i1 + 1):
             if v[i] is not None: ult_v = v[i]
             if cdi and cdi[i] is not None: ult_c = cdi[i]
             xs.append((datas[i] - datas[i0]).days)
             ys.append(round(ult_v / v[i0] - 1, 6))
-            cs.append(round(ult_c / cdi[i0] - 1, 6) if cdi and cdi[i0] else None)
-        reg["d0"] = datas[i0].isoformat(); reg["x"] = xs; reg["ret"] = ys; reg["cdi"] = cs
+            cs.append(round(ult_c / b0 - 1, 6) if b0 and ult_c else None)
+        reg["d0"] = datas[i0].isoformat(); reg["x"] = xs; reg["ret"] = ys; reg["bmk"] = cs
         # meses: base na última cota <= fim do mês anterior (ou na data de início, no 1º mês)
         def valor_ate(serie, d, piso):
             j = max([i for i in range(piso, i1 + 1) if datas[i] <= d and serie[i] is not None] or [piso])
@@ -141,14 +155,15 @@ def calcular(datas, cols, meta, carteiras, inicios):
             if jb > ja and va:
                 chave = "%d-%02d" % (m.year, m.month)
                 meses[chave] = vb / va - 1
-                if cdi and cdi[ja] and cdi[jb]:
-                    cdim[chave] = cdi[jb] / cdi[ja] - 1
+                ca, cb = (ult_ok(cdi, ja), ult_ok(cdi, jb)) if cdi else (None, None)
+                if ca and cb:
+                    cdim[chave] = cb / ca - 1
                 if fim_mes(m) > datas[i1] and b_d < fim_mes(m) - dt.timedelta(days=3):
                     parciais.append(chave)
                 if m.year == datas[i0].year and m.month == datas[i0].month and datas[i0] > m:
                     parciais.append(chave)
             m = fim_mes(m) + dt.timedelta(days=1)
-        reg["meses"] = meses; reg["cdi_meses"] = cdim; reg["parciais"] = parciais
+        reg["meses"] = meses; reg["bmk_meses"] = cdim; reg["parciais"] = parciais
         anos, anos_cdi = {}, {}
         for y in sorted({int(k[:4]) for k in meses}):
             r = c_ = 1.0; ok_c = True
@@ -159,8 +174,8 @@ def calcular(datas, cols, meta, carteiras, inicios):
                     else: ok_c = False
             anos[str(y)] = r - 1
             if ok_c: anos_cdi[str(y)] = c_ - 1
-        reg["anos"] = anos; reg["cdi_anos"] = anos_cdi
-        reg["total"] = ys[-1]; reg["total_cdi"] = cs[-1]
+        reg["anos"] = anos; reg["bmk_anos"] = anos_cdi
+        reg["total"] = ys[-1]; reg["total_bmk"] = cs[-1]
         out[c] = reg
     return out
 

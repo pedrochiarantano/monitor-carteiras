@@ -357,7 +357,7 @@ function compacto(v, ccy){
   return p + nf0.format(v);
 }
 function pct(x, d){ if (x==null || isNaN(x)) return "–"; return (d===0?nf0:nf1).format(x*100) + "%"; }
-function pp(x){ if (x==null || isNaN(x)) return "–"; const s = x>0?"+":(x<0?"−":""); return s + nf1.format(Math.abs(x*100)) + " p.p."; }
+function pp(x){ if (x==null || isNaN(x)) return "–"; const s = x>0?"+":(x<0?"−":""); return s + nf1.format(Math.abs(x*100)) + "%"; }
 function dtBR(iso){ if(!iso) return "–"; const [y,m,d] = iso.split("-"); return d+"/"+m+"/"+y; }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function nomeCart(c){
@@ -634,7 +634,7 @@ function vPainel(){
                dpre:p=>durDesvio(p,"Pré Fixado"), dinf:p=>durDesvio(p,"Inflação"), fora:p=>p.fora.length, liq:p=>p.liqD5, al:p=>abertos(p.alertas).length}[S.sort.k];
   rows.sort((a,b)=>{ const x=key(a), y=key(b); return (x>y?1:x<y?-1:0)*S.sort.d; });
   const th = (k,l,c) => `<th class="s ${c||""}" data-sort="${k}" aria-sort="${S.sort.k===k?(S.sort.d>0?"ascending":"descending"):"none"}">${l}${S.sort.k===k?(S.sort.d>0?" ▲":" ▼"):""}</th>`;
-  h += `<div class="card mt"><div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h2>Carteiras</h2><p class="sub" style="margin:0">Drift: metade da soma dos desvios contra a alocação tática (${CFG.params.driftEscalaPP} p.p. = nota 100). Duration: média ponderada da classe em anos; entre parênteses, o desvio contra o alvo (pré ${nf1.format(CFG.onshore.durTargets["Pré Fixado"]||0)} · inflação ${nf1.format(CFG.onshore.durTargets["Inflação"]||0)}), destacado acima de ${nf1.format(CFG.params.durTolAnos)} ano.</p></div>
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h2>Carteiras</h2><p class="sub" style="margin:0">Drift: metade da soma dos desvios contra a alocação tática (${CFG.params.driftEscalaPP}% = nota 100). Duration: média ponderada da classe em anos; entre parênteses, o desvio contra o alvo (pré ${nf1.format(CFG.onshore.durTargets["Pré Fixado"]||0)} · inflação ${nf1.format(CFG.onshore.durTargets["Inflação"]||0)}), destacado acima de ${nf1.format(CFG.params.durTolAnos)} ano.</p></div>
     <input type="search" id="qCart" placeholder="Buscar carteira" value="${esc(S.q)}" aria-label="Buscar carteira"></div>
     <div class="tw"><table><thead><tr>${th("nome","Carteira")}${th("uni","Mercado")}${th("perfil","Perfil")}${th("aum","Patrimônio","r")}${th("drift","Drift")}${th("dpre","Duration pré","r")}${th("dinf","Duration inflação","r")}${th("fora","Fora da banda","c")}${th("liq","Liquidez até D+5","r")}${th("al","Alertas","c")}</tr></thead><tbody>`;
   rows.forEach(p=>{
@@ -665,7 +665,7 @@ function vCliente(){
   const durTxt = P_.uni==="on" ? ["Pré Fixado","Inflação"].map(k=>`${k==="Pré Fixado"?"Pré":"Inflação"} ${P_.dur[k]!=null?nf1.format(P_.dur[k]):"–"}`).join(" · ") : null;
   h += `<div class="tiles">
     <div class="tile dest"><div class="k">Patrimônio</div><div class="v">${compacto(tot,ccy)}</div><div class="s">${P_.uni==="off"?"≈ "+compacto(P_.aumBRL,"BRL")+" pela PTAX":P_.pos.length+" posições"}</div></div>
-    <div class="tile"><div class="k">Drift</div><div class="v">${P_.drift!=null?nf1.format(P_.drift*100)+" p.p.":"–"}</div><div class="s">${P_.driftScore!=null?"nota "+nf0.format(P_.driftScore)+" de 100":"defina o perfil ou IPS em Modelo de Alocação e IPS"}</div></div>
+    <div class="tile"><div class="k">Drift</div><div class="v">${P_.drift!=null?nf1.format(P_.drift*100)+"%":"–"}</div><div class="s">${P_.driftScore!=null?"nota "+nf0.format(P_.driftScore)+" de 100":"defina o perfil ou IPS em Modelo de Alocação e IPS"}</div></div>
     <div class="tile"><div class="k">Concentração</div><div class="v">${pct(P_.conc.maior)}</div><div class="s" title="${esc(P_.conc.maiorNome)}">maior posição · 5 maiores ${pct(P_.conc.top5)}</div></div>
     <div class="tile"><div class="k">Liquidez até D+5</div><div class="v">${pct(P_.liqD5)}</div><div class="s">${compacto(P_.liqD5*tot,ccy)}</div></div>
     ${durTxt?`<div class="tile"><div class="k">Duration (anos)</div><div class="v" style="font-size:20px;margin-top:12px">${durTxt}</div><div class="s">alvo: pré ${nf1.format(CFG.onshore.durTargets["Pré Fixado"]||0)} · inflação ${nf1.format(CFG.onshore.durTargets["Inflação"]||0)}</div></div>`:""}
@@ -899,7 +899,7 @@ function vModelo(){
   // parâmetros
   const P = CFG.params;
   h += `<div class="card mt"><h2>Parâmetros dos alertas</h2><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px 24px">
-    <label class="small">Drift: p.p. que equivalem à nota 100 ${inp("params.driftEscalaPP", P.driftEscalaPP)}</label>
+    <label class="small">Drift: desvio (%) que equivale à nota 100 ${inp("params.driftEscalaPP", P.driftEscalaPP)}</label>
     <label class="small">Limite da maior posição (%) ${inp("params.concMaiorPos", P.concMaiorPos, {pct:1})}</label>
     <label class="small">Limite das 5 maiores (%) ${inp("params.concTop5", P.concTop5, {pct:1})}</label>
     <label class="small">Caixa parado acima de (%) ${inp("params.caixaParadaPct", P.caixaParadaPct, {pct:1})}</label>
@@ -1232,7 +1232,7 @@ function carregarSeries(){
 const dashF = `<span class="muted">–</span>`;
 function rt(x, d){ if (x==null || isNaN(x)) return dashF; const v = x*100, f = (d===1 && Math.abs(v)>=1) ? nf1 : nf2; return (f.format(Math.abs(v))!==f.format(0) && v<0 ? "−" : "") + f.format(Math.abs(v)) + "%"; }
 function pcdi(x){ if (x==null || isNaN(x)) return dashF; return (x<0?"−":"") + nf0.format(Math.abs(x*100)) + "%"; }
-function ppF(x){ if (x==null || isNaN(x)) return dashF; const v = x*100, z = nf1.format(Math.abs(v))===nf1.format(0); return (z?"":v>0?"+":"−") + nf1.format(Math.abs(v)) + " p.p."; }
+function ppF(x){ if (x==null || isNaN(x)) return dashF; const v = x*100, z = nf2.format(Math.abs(v))===nf2.format(0); return (z?"":v>0?"+":"−") + nf2.format(Math.abs(v)) + "%"; }
 function num2(x){ if (x==null || isNaN(x)) return dashF; return (x<0?"−":"") + nf2.format(Math.abs(x)); }
 function mi(x){ if (x==null || isNaN(x)) return dashF; const a = Math.abs(x); return (x<0?"−":"") + (a>=100?nf0:nf1).format(a); }
 function inteiro(x){ return x==null || isNaN(x) ? dashF : nf0.format(x); }
@@ -1809,7 +1809,7 @@ function vPerf(){
   const pf = {}; PF.perfis.forEach(p=>pf[p.perfil] = p);
   const idx = {}; PF.indices.forEach(x=>idx[x.nome] = x.ret);
   let h = cabec("Performances", "Carteiras recomendadas por perfil", `Retorno das carteiras recomendadas onshore desde o início da Etti (${dtBR(PF.inicio)}), com a composição entre CDI, alocação estratégica, tática e seleção de ativos. Cotas até <b>${dtBR(PF.ref)}</b>.`);
-  h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · CDI${ppF(t.ano - idx.CDI.ano).replace(/^([+−])/, " $1 ")}<br>${rt(t.inicio)} desde o início · CDI${ppF(t.inicio - idx.CDI.inicio).replace(/^([+−])/, " $1 ")}</div></div>`; }).join("")}
+  h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · CDI+ ${ppF(t.ano - idx.CDI.ano)}<br>${rt(t.inicio)} desde o início · CDI+ ${ppF(t.inicio - idx.CDI.inicio)}</div></div>`; }).join("")}
     <div class="tile dest"><div class="k">CDI</div><div class="v">${rt(idx.CDI.ano)}</div><div class="s">no ano<br>${rt(idx.CDI.inicio)} desde o início</div></div></div>`;
   // gráfico desde o início
   const i0 = iniPeriodo(P.per), xs = PF._t.slice(i0);
@@ -1840,9 +1840,9 @@ function vPerf(){
   h += `<div class="card mt"><h2>Índices de referência</h2><p class="sub">Mesmas janelas da tabela das carteiras.</p>${ti}</tbody></table></div></div>`;
   return h;
 }
-/* tabela de retornos mensais: carteira, CDI e CDI+ (diferença para o CDI, em p.p.) */
+/* tabela de retornos mensais: carteira, benchmark e benchmark+ (diferença para o benchmark) */
 function tabelaMensal(o){
-  const M = o.meses||{}, A = o.anos||{}, CM = o.cdiMeses, CA = o.cdiAnos, parc = new Set(o.parciais||[]), comCdi = !!CM;
+  const M = o.meses||{}, A = o.anos||{}, CM = o.cdiMeses, CA = o.cdiAnos, parc = new Set(o.parciais||[]), comCdi = !!CM, bn = o.bench || "CDI";
   const anos = Object.keys(A).sort().reverse(), nr = comCdi ? 3 : 1;
   const cel = (v, k) => { if (v==null) return `<td class="r"></td>`; const a = Math.min(1, Math.abs(v)/0.03); const bg = v>=0 ? `rgba(19,166,120,${(0.08+0.32*a).toFixed(2)})` : `rgba(240,167,122,${(0.12+0.45*a).toFixed(2)})`;
     return `<td class="r" style="background:${bg}"${parc.has(k)?' data-tip="Mês parcial: a carteira começou ou terminou no meio do mês"':""}>${rt(v)}${parc.has(k)?"*":""}</td>`; };
@@ -1854,8 +1854,8 @@ function tabelaMensal(o){
     const ms = [...Array(12)].map((_,i)=>`${y}-${String(i+1).padStart(2,"0")}`);
     t += `<tr class="yr"><td rowspan="${nr}"><b>${y}</b></td><td>${o.cor?`<span class="pt" style="background:${o.cor}"></span>`:""}<b>${esc(o.nome)}</b></td>${ms.map(k=>cel(M[k], k)).join("")}<td class="r gs"><b>${rt(A[y])}</b></td><td class="r"><b>${rt(acum[y])}</b></td></tr>`;
     if (comCdi){
-      t += `<tr class="bm"><td>CDI</td>${ms.map(k=>`<td class="r">${M[k]!=null&&CM[k]!=null?rt(CM[k]):""}</td>`).join("")}<td class="r gs">${rt(CA[y])}</td><td class="r">${rt(acumC[y])}</td></tr>`;
-      t += `<tr class="pc"><td>CDI+</td>${ms.map(k=>`<td class="r">${M[k]!=null?dif(M[k],CM[k]):""}</td>`).join("")}<td class="r gs"><b>${dif(A[y],CA[y])}</b></td><td class="r">${dif(acum[y],acumC[y])}</td></tr>`;
+      t += `<tr class="bm"><td>${esc(bn)}</td>${ms.map(k=>`<td class="r">${M[k]!=null&&CM[k]!=null?rt(CM[k]):""}</td>`).join("")}<td class="r gs">${rt(CA[y])}</td><td class="r">${rt(acumC[y])}</td></tr>`;
+      t += `<tr class="pc"><td>${esc(bn)}+</td>${ms.map(k=>`<td class="r">${M[k]!=null?dif(M[k],CM[k]):""}</td>`).join("")}<td class="r gs"><b>${dif(A[y],CA[y])}</b></td><td class="r">${dif(acum[y],acumC[y])}</td></tr>`;
     }
   });
   return t + `</tbody></table></div>`;
@@ -1879,7 +1879,7 @@ function cascata(x, k, p){
     if (i < barras.length-1) s += `<line x1="${x+w}" x2="${x+bw}" y1="${Y(b.b)}" y2="${Y(b.b)}" stroke="#b9bdb6" stroke-dasharray="2 2"/>`;
     const lab = b.tot ? rt(b.v) : ppF(b.v);
     const yl = b.v>=0 || b.tot&&b.v>=0 ? y1-5 : y2+13;
-    s += `<text x="${x+w/2}" y="${yl}" font-size="11" text-anchor="middle" font-weight="${b.tot?700:600}" fill="#224725">${lab.replace(/<[^>]+>/g,"").replace(" p.p.","")}</text>`;
+    s += `<text x="${x+w/2}" y="${yl}" font-size="11" text-anchor="middle" font-weight="${b.tot?700:600}" fill="#224725">${lab.replace(/<[^>]+>/g,"")}</text>`;
     s += `<text x="${x+w/2}" y="${H-12}" font-size="11" text-anchor="middle" fill="#5f645f">${b.n}</text>`;
   });
   return `<div><h3 class="ch"><span class="pt" style="background:${COR_P[p]}"></span>${p}</h3>${s}</svg></div>`;
@@ -1941,16 +1941,16 @@ function vMensal(){
   let h = cabec("Performances", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e o CDI+ (quanto a carteira ficou acima ou abaixo do CDI). Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
   h += `<div class="flt">${PERFIS_P.map(x=>`<button class="chipbtn" data-pset="mPerfil" data-pv="${x}" aria-pressed="${p===x}">${x}</button>`).join("")}</div>`;
   const t = tabelaMensal({nome:p, cor:COR_P[p], meses:M.meses, anos:M.anos, cdiMeses:C.meses, cdiAnos:C.anos});
-  h += `<div class="card">${t}<p class="fonte">CDI+: retorno da carteira menos o CDI, em pontos percentuais. Verde: mês positivo; pêssego: mês negativo (quanto mais forte, maior o movimento). Fonte: Comdinheiro.</p></div>`;
+  h += `<div class="card">${t}<p class="fonte">CDI+: retorno da carteira menos o CDI. Verde: mês positivo; pêssego: mês negativo (quanto mais forte, maior o movimento). Fonte: Comdinheiro.</p></div>`;
   // excesso mensal sobre o CDI, em barras
   const ks = Object.keys(M.meses).sort();
   const ex = ks.map(k=>({k, v: C.meses[k]!=null ? M.meses[k]-C.meses[k] : null})).filter(x=>x.v!=null);
   const W = 1000, H = 220, L = 46, R = 10, T = 12, B = 26, mx = Math.max(...ex.map(x=>Math.abs(x.v)))*1.1 || 0.01;
   const Y = v => T + (H-T-B)*(1-(v+mx)/(2*mx)), bw = (W-L-R)/ex.length;
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Retorno mensal acima do CDI">`;
-  const pz = mx*100 > 2 ? 0.01 : 0.005; for (let v = -Math.floor(mx/pz)*pz; v <= mx + 1e-12; v += pz){ const z = Math.abs(v) < 1e-9; s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${z?"#b9bdb6":"#ebede7"}"/><text x="${L-6}" y="${Y(v)+4}" font-size="10.5" text-anchor="end" fill="#5f645f">${z?"0":(v<0?"−":"+")+nf1.format(Math.abs(v*100))}</text>`; }
+  const pz = mx*100 > 2 ? 0.01 : 0.005; for (let v = -Math.floor(mx/pz)*pz; v <= mx + 1e-12; v += pz){ const z = Math.abs(v) < 1e-9; s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${z?"#b9bdb6":"#ebede7"}"/><text x="${L-6}" y="${Y(v)+4}" font-size="10.5" text-anchor="end" fill="#5f645f">${z?"0%":(v<0?"−":"+")+nf1.format(Math.abs(v*100))+"%"}</text>`; }
   ex.forEach((x,i)=>{ const y1 = Y(Math.max(0,x.v)), y2 = Y(Math.min(0,x.v)); s += `<rect x="${L+i*bw+1}" y="${y1}" width="${Math.max(1,bw-2)}" height="${Math.max(1,y2-y1)}" rx="2" fill="${x.v>=0?"#13a678":"#f0a77a"}" data-tip="${mesRot(x.k)}: ${ppF(x.v).replace(/<[^>]+>/g,"")} sobre o CDI"/>`; if (x.k.endsWith("-01")) s += `<text x="${L+i*bw}" y="${H-8}" font-size="11" fill="#5f645f">${x.k.slice(0,4)}</text>`; });
-  h += `<div class="card mt"><h2>Retorno mensal acima do CDI · ${p}</h2><p class="sub">Diferença, em pontos percentuais (p.p.), entre o retorno do mês e o CDI do mês. ${ex.filter(x=>x.v>0).length} de ${ex.length} meses acima do CDI.</p>${s}</svg></div>`;
+  h += `<div class="card mt"><h2>Retorno mensal acima do CDI · ${p}</h2><p class="sub">Diferença entre o retorno do mês e o CDI do mês. ${ex.filter(x=>x.v>0).length} de ${ex.length} meses acima do CDI.</p>${s}</svg></div>`;
   return h;
 }
 
@@ -1970,23 +1970,23 @@ function carregarCotas(){
   return ctCarga;
 }
 function secaoRentab(P_){
-  const tit = `<h2>Rentabilidade desde o início</h2>`;
-  if (!CT && !ctErro){ carregarCotas(); return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<div class="empty small">Carregando…</div></div>`; }
-  if (!CT) return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">A rentabilidade aparece aqui depois da próxima atualização automática.</p></div>`;
+  const tit = `<h2>Rentabilidade desde o início</h2>`, cx = `<div class="card" style="margin-bottom:var(--gutter)">`;
+  if (!CT && !ctErro){ carregarCotas(); return `${cx}${tit}<div class="empty small">Carregando…</div></div>`; }
+  if (!CT) return `${cx}${tit}<p class="sub">A rentabilidade aparece aqui depois da próxima atualização automática.</p></div>`;
   const r = CT.carteiras[P_.nome];
-  if (!r) return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">Esta carteira ainda não tem cota na Comdinheiro.</p></div>`;
-  if (r.erro) return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
-  const off = P_.uni==="off", ano = r.fim.slice(0,4);
+  if (!r) return `${cx}${tit}<p class="sub">Esta carteira ainda não tem cota na Comdinheiro.</p></div>`;
+  if (r.erro) return `${cx}${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
+  const bn = r.bench || "CDI", ano = r.fim.slice(0,4), temB = r.total_bmk!=null;
   const outras = (r.inicio_planilha||[]).filter(d=>d!==r.inicio);
-  let h = `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">Cota da carteira de ${dtBR(r.inicio)} (início da gestão${r.inicio_fonte==="comdinheiro"?", pela primeira cota na Comdinheiro":""}) até ${dtBR(r.fim)}, último fechamento mensal.${outras.length?` Outras datas de início registradas: ${outras.map(dtBR).join(", ")}.`:""}${off?" Carteira em dólar: a comparação com o CDI não se aplica.":""}</p>`;
-  h += `<div class="mini" style="grid-template-columns:repeat(${off?2:4},1fr)"><div><span>Desde o início</span><b>${rt(r.total)}</b></div>`
-    + (off ? "" : `<div><span>CDI no período</span><b>${rt(r.total_cdi)}</b></div><div><span>CDI+</span><b>${r.total_cdi!=null?ppF(r.total-r.total_cdi):"–"}</b></div>`)
+  let h = `${cx}${tit}<p class="sub">Cota da carteira de ${dtBR(r.inicio)} (início da gestão${r.inicio_fonte==="comdinheiro"?", pela primeira cota na Comdinheiro":""}) até ${dtBR(r.fim)}, último fechamento mensal.${outras.length?` Outras datas de início registradas: ${outras.map(dtBR).join(", ")}.`:""}${bn!=="CDI"?` Carteira em dólar: comparada com o ${esc(bn)} (${esc(r.bench_desc||"")}).`:""}</p>`;
+  h += `<div class="mini" style="grid-template-columns:repeat(${temB?4:2},1fr)"><div><span>Desde o início</span><b>${rt(r.total)}</b></div>`
+    + (temB ? `<div><span>${esc(bn)} no período</span><b>${rt(r.total_bmk)}</b></div><div><span>${esc(bn)}+</span><b>${ppF(r.total-r.total_bmk)}</b></div>` : "")
     + `<div><span>Em ${ano}</span><b>${rt(r.anos[ano])}</b></div></div>`;
   const d0 = new Date(r.d0+"T12:00:00").getTime(), xs = r.x.map(d=>d0 + d*864e5);
-  const series = [{nome:"Carteira", cor:"#224725", ys:r.ret}].concat(off ? [] : [{nome:"CDI", cor:"#8b918a", dash:"6 4", ys:r.cdi}]);
+  const series = [{nome:"Carteira", cor:"#224725", ys:r.ret}].concat(temB ? [{nome:bn, cor:"#8b918a", dash:"6 4", ys:r.bmk}] : []);
   h += grafLinhas("cRet", xs, series, {h:280, aria:"Retorno acumulado da carteira desde o início"});
-  h += `<h3 class="ch" style="margin-top:18px">Retornos mensais</h3>` + tabelaMensal({nome:"Carteira", meses:r.meses, anos:r.anos, cdiMeses: off?null:r.cdi_meses, cdiAnos: off?null:r.cdi_anos, parciais:r.parciais});
-  h += `<p class="fonte">${off?"":"CDI+: retorno da carteira menos o CDI, em pontos percentuais. "}${(r.parciais||[]).length?"* mês parcial (a gestão começou no meio do mês). ":""}Fonte: Comdinheiro (cota da carteira).</p></div>`;
+  h += `<h3 class="ch" style="margin-top:18px">Retornos mensais</h3>` + tabelaMensal({nome:"Carteira", bench:bn, meses:r.meses, anos:r.anos, cdiMeses: temB?r.bmk_meses:null, cdiAnos: temB?r.bmk_anos:null, parciais:r.parciais});
+  h += `<p class="fonte">${temB?`${esc(bn)}+: retorno da carteira menos o ${esc(bn)}. `:""}${(r.parciais||[]).length?"* mês parcial (a gestão começou no meio do mês). ":""}Fonte: Comdinheiro (cota da carteira${bn!=="CDI"?" e US:BIL":""}).</p></div>`;
   return h;
 }
 /* =====================================================================
