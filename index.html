@@ -712,7 +712,9 @@ function vCliente(){
   }
   // liquidez + vencimentos
   const liqItems = BUCKETS.map(b=>({label:b[0], v:P_.liq[b[0]]||0})).concat((P_.liq["Sem informação"]||0)?[{label:"Sem informação", v:P_.liq["Sem informação"]}]:[]);
-  const venc = P_.pos.filter(p=>p.diasVenc!=null && p.diasVenc>=0).sort((a,b)=>a.diasVenc-b.diasVenc).slice(0,10);
+  let vencBase = P_.pos.filter(p=>p.diasVenc!=null && p.diasVenc>=0);
+  if (S.pAgr !== false){ const vg = {}; vencBase.forEach(p=>{ const x = vg[p.a] || (vg[p.a] = Object.assign({}, p, {v:0})); x.v += p.v; }); vencBase = Object.values(vg); }
+  const venc = vencBase.sort((a,b)=>a.diasVenc-b.diasVenc).slice(0,10);
   if (P_.uni==="on") h += cardDuration(P_);
   // concentração por instituição na carteira
   const bc = {}; P_.pos.forEach(x=>{ const b=(x.if||"").trim().toUpperCase()||"NÃO INFORMADO"; bc[b]=(bc[b]||0)+x.v; });
@@ -722,10 +724,27 @@ function vCliente(){
     <div class="card"><h2>Próximos vencimentos</h2>${venc.length?`<div class="tw" style="max-height:260px"><table><thead><tr><th>Ativo</th><th>Vencimento</th><th class="r">Saldo</th></tr></thead><tbody>${venc.map(p=>`<tr><td>${esc(p.nome)}</td><td>${dtBR(p.vc)} <span class="muted small">(${p.diasVenc} d)</span></td><td class="r">${nf0.format(p.v)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">Nenhum ativo com vencimento informado.</p>`}</div></div>`;
   // posições
   const pk = {nome:p=>p.nome, cls:p=>p.cls, t:p=>p.t, if:p=>p.if||"", v:p=>p.v, liq:p=>p.pl==null?1e9:p.pl, vc:p=>p.vc||"9", du:p=>p.du==null?-1:p.du, dr:p=>p.dr||""}[S.psort.k];
-  const pos = P_.pos.slice().sort((a,b)=>{ const x=pk(a),y=pk(b); return (x>y?1:x<y?-1:0)*S.psort.d; });
+  let base = P_.pos;
+  if (S.pAgr !== false){
+    const g = {};
+    P_.pos.forEach(p=>{
+      const x = g[p.a] || (g[p.a] = Object.assign({}, p, {v:0, _n:0, _ifs:[], _dv:0, _dw:0, _lotes:[]}));
+      x.v += p.v; x._n++; x._lotes.push(p);
+      if (p.if && !x._ifs.includes(p.if)) x._ifs.push(p.if);
+      if (p.du!=null){ x._dv += p.du*p.v; x._dw += p.v; }
+      if (p.vc && (!x.vc || p.vc < x.vc)) x.vc = p.vc;
+      if (p.dr && p.dr > (x.dr||"")) x.dr = p.dr;
+    });
+    base = Object.values(g).map(x=>{ x.if = x._ifs.join(", "); if (x._dw) x.du = x._dv/x._dw; return x; });
+  }
+  const nApl = P_.pos.length;
+  const pos = base.slice().sort((a,b)=>{ const x=pk(a),y=pk(b); return (x>y?1:x<y?-1:0)*S.psort.d; });
   const th = (k,l,c) => `<th class="s ${c||""}" data-psort="${k}" aria-sort="${S.psort.k===k?(S.psort.d>0?"ascending":"descending"):"none"}">${l}${S.psort.k===k?(S.psort.d>0?" ▲":" ▼"):""}</th>`;
-  h += `<div class="card mt"><h2>Posições (${pos.length})</h2><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
-  pos.forEach(p=>{ h += `<tr><td title="${esc(p.a)}">${esc(p.nome)}</td><td>${p.cls===NM?'<span class="chip st-aten">Não mapeado</span>':esc(p.cls)}</td><td>${esc(p.t)}</td><td>${esc(p.if||"–")}</td><td class="r">${nf0.format(p.v)}</td><td class="r">${pct(p.v/(tot||1))}</td><td>${esc(p.pl!=null?"D+"+p.pl:(p.lq||"–"))}</td><td>${dtBR(p.vc)}</td><td class="r">${fmtDur(p)}</td><td>${dtBR(p.dr)}</td></tr>`; });
+  const agr = S.pAgr !== false;
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:flex-start"><h2>Posições (${agr ? `${pos.length} ativos · ${nApl} aplicações` : nApl})</h2><div class="flt" style="margin:0"><button class="chipbtn" data-pagr="1" aria-pressed="${agr}">Agrupar por ativo</button></div></div><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
+  pos.forEach(p=>{
+    const lotes = p._n>1 ? `<span class="muted small" data-tip="${esc(p._lotes.map(l=>`${l.if||"–"}: ${moeda(l.v,ccy)}${l.ap?` · aplicação de ${dtBR(l.ap)}`:""}`).join("\n"))}"> · ${p._n} aplicações</span>` : "";
+    h += `<tr><td title="${esc(p.a)}">${esc(p.nome)}${lotes}</td><td>${p.cls===NM?'<span class="chip st-aten">Não mapeado</span>':esc(p.cls)}</td><td>${esc(p.t)}</td><td>${esc(p.if||"–")}</td><td class="r">${nf0.format(p.v)}</td><td class="r">${pct(p.v/(tot||1))}</td><td>${esc(p.pl!=null?"D+"+p.pl:(p.lq||"–"))}</td><td>${dtBR(p.vc)}</td><td class="r">${fmtDur(p)}</td><td>${dtBR(p.dr)}</td></tr>`; });
   h += `</tbody></table></div><div class="fonte">Fonte: Comdinheiro, posições de ${dtBR(META.data_analise)}. Valores em ${ccy==="USD"?"US$":"R$"}.</div></div>`;
   return h;
 }
@@ -1915,6 +1934,7 @@ document.addEventListener("click", e=>{
   const t = e.target.closest("button"); if (!t) return; const d = t.dataset;
   if (d.pset){ P[d.pset] = d.pv; render(); return; }
   if (d.ptodos){ P.todosIdx = !P.todosIdx; render(); return; }
+  if (d.pagr){ S.pAgr = S.pAgr === false; render(); return; }
 });
 VIEWS.performance = vPerf; VIEWS.risco = vRiscoP; VIEWS.mensal = vMensal;
 
