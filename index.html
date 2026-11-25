@@ -141,8 +141,8 @@ input[type=number],input[type=text],input[type=search],select{border:1px solid v
 input[type=number]{width:72px;text-align:right}
 input.pct{width:50px;padding:5px 4px}
 .flt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.flt .chipbtn{border:1px solid var(--borda);background:#fff;border-radius:9999px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:12.5px}
-.flt .chipbtn[aria-pressed="true"]{background:var(--verde-etti);color:#fff;border-color:var(--verde-etti)}
+.chipbtn{border:1px solid var(--borda);background:#fff;border-radius:9999px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:12.5px}
+.chipbtn[aria-pressed="true"]{background:var(--verde-etti);color:#fff;border-color:var(--verde-etti)}
 .alert{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--borda)}
 .alert:first-child{border-top:0}
 .alert .t{font-weight:700}
@@ -741,7 +741,7 @@ function vCliente(){
   const pos = base.slice().sort((a,b)=>{ const x=pk(a),y=pk(b); return (x>y?1:x<y?-1:0)*S.psort.d; });
   const th = (k,l,c) => `<th class="s ${c||""}" data-psort="${k}" aria-sort="${S.psort.k===k?(S.psort.d>0?"ascending":"descending"):"none"}">${l}${S.psort.k===k?(S.psort.d>0?" ▲":" ▼"):""}</th>`;
   const agr = S.pAgr !== false;
-  h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:flex-start"><h2>Posições (${agr ? `${pos.length} ativos · ${nApl} aplicações` : nApl})</h2><div class="flt" style="margin:0"><button class="chipbtn" data-pagr="1" aria-pressed="${agr}">Agrupar por ativo</button></div></div><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="margin:0">Posições (${agr ? `${pos.length} ativos · ${nApl} aplicações` : nApl})</h2><button class="chipbtn" data-pagr="1" aria-pressed="${agr}" title="Junta as aplicações do mesmo ativo numa linha só">Agrupar</button></div><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
   pos.forEach(p=>{
     const lotes = p._n>1 ? `<span class="muted small" data-tip="${esc(p._lotes.map(l=>`${l.if||"–"}: ${moeda(l.v,ccy)}${l.ap?` · aplicação de ${dtBR(l.ap)}`:""}`).join("\n"))}"> · ${p._n} aplicações</span>` : "";
     h += `<tr><td title="${esc(p.a)}">${esc(p.nome)}${lotes}</td><td>${p.cls===NM?'<span class="chip st-aten">Não mapeado</span>':esc(p.cls)}</td><td>${esc(p.t)}</td><td>${esc(p.if||"–")}</td><td class="r">${nf0.format(p.v)}</td><td class="r">${pct(p.v/(tot||1))}</td><td>${esc(p.pl!=null?"D+"+p.pl:(p.lq||"–"))}</td><td>${dtBR(p.vc)}</td><td class="r">${fmtDur(p)}</td><td>${dtBR(p.dr)}</td></tr>`; });
