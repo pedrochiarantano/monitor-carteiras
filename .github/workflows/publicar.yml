@@ -5,8 +5,8 @@ on:
     branches: [main]
   schedule:
     - cron: "17 10 * * 1-5"   # dias úteis, 07:17 em São Paulo: posições da Comdinheiro e Monitor de Fundos
-    - cron: "47 11 * * 1-5"   # reserva 08:47 (só roda o que ainda não atualizou hoje)
-    - cron: "23 13 * * 1-5"   # reserva 10:23 (idem)
+    - cron: "53 11-21 * * 1-5"  # reservas de hora em hora, 08:53 a 18:53: só baixa o que ainda falta no dia
+    # (o GitHub não garante o horário dos agendamentos: em dias cheios atrasa horas ou pula)
     - cron: "41 11 16 * *"    # dia 16 de cada mês, 08:41: durations dos fundos (CVM/ANBIMA)
   workflow_dispatch:
     inputs:
