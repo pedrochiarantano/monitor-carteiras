@@ -257,6 +257,21 @@ h3.ch{font-size:13.5px;margin:4px 0 6px;display:flex;align-items:center}
 .mtab2 td:first-child{min-width:60px;vertical-align:middle;background:var(--card)}
 .mtab2 td:nth-child(2){min-width:130px}
 .mtab2 tr.bm td:first-child,.mtab2 tr.pc td:first-child{min-width:130px}
+
+/* ---------- menu lateral com subopções ---------- */
+.sd-grp{margin-bottom:2px}
+.sd-nav button .car{margin-left:auto;opacity:.7;transition:transform .15s}
+.sd-grp.aberto > button .car{transform:rotate(180deg)}
+.sd-sub{display:none;flex-direction:column;gap:1px;padding:4px 0 8px}
+.sd-grp.aberto .sd-sub{display:flex}
+.sd-sub a{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 44px;border-radius:7px;color:var(--verde-claro);text-decoration:none;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sd-sub a:hover{background:rgba(182,215,168,.10);color:var(--creme)}
+.sd-sub a[aria-current="page"]{color:var(--creme);font-weight:700;background:rgba(0,191,133,.14);box-shadow:inset 3px 0 0 var(--verde-vivo)}
+.sd-sub .badge{margin-left:auto}
+.sd-nav button[aria-pressed="true"]{box-shadow:none}
+.top .save{margin-right:4px}
+body.sd-min .sd-sub,body.sd-min .sd-nav button .car{display:none !important}
+@media (max-width:900px){.sd-sub,.sd-nav button .car{display:none !important}}
 </style>
 </head>
 <body class="lg">
@@ -278,38 +293,32 @@ h3.ch{font-size:13.5px;margin:4px 0 6px;display:flex;align-items:center}
   </div>
   <div class="sd-eb">Painel de Controle</div>
   <nav class="sd-nav">
-    <button data-secao="c" title="Monitor de Carteiras"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z" fill="currentColor"/></svg><span>Monitor de Carteiras</span></button>
-    <button data-secao="f" title="Monitor de Fundos"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="5.5" y="11" width="3" height="7" rx="1" fill="currentColor"/><rect x="10.5" y="6" width="3" height="12" rx="1" fill="currentColor"/><rect x="15.5" y="9" width="3" height="9" rx="1" fill="currentColor"/></svg><span>Monitor de Fundos</span></button>
-    <button data-secao="p" title="Monitor de Performance"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 18.5 9.5 12l3.5 3.5L20 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Monitor de Performance</span></button>
+    <div class="sd-grp" data-grp="c">
+      <button data-secao="c" title="Carteiras" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z" fill="currentColor"/></svg><span>Carteiras</span><svg class="car" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="sd-sub"><a href="#painel" data-v="painel">Painel</a><a href="#cliente" data-v="cliente">Carteiras</a><a href="#alertas" data-v="alertas">Alertas<span class="badge" id="bAl"></span></a><a href="#liquidez" data-v="liquidez">Liquidez e vencimentos</a><a href="#modelo" data-v="modelo">Modelo de Alocação e IPS</a><a href="#classificacao" data-v="classificacao">Classificação</a></div>
+    </div>
+    <div class="sd-grp" data-grp="f">
+      <button data-secao="f" title="Fundos" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="5.5" y="11" width="3" height="7" rx="1" fill="currentColor"/><rect x="10.5" y="6" width="3" height="12" rx="1" fill="currentColor"/><rect x="15.5" y="9" width="3" height="9" rx="1" fill="currentColor"/></svg><span>Fundos</span><svg class="car" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="sd-sub"><a href="#fundos" data-v="fundos">Fundos</a><a href="#fiis" data-v="fiis">FIIs</a><a href="#resumo" data-v="resumo">Resumo e fontes</a><a href="#cadastro" data-v="cadastro">Cadastro<span class="badge" id="bCad"></span></a></div>
+    </div>
+    <div class="sd-grp" data-grp="p">
+      <button data-secao="p" title="Performances" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 18.5 9.5 12l3.5 3.5L20 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Performances</span><svg class="car" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="sd-sub"><a href="#performance" data-v="performance">Resultado</a><a href="#risco" data-v="risco">Risco e volatilidade</a><a href="#mensal" data-v="mensal">Retornos mensais</a></div>
+    </div>
   </nav>
   <div class="sd-fim">
     <a href="#acesso" data-v="acesso" title="Acesso"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Acesso · <b id="usr"></b></span></a>
   </div>
 </aside>
 <header class="top" style="display:none">
-  <div class="tit"><b id="hdrTit">Monitor de Carteiras</b><span id="hdrSub"></span></div>
+  <div class="tit"><b id="hdrTit">Carteiras</b><span id="hdrSub"></span></div>
   <div class="sp"></div>
+  <span class="save" id="saveState"></span>
   <div class="seg" id="segUni" role="group" aria-label="Mercado">
     <button data-uni="all">Consolidado</button><button data-uni="on">Onshore</button><button data-uni="off">Offshore</button>
   </div>
 </header>
-<nav class="tabs" id="tabs" style="display:none">
-  <a class="tc" href="#painel" data-v="painel">Painel</a>
-  <a class="tc" href="#cliente" data-v="cliente">Carteiras</a>
-  <a class="tc" href="#alertas" data-v="alertas">Alertas<span class="badge" id="bAl"></span></a>
-  <a class="tc" href="#liquidez" data-v="liquidez">Liquidez e vencimentos</a>
-  <a class="tc" href="#modelo" data-v="modelo">Modelo de Alocação e IPS</a>
-  <a class="tc" href="#classificacao" data-v="classificacao">Classificação</a>
-  <a class="tf" href="#fundos" data-v="fundos">Fundos</a>
-  <a class="tf" href="#fiis" data-v="fiis">FIIs</a>
-  <a class="tf" href="#resumo" data-v="resumo">Resumo e fontes</a>
-  <a class="tf" href="#cadastro" data-v="cadastro">Cadastro<span class="badge" id="bCad"></span></a>
-  <a class="tp" href="#performance" data-v="performance">Resultado</a>
-  <a class="tp" href="#risco" data-v="risco">Risco e volatilidade</a>
-  <a class="tp" href="#mensal" data-v="mensal">Retornos mensais</a>
-  <span style="flex:1"></span>
-  <span class="save" id="saveState"></span>
-</nav>
+<nav class="tabs" id="tabs" style="display:none" hidden></nav>
 <main id="view" style="display:none"></main>
 <footer id="foot" style="display:none"></footer>
 <div id="tip" role="tooltip"></div>
@@ -958,6 +967,8 @@ function render(){
   document.querySelectorAll("#tabs a.tf").forEach(a=>a.style.display = S.secao==="f" ? "" : "none");
   document.querySelectorAll("#tabs a.tp").forEach(a=>a.style.display = S.secao==="p" ? "" : "none");
   document.getElementById("view").classList.toggle("wide", S.view==="fundos" || S.view==="fiis");
+  document.querySelectorAll("#side .sd-grp").forEach(g=>{ const k = g.dataset.grp, ab = k===S.secao ? !S.grpFechado : !!(S.grpAberto||{})[k];
+    g.classList.toggle("aberto", ab); g.querySelector("button").setAttribute("aria-expanded", ab); });
   document.querySelectorAll("#tabs a, #side a[data-v]").forEach(a=>{ if (a.dataset.v===S.view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   if (FCAD){ const n = (FCAD.cad||[]).filter(a=>a.origem==="Sugerida (revisar)" && a.ativo!=="N").length; document.getElementById("bCad").textContent = n || ""; }
   if (!fs || !M) calcular();
@@ -973,7 +984,7 @@ function render(){
 }
 function cabecalho(){
   const sub = document.getElementById("hdrSub"), ft = document.getElementById("foot");
-  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Monitor de Fundos" : S.secao==="p" ? "Monitor de Performance" : "Monitor de Carteiras";
+  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Fundos" : S.secao==="p" ? "Performances" : "Carteiras";
   if (S.secao==="p"){
     sub.textContent = PF ? `Cotas até ${dtBR(PF.ref)} · atualizado em ${dtBR((PF.gerado_em||"").slice(0,10))} ${(PF.gerado_em||"").slice(11,16)}` : "";
     ft.innerHTML = `Etti Partners | Uso interno e confidencial. Fonte: Comdinheiro (Histórico de Cotação das carteiras recomendadas e dos índices, número-índice desde ${PF?dtBR(PF.inicio):"30/12/2022"}).`;
@@ -1237,8 +1248,8 @@ function thF(c, sort, attr){ const on = sort.k===c.k; return `<th class="s${c.gs
 function defasadaTip(L){ return L.mensal ? "Cota mensal (FIDC) com mais de 70 dias" : "Cota sem atualização há mais de 7 dias em relação à data de referência"; }
 function celData(L){ if (!L.data) return dashF; return L.defasada ? `<span class="chip st-aten" data-tip="${esc(defasadaTip(L))}">${dtCurta(L.data)}</span>` : dtCurta(L.data); }
 function semFundos(){
-  if (fErro) return `<div class="empty">Não foi possível carregar o Monitor de Fundos (${esc(fErro)}).</div>`;
-  if (!FCAD) { carregarFundos(); return `<div class="empty">Carregando o Monitor de Fundos…</div>`; }
+  if (fErro) return `<div class="empty">Não foi possível carregar os fundos (${esc(fErro)}).</div>`;
+  if (!FCAD) { carregarFundos(); return `<div class="empty">Carregando os fundos…</div>`; }
   return null;
 }
 function aviso(){
@@ -1268,7 +1279,7 @@ function linhaBm(bm, cols, nome){
 function colgroup(ws){ return `<colgroup>${ws.map(w=>`<col style="width:${w}px">`).join("")}</colgroup>`; }
 function largura(ws){ return ws.reduce((a,b)=>a+b,0); }
 function cabF(tit, sub, filtros){
-  return `<div class="fhead"><div><div class="eyebrow">Monitor de Fundos</div><h1>${esc(tit)}</h1><div class="fsub">${sub}</div></div><div class="flt">${filtros}</div></div>`;
+  return `<div class="fhead"><div><div class="eyebrow">Fundos</div><h1>${esc(tit)}</h1><div class="fsub">${sub}</div></div><div class="flt">${filtros}</div></div>`;
 }
 function vFundos(){
   const sf = semFundos(); if (sf) return sf;
@@ -1357,7 +1368,7 @@ function vFiis(){
 /* resumo e status das fontes */
 function vResumoF(){
   const sf = semFundos(); if (sf) return sf;
-  let h = cabec("Monitor de Fundos", "Resumo e fontes", FD ? `Benchmarks e medianas por classe na data de referência de <b>${dtBR(FD.ref)}</b>. Atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} às ${(FD.gerado_em||"").slice(11,16)}.` : "");
+  let h = cabec("Fundos", "Resumo e fontes", FD ? `Benchmarks e medianas por classe na data de referência de <b>${dtBR(FD.ref)}</b>. Atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} às ${(FD.gerado_em||"").slice(11,16)}.` : "");
   h += aviso(); if (!FD) return h;
   const ci = clsInfo(), bms = FD.benchmarks || [], bmN = n => bms.find(b=>b.nome===n) || {};
   const nF = FD.linhas.filter(L=>L.classe!=="FII").length, nI = FD.linhas.length - nF, nDef = FD.linhas.filter(L=>L.defasada).length;
@@ -1555,7 +1566,7 @@ function selBench(attr, val, padrao){ const bs = (FCAD.bmks||[]).map(b=>b.nome);
 function vCadastro(){
   const sf = semFundos(); if (sf) return sf;
   const N = F.novo, ci = clsInfo();
-  let h = cabec("Monitor de Fundos", "Cadastro de ativos", "Inclua fundos pelo CNPJ ou ativos listados na B3 pelo ticker. O histórico de cinco anos é baixado automaticamente na atualização seguinte ao cadastro, em alguns minutos.");
+  let h = cabec("Fundos", "Cadastro de ativos", "Inclua fundos pelo CNPJ ou ativos listados na B3 pelo ticker. O histórico de cinco anos é baixado automaticamente na atualização seguinte ao cadastro, em alguns minutos.");
   if (!ghToken()) h += `<div class="note">Para gravar o cadastro para toda a equipe, configure o token do GitHub na aba Acesso. Sem ele, as alterações ficam só neste navegador.</div>`;
   if (FOPS.length) h += `<div class="note">${FOPS.length} alteração(ões) no cadastro aguardando gravação.</div>`;
   // sugestão de classe
@@ -1653,7 +1664,8 @@ function adicionarAtivo(){
 document.addEventListener("click", e=>{
   const t = e.target.closest("button,[data-fsort],[data-isort],[data-fclose]"); if (!t) return;
   const d = t.dataset;
-  if (d.secao){ irPara(d.secao==="f" ? (S.ultF||"fundos") : d.secao==="p" ? (S.ultP||"performance") : (S.ultC||"painel")); return; }
+  if (d.secao && d.secao===S.secao && S.view!=="acesso"){ S.grpFechado = !S.grpFechado; render(); return; }
+  if (d.secao){ S.grpFechado = false; irPara(d.secao==="f" ? (S.ultF||"fundos") : d.secao==="p" ? (S.ultP||"performance") : (S.ultC||"painel")); return; }
   if (d.fgrp){ F.grupo = d.fgrp; F.classe = ""; render(); return; }
   if (t.id==="sdToggle"){ const m = !document.body.classList.contains("sd-min"); document.body.classList.toggle("sd-min", m); try { localStorage.setItem("etti_menu_min", m?"1":""); } catch (x) {} return; }
   if (d.fsort){ const k = d.fsort; F.sort = {k, d: F.sort.k===k ? -F.sort.d : (k==="nome"||k==="rank"?1:-1)}; render(); return; }
@@ -1715,8 +1727,8 @@ function carregarPerf(){
   return pCarga;
 }
 function semPerf(){
-  if (pErro) return `<div class="empty">O Monitor de Performance ${pErro==="ainda não gerado" ? "aparece aqui depois da próxima atualização automática." : `não carregou (${esc(pErro)}).`}</div>`;
-  if (!PF) { carregarPerf(); return `<div class="empty">Carregando o Monitor de Performance…</div>`; }
+  if (pErro) return `<div class="empty">A página de performances ${pErro==="ainda não gerado" ? "aparece aqui depois da próxima atualização automática." : `não carregou (${esc(pErro)}).`}</div>`;
+  if (!PF) { carregarPerf(); return `<div class="empty">Carregando as performances…</div>`; }
   return null;
 }
 const pctP = x => rt(x);
@@ -1794,7 +1806,7 @@ function vPerf(){
   const J = PF.janelas, jm = J.filter(j=>/^m\d/.test(j.k)), jp = J.filter(j=>!/^m\d/.test(j.k));
   const pf = {}; PF.perfis.forEach(p=>pf[p.perfil] = p);
   const idx = {}; PF.indices.forEach(x=>idx[x.nome] = x.ret);
-  let h = cabec("Monitor de Performance", "Carteiras recomendadas por perfil", `Retorno das carteiras recomendadas onshore desde o início da Etti (${dtBR(PF.inicio)}), com a composição entre CDI, alocação estratégica, tática e seleção de ativos. Cotas até <b>${dtBR(PF.ref)}</b>.`);
+  let h = cabec("Performances", "Carteiras recomendadas por perfil", `Retorno das carteiras recomendadas onshore desde o início da Etti (${dtBR(PF.inicio)}), com a composição entre CDI, alocação estratégica, tática e seleção de ativos. Cotas até <b>${dtBR(PF.ref)}</b>.`);
   h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · ${pctCdi(t.ano, idx.CDI.ano)} do CDI<br>${rt(t.inicio)} desde o início · ${pctCdi(t.inicio, idx.CDI.inicio)} do CDI</div></div>`; }).join("")}
     <div class="tile dest"><div class="k">CDI</div><div class="v">${rt(idx.CDI.ano)}</div><div class="s">no ano<br>${rt(idx.CDI.inicio)} desde o início</div></div></div>`;
   // gráfico desde o início
@@ -1855,7 +1867,7 @@ function cascata(x, k, p){
 function vRiscoP(){
   const sp = semPerf(); if (sp) return sp;
   const rk = {}; PF.risco.forEach(x=>rk[x.nome] = x);
-  let h = cabec("Monitor de Performance", "Risco e volatilidade", `Volatilidade anualizada pelo desvio-padrão dos retornos diários (× √252), desde ${dtBR(PF.inicio)} até ${dtBR(PF.ref)} (${PF.dias_uteis} dias úteis).`);
+  let h = cabec("Performances", "Risco e volatilidade", `Volatilidade anualizada pelo desvio-padrão dos retornos diários (× √252), desde ${dtBR(PF.inicio)} até ${dtBR(PF.ref)} (${PF.dias_uteis} dias úteis).`);
   // retorno x vol
   const base = ["CDI","Ibovespa","IMA-B","IMA-B 5","IDA-IPCA","IHFA","IFIX","JGP Idex CDI"];
   const pts = PERFIS_P.map(n=>rk[n]).concat((P.todosIdx ? PF.risco.filter(x=>!PERFIS_P.includes(x.nome)) : base.map(n=>rk[n])).filter(Boolean));
@@ -1904,7 +1916,7 @@ function dispersao(pts){
 function vMensal(){
   const sp = semPerf(); if (sp) return sp;
   const p = P.mPerfil, M = PF.mensal[p], C = PF.mensal.CDI;
-  let h = cabec("Monitor de Performance", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e a proporção do CDI. Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
+  let h = cabec("Performances", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e a proporção do CDI. Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
   h += `<div class="flt">${PERFIS_P.map(x=>`<button class="chipbtn" data-pset="mPerfil" data-pv="${x}" aria-pressed="${p===x}">${x}</button>`).join("")}</div>`;
   const anos = Object.keys(M.anos).sort().reverse();
   const cel = (v, ref) => { if (v==null) return `<td class="r"></td>`; const a = Math.min(1, Math.abs(v)/0.03); const bg = v>=0 ? `rgba(19,166,120,${(0.08+0.32*a).toFixed(2)})` : `rgba(240,167,122,${(0.12+0.45*a).toFixed(2)})`; return `<td class="r" style="background:${bg}">${rt(v)}</td>`; };
@@ -1973,7 +1985,7 @@ async function iniciar(){
     document.getElementById("view").innerHTML = `<div class="empty">Não foi possível carregar os dados (${esc(e.message)}).</div>`; return;
   }
   document.getElementById("login").style.display = "none";
-  document.querySelector(".top").style.display = ""; document.getElementById("tabs").style.display = "";
+  document.querySelector(".top").style.display = "";
   document.getElementById("side").style.display = ""; document.body.classList.add("comside");
   try { if (localStorage.getItem("etti_menu_min")) document.body.classList.add("sd-min"); } catch (e) {}
   document.getElementById("usr").textContent = USUARIO;
