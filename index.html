@@ -672,6 +672,7 @@ function vCliente(){
   </div>`;
   const ab = abertos(P_.alertas).sort((a,b)=>"cai".indexOf(a.sev[0])-"cai".indexOf(b.sev[0]));
   if (ab.length) h += `<div class="card" style="margin-bottom:var(--gutter)"><h2>Alertas desta carteira</h2>${ab.slice(0,8).map(a=>`<div class="alert"><div>${chipSev(a.sev)}</div><div><div class="t">${esc(a.titulo)}</div><div class="d">${esc(a.det)}</div></div><div class="small muted">${esc(a.tipo)}</div></div>`).join("")}${ab.length>8?`<p class="small muted">E mais ${ab.length-8} em Alertas.</p>`:""}</div>`;
+  h += secaoRentab(P_);
   // alocação x bandas
   const allK = cls.concat((P_.cls[NM]||0)?[NM]:[]);
   let escala = 0; allK.forEach(k=>{ const b=(P_.bands||{})[k]; escala=Math.max(escala, P_.share[k]||0, b?Math.min(1,b[2]!=null?b[2]:0):0, P_.tat?P_.tat[k]||0:0); });
@@ -750,7 +751,6 @@ function vCliente(){
   const pos = base.slice().sort((a,b)=>{ const x=pk(a),y=pk(b); return (x>y?1:x<y?-1:0)*S.psort.d; });
   const th = (k,l,c) => `<th class="s ${c||""}" data-psort="${k}" aria-sort="${S.psort.k===k?(S.psort.d>0?"ascending":"descending"):"none"}">${l}${S.psort.k===k?(S.psort.d>0?" ▲":" ▼"):""}</th>`;
   const agr = S.pAgr !== false;
-  h += secaoRentab(P_);
   h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="margin:0">Posições (${agr ? `${pos.length} ativos · ${nApl} aplicações` : nApl})</h2><button class="chipbtn" data-pagr="1" aria-pressed="${agr}" title="Junta as aplicações do mesmo ativo numa linha só">Agrupar</button></div><div class="tw"><table><thead><tr>${th("nome","Ativo")}${th("cls","Classe")}${th("t","Tipo")}${th("if","Instituição")}${th("v","Saldo bruto","r")}<th class="r">% carteira</th>${th("liq","Liquidez")}${th("vc","Vencimento")}${th("du","Duration","r")}${th("dr","Preço de")}</tr></thead><tbody>`;
   pos.forEach(p=>{
     const lotes = p._n>1 ? `<span class="muted small" data-tip="${esc(p._lotes.map(l=>`${l.if||"–"}: ${moeda(l.v,ccy)}${l.ap?` · aplicação de ${dtBR(l.ap)}`:""}`).join("\n"))}"> · ${p._n} aplicações</span>` : "";
@@ -1971,14 +1971,14 @@ function carregarCotas(){
 }
 function secaoRentab(P_){
   const tit = `<h2>Rentabilidade desde o início</h2>`;
-  if (!CT && !ctErro){ carregarCotas(); return `<div class="card mt">${tit}<div class="empty small">Carregando…</div></div>`; }
-  if (!CT) return `<div class="card mt">${tit}<p class="sub">A rentabilidade aparece aqui depois da próxima atualização automática.</p></div>`;
+  if (!CT && !ctErro){ carregarCotas(); return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<div class="empty small">Carregando…</div></div>`; }
+  if (!CT) return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">A rentabilidade aparece aqui depois da próxima atualização automática.</p></div>`;
   const r = CT.carteiras[P_.nome];
-  if (!r) return `<div class="card mt">${tit}<p class="sub">Esta carteira ainda não tem cota na Comdinheiro.</p></div>`;
-  if (r.erro) return `<div class="card mt">${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
+  if (!r) return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">Esta carteira ainda não tem cota na Comdinheiro.</p></div>`;
+  if (r.erro) return `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
   const off = P_.uni==="off", ano = r.fim.slice(0,4);
   const outras = (r.inicio_planilha||[]).filter(d=>d!==r.inicio);
-  let h = `<div class="card mt">${tit}<p class="sub">Cota da carteira de ${dtBR(r.inicio)} (início da gestão${r.inicio_fonte==="comdinheiro"?", pela primeira cota na Comdinheiro":""}) até ${dtBR(r.fim)}, último fechamento mensal.${outras.length?` Outras datas de início registradas: ${outras.map(dtBR).join(", ")}.`:""}${off?" Carteira em dólar: a comparação com o CDI não se aplica.":""}</p>`;
+  let h = `<div class="card" style="margin-bottom:var(--gutter)">${tit}<p class="sub">Cota da carteira de ${dtBR(r.inicio)} (início da gestão${r.inicio_fonte==="comdinheiro"?", pela primeira cota na Comdinheiro":""}) até ${dtBR(r.fim)}, último fechamento mensal.${outras.length?` Outras datas de início registradas: ${outras.map(dtBR).join(", ")}.`:""}${off?" Carteira em dólar: a comparação com o CDI não se aplica.":""}</p>`;
   h += `<div class="mini" style="grid-template-columns:repeat(${off?2:4},1fr)"><div><span>Desde o início</span><b>${rt(r.total)}</b></div>`
     + (off ? "" : `<div><span>CDI no período</span><b>${rt(r.total_cdi)}</b></div><div><span>CDI+</span><b>${r.total_cdi!=null?ppF(r.total-r.total_cdi):"–"}</b></div>`)
     + `<div><span>Em ${ano}</span><b>${rt(r.anos[ano])}</b></div></div>`;
