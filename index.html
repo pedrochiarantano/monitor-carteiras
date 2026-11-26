@@ -272,6 +272,14 @@ h3.ch{font-size:13.5px;margin:4px 0 6px;display:flex;align-items:center}
 .top .save{margin-right:4px}
 body.sd-min .sd-sub,body.sd-min .sd-nav button .car{display:none !important}
 @media (max-width:900px){.sd-sub,.sd-nav button .car{display:none !important}}
+
+/* ---------- cabeçalho de página padrão ---------- */
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;margin-bottom:18px}
+.phead h1{margin:6px 0 2px}
+.phead .lede{margin:0;font-size:13px}
+.phead-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h2{margin-bottom:4px}
+.card .sub{font-size:12.5px;margin:0 0 12px}
 </style>
 </head>
 <body class="lg">
@@ -577,7 +585,7 @@ function linha(pts, ccy){
 /* =====================================================================
    Views
    ===================================================================== */
-function cabec(eb, tit, lede){ return `<div class="eyebrow">${esc(eb)}</div><h1>${esc(tit)}</h1>${lede?`<p class="lede">${lede}</p>`:""}`; }
+function cabec(eb, tit, lede, direita){ return `<div class="phead"><div><div class="eyebrow">${esc(eb)}</div><h1>${esc(tit)}</h1>${lede?`<p class="lede">${lede}</p>`:""}</div>${direita?`<div class="phead-r">${direita}</div>`:""}</div>`; }
 function totalVis(ps){ return ps.reduce((s,p)=>s+(S.uni==="off"?p.aum:p.aumBRL),0); }
 function ccyVis(){ return S.uni==="off" ? "USD" : "BRL"; }
 function valorVis(p){ return S.uni==="off" ? p.aum : p.aumBRL; }
@@ -591,8 +599,7 @@ function vPainel(){
   const on = Object.values(M.ports).filter(p=>p.uni==="on"), off = Object.values(M.ports).filter(p=>p.uni==="off");
   const subAum = S.uni==="all" ? `Onshore ${compacto(on.reduce((s,p)=>s+p.aum,0),"BRL")} · Offshore ${compacto(off.reduce((s,p)=>s+p.aum,0),"USD")}`
                : `${ps.length} carteiras`;
-  let h = cabec("Painel", fora ? `${fora} de ${comIPS} carteiras com IPS estão fora da banda` : "Todas as carteiras com IPS estão dentro da banda",
-    `Posições de ${dtBR(META.data_analise)}${S.uni!=="on"?` · PTAX ${nf4.format(META.ptax||0)}`:""}. Clique numa carteira para ver alocação, bandas, liquidez e posições.`);
+  let h = cabec("Carteiras", "Painel", `${ps.length} carteiras · ${fora ? `${fora} de ${comIPS} com IPS fora da banda` : "todas dentro da banda do IPS"} · posições de ${dtBR(META.data_analise)}`);
   h += `<div class="tiles">
     <div class="tile dest"><div class="k">Patrimônio sob gestão</div><div class="v">${compacto(tot,ccy)}</div><div class="s">${subAum}</div></div>
     <div class="tile"><div class="k">Carteiras</div><div class="v">${ps.length}</div><div class="s">${comIPS} com IPS ou perfil</div></div>
@@ -606,7 +613,7 @@ function vPainel(){
     let it = classesDe(uni).concat([NM]).map(k=>({label:k, v:grupo.reduce((s,p)=>s+(p.cls[k]||0),0)})).filter(i=>i.v>0.5);
     const t = it.reduce((s,i)=>s+i.v,0);
     it.forEach(i=>{ i.lbl = pct(i.v/(t||1)); i.tip = moeda(i.v,c) + " · " + pct(i.v/(t||1)); });
-    return `<div class="card"><h2>Alocação por classe · ${uni==="on"?"Onshore":"Offshore"}</h2><p class="sub">${uni==="on"?"Em R$":"Em US$"}, soma de ${grupo.length} carteiras (${compacto(t,c)}). Taxas de gestão provisionadas ficam de fora.</p>${it.length?hbars(it, v=>compacto(v,c)):'<p class="muted">Sem posições.</p>'}</div>`;
+    return `<div class="card"><h2>Alocação por classe · ${uni==="on"?"Onshore":"Offshore"}</h2><p class="sub">${uni==="on"?"Em R$":"Em US$"} · ${grupo.length} carteiras</p>${it.length?hbars(it, v=>compacto(v,c)):'<p class="muted">Sem posições.</p>'}</div>`;
   };
   // concentração por instituição financeira
   const bancos = {};
@@ -617,14 +624,14 @@ function vPainel(){
   const itB = Object.entries(bancos).map(([b,o])=>({label:b, v:o.v, lbl:pct(o.v/(totB||1)),
     tip:`${moeda(o.v,ccy)} · ${pct(o.v/(totB||1))}\n${o.carts.size} carteiras`})).filter(i=>i.v>0.5).sort((a,b)=>b.v-a.v);
   const maiorB = itB[0];
-  const cardBancos = `<div class="card"><h2>Concentração por instituição</h2><p class="sub">Patrimônio custodiado em cada banco ou corretora${S.uni==="all"?", offshore convertido pela PTAX":""}.${maiorB?` ${esc(maiorB.label)} concentra ${pct(maiorB.v/(totB||1))}.`:""}</p>${hbars(itB, v=>compacto(v,ccy))}</div>`;
+  const cardBancos = `<div class="card"><h2>Concentração por instituição</h2><p class="sub">${S.uni==="all"?"Offshore convertido pela PTAX":""}${maiorB?`${S.uni==="all"?" · ":""}${esc(maiorB.label)} concentra ${pct(maiorB.v/(totB||1))}`:""}</p>${hbars(itB, v=>compacto(v,ccy))}</div>`;
   // histórico
   const hp = {}; HIST.forEach(x=>{ const off_ = /_offshore$/.test(x.c); const uni = off_?"off":"on";
     if ((uni==="on"?CFG.onshore.exclude:CFG.offshore.exclude).includes(x.c)) return;
     if (S.uni!=="all" && S.uni!==uni) return;
     hp[x.d] = (hp[x.d]||0) + (S.uni==="all" && off_ ? x.v*(META.ptax||0) : x.v); });
   const pts = Object.keys(hp).sort().map(d=>({d, v:hp[d]}));
-  const cardEvol = `<div class="card"><h2>Evolução do patrimônio</h2><p class="sub">Um ponto por atualização${S.uni==="all"?"; offshore convertido pela PTAX do dia mais recente":""}.</p>${linha(pts, ccy)}</div>`;
+  const cardEvol = `<div class="card"><h2>Evolução do patrimônio</h2>${linha(pts, ccy)}</div>`;
   if (S.uni==="all") h += `<div class="grid g2">${cardAloc("on")}${cardAloc("off")}</div><div class="grid g2 mt">${cardBancos}${cardEvol}</div>`;
   else h += `<div class="grid g2">${cardAloc(S.uni)}${cardBancos}</div><div class="mt">${cardEvol}</div>`;
   // tabela
@@ -634,7 +641,7 @@ function vPainel(){
                dpre:p=>durDesvio(p,"Pré Fixado"), dinf:p=>durDesvio(p,"Inflação"), fora:p=>p.fora.length, liq:p=>p.liqD5, al:p=>abertos(p.alertas).length}[S.sort.k];
   rows.sort((a,b)=>{ const x=key(a), y=key(b); return (x>y?1:x<y?-1:0)*S.sort.d; });
   const th = (k,l,c) => `<th class="s ${c||""}" data-sort="${k}" aria-sort="${S.sort.k===k?(S.sort.d>0?"ascending":"descending"):"none"}">${l}${S.sort.k===k?(S.sort.d>0?" ▲":" ▼"):""}</th>`;
-  h += `<div class="card mt"><div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h2>Carteiras</h2><p class="sub" style="margin:0">Drift: metade da soma dos desvios contra a alocação tática (${CFG.params.driftEscalaPP}% = nota 100). Duration: média ponderada da classe em anos; entre parênteses, o desvio contra o alvo (pré ${nf1.format(CFG.onshore.durTargets["Pré Fixado"]||0)} · inflação ${nf1.format(CFG.onshore.durTargets["Inflação"]||0)}), destacado acima de ${nf1.format(CFG.params.durTolAnos)} ano.</p></div>
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;margin-bottom:12px"><div><h2>Carteiras</h2></div>
     <input type="search" id="qCart" placeholder="Buscar carteira" value="${esc(S.q)}" aria-label="Buscar carteira"></div>
     <div class="tw"><table><thead><tr>${th("nome","Carteira")}${th("uni","Mercado")}${th("perfil","Perfil")}${th("aum","Patrimônio","r")}${th("drift","Drift")}${th("dpre","Duration pré","r")}${th("dinf","Duration inflação","r")}${th("fora","Fora da banda","c")}${th("liq","Liquidez até D+5","r")}${th("al","Alertas","c")}</tr></thead><tbody>`;
   rows.forEach(p=>{
@@ -659,9 +666,8 @@ function vCliente(){
   let P_ = ps.find(p=>p.nome===S.cli) || ps.slice().sort((a,b)=>b.aumBRL-a.aumBRL)[0];
   S.cli = P_.nome;
   const ccy = P_.ccy, cls = classesDe(P_.uni), tot = P_.aum;
-  let h = `<div class="row" style="justify-content:space-between;align-items:flex-end"><div>${cabec("Carteiras", nomeCart(P_.nome), "")}</div>
-    <label class="small muted">Carteira&nbsp; <select id="selCli">${ps.map(p=>`<option value="${esc(p.nome)}"${p.nome===P_.nome?" selected":""}>${esc(nomeCart(p.nome))}</option>`).join("")}</select></label></div>`;
-  h += `<p class="lede">${P_.uni==="on"?"Onshore":"Offshore"} · ${esc(P_.fonteFaixa)}${P_.profile?" · perfil "+esc(P_.profile):""} · posições de ${dtBR(META.data_analise)}</p>`;
+  let h = cabec("Carteiras", nomeCart(P_.nome), `${P_.uni==="on"?"Onshore":"Offshore"} · ${esc(P_.fonteFaixa)}${P_.profile?" · perfil "+esc(P_.profile):""} · posições de ${dtBR(META.data_analise)}`,
+    `<label class="small muted">Carteira&nbsp; <select id="selCli">${ps.map(p=>`<option value="${esc(p.nome)}"${p.nome===P_.nome?" selected":""}>${esc(nomeCart(p.nome))}</option>`).join("")}</select></label>`);
   const durTxt = P_.uni==="on" ? ["Pré Fixado","Inflação"].map(k=>`${k==="Pré Fixado"?"Pré":"Inflação"} ${P_.dur[k]!=null?nf1.format(P_.dur[k]):"–"}`).join(" · ") : null;
   h += `<div class="tiles">
     <div class="tile dest"><div class="k">Patrimônio</div><div class="v">${compacto(tot,ccy)}</div><div class="s">${P_.uni==="off"?"≈ "+compacto(P_.aumBRL,"BRL")+" pela PTAX":P_.pos.length+" posições"}</div></div>
@@ -678,7 +684,7 @@ function vCliente(){
   let escala = 0; allK.forEach(k=>{ const b=(P_.bands||{})[k]; escala=Math.max(escala, P_.share[k]||0, b?Math.min(1,b[2]!=null?b[2]:0):0, P_.tat?P_.tat[k]||0:0); });
   escala = Math.min(1, Math.ceil((escala+0.02)*10)/10);
   const X = v => (Math.min(v,escala)/escala*100);
-  h += `<div class="grid g3"><div class="card"><h2>Alocação atual, faixa do IPS e tática</h2><p class="sub">Escala de 0 a ${pct(escala,0)}. A tática aplica o tilt da casa sobre o mid; caixa é o resíduo.</p>
+  h += `<div class="grid g3"><div class="card"><h2>Alocação, faixa do IPS e tática</h2>
     <div class="legend"><span><i style="background:var(--verde-etti);height:8px"></i>Atual</span><span><i style="background:var(--verde-claro)"></i>Faixa do IPS (mín–máx)</span><span><i style="background:var(--verde-vivo);width:3px;height:14px"></i>Tática</span></div><div class="bandc">`;
   allK.forEach(k=>{
     const a = P_.share[k]||0, b = (P_.bands||{})[k], t = P_.tat ? P_.tat[k] : null;
@@ -690,7 +696,7 @@ function vCliente(){
   });
   h += `</div></div>`;
   // simulador
-  h += `<div class="card"><h2>Ajustes da Carteira</h2><p class="sub">${P_.tat?"Mostra quanto comprar ou vender por classe para chegar à tática.":"Defina o perfil ou IPS da carteira para simular."}</p>
+  h += `<div class="card"><h2>Ajustes da Carteira</h2>${P_.tat?"":`<p class="sub">Defina o perfil ou IPS da carteira para simular.</p>`}
     <div class="flt"><button class="chipbtn" data-sim="aporte" aria-pressed="${S.simModo==="aporte"}">Aporte</button><button class="chipbtn" data-sim="retirada" aria-pressed="${S.simModo==="retirada"}">Retirada</button><button class="chipbtn" data-sim="rebal" aria-pressed="${S.simModo==="rebal"}">Rebalancear</button>
     ${S.simModo!=="rebal"?`<label class="small">Valor (${ccy==="USD"?"US$":"R$"}) <input type="number" id="simV" style="width:130px" value="${S.simV}" step="1000" min="0"></label>`:""}</div>`;
   if (P_.tat){
@@ -709,7 +715,7 @@ function vCliente(){
     h += `<div class="tw" style="max-height:none"><table><thead><tr><th>Classe</th><th class="r">Atual</th><th class="r">Tática</th><th class="r">Comprar / (vender)</th></tr></thead><tbody>`;
     mov.forEach(m=>{
       h += `<tr><td>${esc(m.k)}</td><td class="r">${pct(m.atual/(tot||1))}</td><td class="r">${pct(P_.tat[m.k]||0)}</td><td class="r"><b>${Math.abs(m.f)<1?"–":(m.f<0?"("+nf0.format(-m.f)+")":nf0.format(m.f))}</b></td></tr>`; });
-    h += `</tbody></table></div><p class="fonte">Aporte e retirada usam só o fluxo informado, priorizando as classes mais distantes da tática. Valores em ${ccy==="USD"?"US$":"R$"}.</p>`;
+    h += `</tbody></table></div>`;
   }
   h += `</div></div>`;
   // tabela de bandas
@@ -729,8 +735,8 @@ function vCliente(){
   // concentração por instituição na carteira
   const bc = {}; P_.pos.forEach(x=>{ const b=(x.if||"").trim().toUpperCase()||"NÃO INFORMADO"; bc[b]=(bc[b]||0)+x.v; });
   const itBc = Object.entries(bc).filter(([b,v])=>v>0.5).sort((a,b)=>b[1]-a[1]).map(([b,v])=>({label:b, v, lbl:pct(v/(tot||1)), tip:moeda(v,ccy)+" · "+pct(v/(tot||1))}));
-  h += `<div class="grid g3c mt"><div class="card"><h2>Escada de liquidez</h2><p class="sub">Prazo de resgate ou liquidação de cada posição, em % da carteira.</p>${colunas(liqItems, v=>pct(v/(tot||1),0), v=>moeda(v,ccy)+" · "+pct(v/(tot||1)))}</div>
-    <div class="card"><h2>Por instituição</h2><p class="sub">Onde a carteira está custodiada.</p>${hbars(itBc, v=>compacto(v,ccy))}</div>
+  h += `<div class="grid g3c mt"><div class="card"><h2>Escada de liquidez</h2><p class="sub">% da carteira por prazo de resgate</p>${colunas(liqItems, v=>pct(v/(tot||1),0), v=>moeda(v,ccy)+" · "+pct(v/(tot||1)))}</div>
+    <div class="card"><h2>Por instituição</h2>${hbars(itBc, v=>compacto(v,ccy))}</div>
     <div class="card"><h2>Próximos vencimentos</h2>${venc.length?`<div class="tw" style="max-height:260px"><table><thead><tr><th>Ativo</th><th>Vencimento</th><th class="r">Saldo</th></tr></thead><tbody>${venc.map(p=>`<tr><td>${esc(p.nome)}</td><td>${dtBR(p.vc)} <span class="muted small">(${p.diasVenc} d)</span></td><td class="r">${nf0.format(p.v)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">Nenhum ativo com vencimento informado.</p>`}</div></div>`;
   // posições
   const pk = {nome:p=>p.nome, cls:p=>p.cls, t:p=>p.t, if:p=>p.if||"", v:p=>p.v, liq:p=>p.pl==null?1e9:p.pl, vc:p=>p.vc||"9", du:p=>p.du==null?-1:p.du, dr:p=>p.dr||""}[S.psort.k];
@@ -762,7 +768,7 @@ function vCliente(){
 /* Ajuste de duration: troca dentro da mesma classe (vende um prazo, compra outro) */
 function cardDuration(P_){
   const tgt = CFG.onshore.durTargets||{}, tol = CFG.params.durTolAnos, ccy = P_.ccy;
-  let h = `<div class="card mt"><h2>Ajuste de duration</h2><p class="sub">Duration média ponderada por saldo em cada classe, contra o alvo do modelo. O ajuste vende um ativo e compra outro dentro da mesma classe, então a alocação não muda. Edite as durations de compra e venda para testar.</p>
+  let h = `<div class="card mt"><h2>Ajuste de duration</h2><p class="sub">Troca ativos dentro da mesma classe, sem mudar a alocação</p>
     <div class="tw" style="max-height:none"><table><thead><tr><th>Classe</th><th class="r">Saldo na classe</th><th class="r">Duration atual</th><th class="r">Alvo</th><th class="r">Desvio</th><th>Status</th><th class="r">Vender duration</th><th class="r">Comprar duration</th><th class="r">Valor a trocar</th></tr></thead><tbody>`;
   const listas = [];
   ["Pré Fixado","Inflação"].forEach(k=>{
@@ -789,7 +795,7 @@ function cardDuration(P_){
       <td class="r">${vtxt}</td></tr>`;
     listas.push({k, pos:comDur.slice().sort((a,b)=>b.du-a.du), V, semDur:V-Vd, est:comDur.filter(p=>p.duFonte!=="Comdinheiro").reduce((s,p)=>s+p.v,0)});
   });
-  h += `</tbody></table></div><p class="fonte">Valor a trocar = (alvo − atual) × saldo com duration ÷ (duration comprada − duration vendida). Os valores iniciais sugerem vender o prazo mais curto ou mais longo da carteira, conforme a direção do ajuste. Tolerância: ${nf1.format(tol)} ano.${listas.some(l=>l.est>0.5)?` Valores com ≈ são durations estimadas a partir da carteira aberta dos fundos na CVM (${listas.filter(l=>l.est>0.5).map(l=>esc(l.k)+": "+pct(l.est/(l.V||1),0)+" do saldo").join("; ")}); passe o mouse para ver a fonte.`:""}</p>`;
+  h += `</tbody></table></div>`;
   if (listas.length){
     h += `<div class="grid g2 mt">` + listas.map(l=>`<div><h2 style="font-size:14px">${esc(l.k)} · posições por duration</h2><div class="tw" style="max-height:260px"><table><thead><tr><th>Ativo</th><th class="r">Saldo</th><th class="r">Duration</th><th class="r">Contribuição</th></tr></thead><tbody>${l.pos.map(p=>`<tr><td>${esc(p.nome)}</td><td class="r">${nf0.format(p.v)}</td><td class="r">${fmtDur(p)}</td><td class="r">${nf2.format(p.du*p.v/(l.V-l.semDur||1))}</td></tr>`).join("")}${l.semDur>0.5?`<tr><td class="muted">Sem duration informada</td><td class="r">${nf0.format(l.semDur)}</td><td class="r">–</td><td class="r">–</td></tr>`:""}</tbody></table></div></div>`).join("") + `</div>`;
   }
@@ -805,8 +811,7 @@ function vAlertas(){
   let vis = al.filter(a=>okSev(a,S.sev) && (S.tipo==="todos"||a.tipo===S.tipo) && (S.showAck||!a.ack));
   const q = S.aq.trim().toLowerCase(); if (q) vis = vis.filter(a=>(nomeCart(a.cart)+" "+a.titulo+" "+a.det).toLowerCase().includes(q));
   vis.sort((a,b)=>("cai".indexOf(a.sev[0])-"cai".indexOf(b.sev[0])) || a.cart.localeCompare(b.cart,"pt-BR",{numeric:true}));
-  let h = cabec("Central de alertas", `${cont("crit")} alertas críticos e ${cont("aten")} de atenção em aberto`,
-    "Recalculados a cada atualização das posições. Ao reconhecer um alerta, ele some da lista para toda a equipe (depois de gravado no GitHub) até a situação mudar.");
+  let h = cabec("Carteiras", "Alertas", `${cont("crit")} críticos · ${cont("aten")} de atenção em aberto`);
   h += `<div class="card"><div class="flt">${["prio","crit","aten","info","todos"].map(s=>`<button class="chipbtn" data-sev="${s}" aria-pressed="${S.sev===s}">${s==="todos"?"Todos":s==="prio"?"Críticos e atenção":SEVN[s]} (${cont(s)})</button>`).join("")}
     <select id="selTipo" aria-label="Tipo de alerta"><option value="todos">Todos os tipos</option>${tipos.map(t=>`<option${S.tipo===t?" selected":""}>${esc(t)}</option>`).join("")}</select>
     <input type="search" id="aq" placeholder="Buscar" value="${esc(S.aq)}" aria-label="Buscar alertas">
@@ -834,10 +839,9 @@ function vLiquidez(){
   ps.forEach(p=>p.pos.forEach(x=>{ if (x.diasVenc!=null && x.diasVenc>=0){ const m = meses.find(m=>m.k===x.vc.slice(0,7)); if (m){ m.v += x.v*conv(p); m.n++; } if (x.diasVenc<=90) lista.push({p, x}); } }));
   lista.sort((a,b)=>a.x.diasVenc-b.x.diasVenc);
   const v12 = meses.slice(0,12).reduce((s,m)=>s+m.v,0);
-  let h = cabec("Liquidez e vencimentos", `${pct((agg["D+0"]||0)/(tot||1))} do patrimônio resgata no mesmo dia e ${compacto(v12,ccy)} vencem em 12 meses`,
-    "Prazo de liquidez informado pela Comdinheiro para cada posição. Vencimentos de títulos, CDBs, crédito privado e bonds.");
-  h += `<div class="grid g2"><div class="card"><h2>Escada de liquidez</h2><p class="sub">% do patrimônio ${S.uni==="all"?"consolidado":S.uni==="on"?"onshore":"offshore"} por prazo de resgate.</p>${colunas(items, v=>pct(v/(tot||1),0), v=>moeda(v,ccy)+" · "+pct(v/(tot||1)))}</div>
-    <div class="card"><h2>Vencimentos por mês</h2><p class="sub">Próximos 24 meses, em ${ccy==="USD"?"US$":"R$"}.</p>${colunas(meses, v=>compacto(v,ccy).replace(/^R\$ |^US\$ /,""), (v,i)=>moeda(v,ccy)+" · "+i.n+" posições", {capTop:4, xEvery:3})}<p class="fonte">Rótulo nos quatro maiores meses; passe o mouse nas colunas para ver os demais.</p></div></div>`;
+  let h = cabec("Carteiras", "Liquidez e vencimentos", `${pct((agg["D+0"]||0)/(tot||1))} resgata em D+0 · ${compacto(v12,ccy)} vencem em 12 meses`);
+  h += `<div class="grid g2"><div class="card"><h2>Escada de liquidez</h2><p class="sub">% do patrimônio por prazo de resgate</p>${colunas(items, v=>pct(v/(tot||1),0), v=>moeda(v,ccy)+" · "+pct(v/(tot||1)))}</div>
+    <div class="card"><h2>Vencimentos por mês</h2><p class="sub">Próximos 24 meses</p>${colunas(meses, v=>compacto(v,ccy).replace(/^R\$ |^US\$ /,""), (v,i)=>moeda(v,ccy)+" · "+i.n+" posições", {capTop:4, xEvery:3})}</div></div>`;
   // tabela por carteira
   h += `<div class="card mt"><h2>Liquidez por carteira</h2><div class="tw"><table><thead><tr><th>Carteira</th><th class="r">Patrimônio</th>${BUCKETS.map(b=>`<th class="r">${b[0]}</th>`).join("")}<th class="r">Sem inf.</th></tr></thead><tbody>`;
   ps.slice().sort((a,b)=>a.liqD5-b.liqD5).forEach(p=>{ const t=p.aum||1;
@@ -855,15 +859,14 @@ function inp(path, val, opts){ opts = opts||{}; const dis = podeEditar() || !DB 
 
 function vModelo(){
   const on = CFG.onshore, off = CFG.offshore;
-  let h = cabec("Modelo de Alocação e IPS", "Alvos da casa e faixas de cada cliente",
-    "Edições ficam salvas para toda a equipe e recalculam bandas, drift e alertas na hora. Percentuais em % da carteira.");
+  let h = cabec("Carteiras", "Modelo de Alocação e IPS", "Alvos da casa e faixas de cada cliente, em % da carteira");
   if (!ghToken()) h += `<div class="note">Este navegador ainda não grava no GitHub: as alterações ficam só aqui até você configurar o token em <a href="#acesso">Acesso</a>.</div>`;
   // cabeçalho em dois níveis, com separação visual entre os perfis
   const cabMod = extra => `<thead><tr><th rowspan="2">Classe</th>${extra?`<th rowspan="2">Benchmark</th>`:""}${PERFIS.map((p,i)=>`<th class="c gs" colspan="3">${p}</th>`).join("")}<th class="c gs" rowspan="2">Tilt</th><th class="c gs" colspan="3">Tática</th></tr>
     <tr class="h2">${PERFIS.map(()=>`<th class="c gs">Mín</th><th class="c">Mid</th><th class="c">Máx</th>`).join("")}${PERFIS.map((p,i)=>`<th class="r${i===0?" gs":""}">${p.slice(0,4)}.</th>`).join("")}</tr></thead>`;
   const gcl = (i,j) => (j===0?"gs ":"") + (i===1?"gm":"");
   // onshore
-  h += `<div class="card"><h2>Onshore · mid por perfil e tilt tático</h2><p class="sub">Cada passo de tilt (−4 a +4) move ¼ da distância entre o mid e o limite da banda (máximo se positivo, mínimo se negativo). Caixa Pós é o resíduo.</p><div class="tw mtab" style="max-height:none"><table>${cabMod(true)}<tbody>`;
+  h += `<div class="card"><h2>Onshore · mid e tilt por perfil</h2><p class="sub">Tilt de −4 a +4 · Caixa Pós é o resíduo</p><div class="tw mtab" style="max-height:none"><table>${cabMod(true)}<tbody>`;
   const tatP = {}; PERFIS.forEach(pf=>{ const L=PL[pf], b={}; on.classes.forEach(k=>{ const m=on.model[k]||{}; b[k]=[m["min"+L]||0,m["est"+L]||0,m["max"+L]!=null?m["max"+L]:1]; }); tatP[pf]=tatica(b,"on"); });
   on.classes.forEach(k=>{ const m = on.model[k]||{};
     h += `<tr><td><b>${esc(k)}</b></td><td><input type="text" data-cfg="onshore.model.${esc(k)}.bench" value="${esc(m.bench||"")}" style="width:80px"${podeEditar()||!DB?"":" disabled"}></td>`;
@@ -872,7 +875,7 @@ function vModelo(){
   h += `<tr class="tot"><td colspan="2">Soma do mid</td>${PERFIS.map((pf,i)=>{ const L=PL[pf]; const s=on.classes.reduce((a,k)=>a+((on.model[k]||{})["est"+L]||0),0); return `<td class="gs"></td><td class="c">${pct(s)}</td><td></td>`; }).join("")}<td class="gs"></td>${PERFIS.map((p,i)=>`<td class="r${i===0?" gs":""}">100,0%</td>`).join("")}</tr>`;
   h += `</tbody></table></div><div class="row mt small">Duration alvo (anos): Pré Fixado ${inp("onshore.durTargets.Pré Fixado", on.durTargets["Pré Fixado"], {step:0.1})} Inflação ${inp("onshore.durTargets.Inflação", on.durTargets["Inflação"], {step:0.1})} <span class="muted">· tolerância ${inp("params.durTolAnos", CFG.params.durTolAnos, {step:0.1})} ano</span></div></div>`;
   // offshore
-  h += `<div class="card mt"><h2>Offshore · mid por perfil e tilts</h2><p class="sub">Cash Equiv &lt;12m é o resíduo da tática.</p><div class="tw mtab" style="max-height:none"><table>${cabMod(false)}<tbody>`;
+  h += `<div class="card mt"><h2>Offshore · mid e tilt por perfil</h2><p class="sub">Cash Equiv &lt;12m é o resíduo</p><div class="tw mtab" style="max-height:none"><table>${cabMod(false)}<tbody>`;
   const tatO = {}; PERFIS.forEach(pf=>tatO[pf]=tatica(off.strategicByProfile[pf],"off"));
   off.classes.forEach(k=>{ h += `<tr><td><b>${esc(k)}</b></td>`;
     PERFIS.forEach((pf,i)=>{ const b=(off.strategicByProfile[pf]||{})[k]||[0,0,0]; [0,1,2].forEach(j=>h+=`<td class="c ${gcl(i,j)}">${inp(`offshore.strategicByProfile.${pf}.${k}.${j}`, b[j], {pct:1})}</td>`); });
@@ -881,7 +884,7 @@ function vModelo(){
   h += `</tbody></table></div></div>`;
   // clientes
   const ps = Object.values(M.ports).filter(p=>S.uni==="all"||p.uni===S.uni).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{numeric:true}));
-  h += `<div class="card mt"><h2>Perfil e IPS por carteira</h2><p class="sub">Sem IPS próprio, a carteira usa as faixas do modelo do seu perfil. Marque "IPS próprio" para editar faixas específicas.</p><div class="tw"><table><thead><tr><th>Carteira</th><th>Mercado</th><th>Perfil</th><th class="c">IPS próprio</th><th>Faixas</th><th class="r">Patrimônio</th></tr></thead><tbody>`;
+  h += `<div class="card mt"><h2>Perfil e IPS por carteira</h2><p class="sub">Sem IPS próprio, vale o modelo do perfil</p><div class="tw"><table><thead><tr><th>Carteira</th><th>Mercado</th><th>Perfil</th><th class="c">IPS próprio</th><th>Faixas</th><th class="r">Patrimônio</th></tr></thead><tbody>`;
   ps.forEach(p=>{ const sec = p.uni==="on"?"onshore":"offshore", cc = CFG[sec].clients[p.nome]||{};
     const proprio = p.uni==="on" ? !!(cc.hasIPS && cc.bands && Object.keys(cc.bands).length) : !!(cc.bands && Object.keys(cc.bands).length);
     const dis = podeEditar()||!DB?"":" disabled";
@@ -917,8 +920,7 @@ function vClassificacao(){
     const g = grupos[k] || (grupos[k] = {uni:p.uni, a:x.a, nome:x.nome, t:x.t, mc:x.mc, v:0, carts:new Set()}); g.v += x.v; g.carts.add(p.nome); }));
   const lista = Object.values(grupos).sort((a,b)=>b.v*(b.uni==="off"?META.ptax:1)-a.v*(a.uni==="off"?META.ptax:1));
   const dis = podeEditar()||!DB?"":" disabled";
-  let h = cabec("Classificação", lista.length ? `${lista.length} ativos ainda sem classe` : "Todos os ativos estão classificados",
-    "Onshore usa a classe da variável <i>mvclasse</i> da Comdinheiro; aqui você corrige ativo a ativo. Offshore é classificado por ISIN/CUSIP. Vale para toda a equipe.");
+  let h = cabec("Carteiras", "Classificação", lista.length ? `${lista.length} ativos sem classe` : "Todos os ativos classificados");
   h += `<div class="card"><h2>Ativos sem classe</h2>${lista.length?`<div class="tw"><table><thead><tr><th>Ativo</th><th>Mercado</th><th>Tipo</th><th class="r">Saldo</th><th class="c">Carteiras</th><th>Classe</th></tr></thead><tbody>${lista.map(g=>`<tr><td title="${esc(g.a)}"><b>${esc(g.nome)}</b><br><span class="muted small">${esc(g.a)}</span></td><td>${g.uni==="on"?"Onshore":"Offshore"}</td><td>${esc(g.t)}</td><td class="r">${moeda(g.v,g.uni==="off"?"USD":"BRL")}</td><td class="c" data-tip="${esc([...g.carts].map(nomeCart).join("\n"))}">${g.carts.size}</td>
     <td><select data-cls="${esc(g.a)}" data-sec="${g.uni==="on"?"onshore":"offshore"}"${dis}><option value="">Escolher…</option>${classesDe(g.uni).map(k=>`<option>${esc(k)}</option>`).join("")}<option value="__EXCLUDE__">Excluir do monitor</option></select></td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">Nada pendente.</p>`}</div>`;
   // durations estimadas
@@ -927,18 +929,18 @@ function vClassificacao(){
     const g = gd[x.a] || (gd[x.a] = {a:x.a, nome:x.nome, cls:x.cls, v:0, carts:new Set(), du:x.du, fonte:x.duFonte, info:x.duInfo||DURM[x.a]||null}); g.v += x.v; g.carts.add(p.nome); }));
   const ld = Object.values(gd).sort((a,b)=>b.v-a.v);
   const chipConf = c => c==="alta"?'<span class="chip st-ok">Alta</span>':c==="média"?'<span class="chip st-aten">Média</span>':c==="baixa"?'<span class="chip st-crit">Baixa</span>':'<span class="chip st-na">Não se aplica</span>';
-  h += `<div class="card mt"><h2>Duration de fundos (${ld.length} ativos sem duration da Comdinheiro)</h2><p class="sub">A duration é calculada a partir da carteira aberta de cada fundo na CVM, olhando também os fundos investidos, com as taxas indicativas da ANBIMA de ${dtBR(META.data_analise)}. Para fundos com parte da carteira em sigilo, usa o mês mais recente com carteira completa. A confiança mostra quanto do patrimônio do fundo entrou no cálculo. Preencha "Manual" para usar outro valor; vale para toda a equipe.</p>
+  h += `<div class="card mt"><h2>Duration de fundos (${ld.length})</h2><p class="sub">Estimada pela carteira aberta na CVM e taxas da ANBIMA de ${dtBR(META.data_analise)}</p>
     ${ld.length?`<div class="tw"><table><thead><tr><th>Ativo</th><th>Classe</th><th class="r">Saldo</th><th class="c">Carteiras</th><th class="r">Estimada</th><th>Confiança</th><th>Fonte</th><th class="r">Manual</th></tr></thead><tbody>${ld.map(g=>{ const man=((CFG.onshore.durManual)||{})[g.a];
       return `<tr><td title="${esc(g.a)}"><b>${esc(g.nome)}</b>${g.info&&g.info.cnpj?`<br><span class="muted small">${esc(g.info.cnpj)}</span>`:""}</td><td>${esc(g.cls)}</td><td class="r">${nf0.format(g.v)}</td><td class="c" data-tip="${esc([...g.carts].map(nomeCart).join("\n"))}">${g.carts.size}</td>
       <td class="r">${g.info&&g.info.du!=null?nf2.format(g.info.du):"–"}</td><td>${g.info?chipConf(g.info.conf):'<span class="chip st-na">Sem cálculo</span>'}</td><td class="small muted" style="max-width:320px">${esc(g.info?g.info.metodo:"Não encontrado na base da CVM")}</td>
       <td class="r"><input type="number" step="0.1" min="0" style="width:70px" id="dm${hash(g.a)}" data-durman="${esc(g.a)}" value="${man!=null?man:""}" placeholder="–"${dis}></td></tr>`; }).join("")}</tbody></table></div>`:`<p class="muted">Todos os ativos de Pré e Inflação têm duration da Comdinheiro.</p>`}
-    <div class="fonte">Fontes: CVM, Composição e Diversificação das Aplicações (CDA); ANBIMA, taxas indicativas de títulos públicos e debêntures. Durations em anos (Macaulay, 252 dias úteis).</div></div>`;
+    <div class="fonte">Fontes: CVM (CDA) e ANBIMA. Duration de Macaulay, em anos.</div></div>`;
   // overrides manuais
   const ov = [];
   ["onshore","offshore"].forEach(sec=>{ if (S.uni!=="all" && sec.slice(0,2)!==S.uni.slice(0,2)) return;
     const nomes = {}; POS.forEach(p=>{ if ((sec==="offshore")===p.off) nomes[p.a] = nomeAtivo(p); });
     Object.entries(CFG[sec].assetClass||{}).forEach(([a,c])=>{ if (nomes[a]!==undefined || sec==="onshore") ov.push({sec,a,c,nome:nomes[a]||a}); }); });
-  h += `<div class="card mt"><h2>Classificações manuais em uso (${ov.length})</h2><div class="tw" style="max-height:420px"><table><thead><tr><th>Ativo</th><th>Mercado</th><th>Classe</th><th></th></tr></thead><tbody>${ov.map(o=>`<tr><td>${esc(o.nome)}${o.nome!==o.a?`<br><span class="muted small">${esc(o.a)}</span>`:""}</td><td>${o.sec==="onshore"?"Onshore":"Offshore"}</td><td>
+  h += `<div class="card mt"><h2>Classificações manuais (${ov.length})</h2><div class="tw" style="max-height:420px"><table><thead><tr><th>Ativo</th><th>Mercado</th><th>Classe</th><th></th></tr></thead><tbody>${ov.map(o=>`<tr><td>${esc(o.nome)}${o.nome!==o.a?`<br><span class="muted small">${esc(o.a)}</span>`:""}</td><td>${o.sec==="onshore"?"Onshore":"Offshore"}</td><td>
     <select data-cls="${esc(o.a)}" data-sec="${o.sec}"${dis}>${classesDe(o.sec==="onshore"?"on":"off").map(k=>`<option${k===o.c?" selected":""}>${esc(k)}</option>`).join("")}<option value="__EXCLUDE__"${o.c==="__EXCLUDE__"?" selected":""}>Excluir do monitor</option></select></td>
     <td><button class="btn sec sm" data-uncls="${esc(o.a)}" data-sec="${o.sec}"${dis}>Remover</button></td></tr>`).join("")}</tbody></table></div></div>`;
   // carteiras excluídas
@@ -946,7 +948,7 @@ function vClassificacao(){
   const todas = [...new Set([...naBase, ...CFG.onshore.exclude, ...CFG.offshore.exclude, ...Object.keys(CFG.onshore.clients), ...Object.keys(CFG.offshore.clients)])]
     .filter(c=>S.uni==="all"||(/_offshore$/.test(c)?"off":"on")===S.uni).sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true}));
   const semPos = todas.filter(c=>!naBase.has(c)).length;
-  h += `<div class="card mt"><h2>Carteiras no monitor</h2><p class="sub">Desmarque carteiras de teste, encerradas ou que não devem entrar nos totais.${semPos?` As marcadas com * têm IPS ou exclusão cadastrada, mas não aparecem nas posições da Comdinheiro de ${dtBR(META.data_analise)}; entram no monitor assim que tiverem posição.`:""}</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 16px" class="small">${todas.map(c=>{ const sec=/_offshore$/.test(c)?"offshore":"onshore"; return `<label${naBase.has(c)?"":' class="muted"'}><input type="checkbox" data-incl="${esc(c)}" data-sec="${sec}"${CFG[sec].exclude.includes(c)?"":" checked"}${dis}> ${esc(nomeCart(c))}${naBase.has(c)?"":" *"}</label>`; }).join("")}</div></div>`;
+  h += `<div class="card mt"><h2>Carteiras no monitor</h2><p class="sub">Desmarque as que não entram nos totais${semPos?" · * sem posição na Comdinheiro":""}</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 16px" class="small">${todas.map(c=>{ const sec=/_offshore$/.test(c)?"offshore":"onshore"; return `<label${naBase.has(c)?"":' class="muted"'}><input type="checkbox" data-incl="${esc(c)}" data-sec="${sec}"${CFG[sec].exclude.includes(c)?"":" checked"}${dis}> ${esc(nomeCart(c))}${naBase.has(c)?"":" *"}</label>`; }).join("")}</div></div>`;
   return h;
 }
 
@@ -1151,9 +1153,9 @@ async function reconhecer(ids, sim){
    ===================================================================== */
 function vAcesso(){
   const tok = ghToken();
-  let h = cabec("Acesso", `Conectado como ${USUARIO}`, "As senhas nunca saem do seu navegador: cada usuário recebe a chave dos dados cifrada pela própria senha.");
+  let h = cabec("Painel de Controle", "Acesso", `Conectado como ${USUARIO}`);
   h += `<div class="grid g2"><div class="card"><h2>Gravar alterações no GitHub</h2>
-    <p class="sub">Para que as edições (IPS, modelo, classificação, durations manuais, alertas reconhecidos e o cadastro de fundos) valham para toda a equipe, este navegador precisa de um token do GitHub com permissão de escrita no repositório <b>${esc(GH.owner)}/${esc(GH.repo)}</b>. O token fica guardado só neste navegador.</p>
+    <p class="sub">Necessário para gravar as edições para toda a equipe · repositório <b>${esc(GH.owner)}/${esc(GH.repo)}</b> · fica só neste navegador</p>
     <ol class="small" style="padding-left:18px;margin:0 0 12px">
       <li>Abra <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a></li>
       <li>Repository access: <b>Only select repositories</b> → ${esc(GH.repo)}</li>
@@ -1161,13 +1163,13 @@ function vAcesso(){
       <li>Gere o token e cole abaixo</li></ol>
     <div class="row"><input type="password" id="ghTok" placeholder="github_pat_…" value="${tok?"••••••••••••":""}" style="flex:1;min-width:220px"><button class="btn sm" id="ghSalvar">Salvar token</button>${tok?'<button class="btn sec sm" id="ghTirar">Remover</button>':""}</div>
     <p class="small muted" id="ghStatus">${tok?"Token configurado neste navegador.":"Sem token: as alterações ficam só neste navegador."}${sujo.size||Object.keys(ackOps).length?" Há alterações pendentes de gravação.":""}</p></div>`;
-  h += `<div class="card"><h2>Minha senha</h2><p class="sub">A troca é gravada no GitHub, então precisa do token configurado ao lado.</p>
+  h += `<div class="card"><h2>Minha senha</h2>
     <div class="row"><input type="password" id="pwNova" placeholder="Nova senha (mín. 10 caracteres)" style="flex:1"><input type="password" id="pwNova2" placeholder="Repita" style="flex:1"><button class="btn sm" id="pwTrocar">Trocar senha</button></div>
     <p class="small muted" id="pwStatus"></p>
     <div class="mt"><button class="btn sec sm" id="sair">Sair</button></div></div></div>`;
   if (ADMIN){
     const us = Object.entries(USUARIOS.users);
-    h += `<div class="card mt"><h2>Usuários (${us.length})</h2><p class="sub">Crie o usuário com uma senha provisória e passe a ele por um canal separado; ele pode trocar depois em "Minha senha". Remover um usuário tira o acesso pela página, mas quem já sabia a chave de dados poderia decifrar arquivos antigos: para cortar de vez, peça a rotação da chave.</p>
+    h += `<div class="card mt"><h2>Usuários (${us.length})</h2><p class="sub">Envie a senha provisória por outro canal; o usuário troca em "Minha senha"</p>
       <div class="tw" style="max-height:none"><table><thead><tr><th>Usuário</th><th>Perfil</th><th></th></tr></thead><tbody>${us.map(([u,v])=>`<tr><td><b>${esc(u)}</b>${u===USUARIO?' <span class="muted small">(você)</span>':""}</td><td>${v.admin?"Administrador":"Usuário"}</td><td>${u!==USUARIO?`<button class="btn sec sm" data-rmuser="${esc(u)}">Remover</button>`:""}</td></tr>`).join("")}</tbody></table></div>
       <div class="row mt"><input type="text" id="nuUser" placeholder="usuário (ex.: maria)" style="width:180px"><input type="password" id="nuPw" placeholder="senha provisória (mín. 10)" style="width:220px"><label class="small"><input type="checkbox" id="nuAdmin"> administrador</label><button class="btn sm" id="nuCriar">Criar usuário</button></div>
       <p class="small muted" id="nuStatus"></p></div>`;
@@ -1279,13 +1281,11 @@ function linhaBm(bm, cols, nome){
 
 function colgroup(ws){ return `<colgroup>${ws.map(w=>`<col style="width:${w}px">`).join("")}</colgroup>`; }
 function largura(ws){ return ws.reduce((a,b)=>a+b,0); }
-function cabF(tit, sub, filtros){
-  return `<div class="fhead"><div><div class="eyebrow">Fundos</div><h1>${esc(tit)}</h1><div class="fsub">${sub}</div></div><div class="flt">${filtros}</div></div>`;
-}
+function cabF(tit, sub, filtros){ return cabec("Fundos", tit, sub, filtros ? `<div class="flt" style="margin:0">${filtros}</div>` : ""); }
 function vFundos(){
   const sf = semFundos(); if (sf) return sf;
   const ci = clsInfo(), gs = gruposF().filter(g=>g!=="Imobiliário");
-  if (!FD) return cabF("Fundos e ativos listados", "", "") + aviso();
+  if (!FD) return cabF("Fundos", "", "") + aviso();
   const cols = COLS_F;
   const q = F.q.trim().toLowerCase();
   let ls = FD.linhas.filter(L=>L.classe!=="FII");
@@ -1296,7 +1296,7 @@ function vFundos(){
   const filtros = `<button class="chipbtn" data-fgrp="todos" aria-pressed="${F.grupo==="todos"}">Todos</button>${gs.map(g=>`<button class="chipbtn" data-fgrp="${esc(g)}" aria-pressed="${F.grupo===g}">${esc(g)}</button>`).join("")}
     <select id="fCls" aria-label="Classe"><option value="">Todas as classes</option>${clsOpts.map(c=>`<option value="${esc(c.codigo)}"${F.classe===c.codigo?" selected":""}>${esc(c.nome)}</option>`).join("")}</select>
     <input type="search" id="fQ" placeholder="Buscar por nome ou CNPJ" value="${esc(F.q)}" style="width:210px">`;
-  let h = cabF("Fundos e ativos listados", `${ls.length} ativos · cotas até <b>${dtBR(FD.ref)}</b> (última data completa da CVM) · clique no nome para ver o gráfico`, filtros);
+  let h = cabF("Fundos", `${ls.length} ativos · cotas até ${dtBR(FD.ref)}`, filtros);
   const porC = {}; ls.forEach(L=>(porC[L.classe] = porC[L.classe] || []).push(L));
   const ordem = Object.keys(porC).sort((a,b)=>((ci[a]||{}).ordem??999)-((ci[b]||{}).ordem??999) || a.localeCompare(b));
   if (!ordem.length) return h + `<div class="card"><div class="empty">Nenhum fundo com esses filtros.</div></div>` + detalheF();
@@ -1336,7 +1336,7 @@ const COLS_I = [
 
 function vFiis(){
   const sf = semFundos(); if (sf) return sf;
-  if (!FD) return cabF("Fundos imobiliários", "", "") + aviso();
+  if (!FD) return cabF("FIIs", "", "") + aviso();
   const cols = COLS_I;
   const q = F.iq.trim().toLowerCase();
   let ls = FD.linhas.filter(L=>L.classe==="FII");
@@ -1345,7 +1345,7 @@ function vFiis(){
   if (q) ls = ls.filter(L=>(L.nome+" "+(L.ident||"")).toLowerCase().includes(q));
   const filtros = `<select id="iSeg" aria-label="Segmento"><option value="">Todos os segmentos</option>${segsTodos.map(s=>`<option${F.seg===s?" selected":""}>${esc(s)}</option>`).join("")}</select>
     <input type="search" id="iQ" placeholder="Buscar por ticker ou nome" value="${esc(F.iq)}" style="width:210px">`;
-  let h = cabF("Fundos imobiliários", `${ls.length} FIIs · preços até <b>${dtBR(FD.ref)}</b> · retorno total com proventos reinvestidos · clique no ticker para ver o gráfico`, filtros);
+  let h = cabF("FIIs", `${ls.length} FIIs · preços até ${dtBR(FD.ref)} · retorno com proventos`, filtros);
   const porS = {}; ls.forEach(L=>(porS[L.seg||"(sem segmento)"] = porS[L.seg||"(sem segmento)"] || []).push(L));
   const ordem = Object.keys(porS).sort((a,b)=>{ const ia = segsTodos.indexOf(a), ib = segsTodos.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); });
   if (!ordem.length) return h + `<div class="card"><div class="empty">Nenhum FII com esses filtros.</div></div>` + detalheF();
@@ -1369,7 +1369,7 @@ function vFiis(){
 /* resumo e status das fontes */
 function vResumoF(){
   const sf = semFundos(); if (sf) return sf;
-  let h = cabec("Fundos", "Resumo e fontes", FD ? `Benchmarks e medianas por classe na data de referência de <b>${dtBR(FD.ref)}</b>. Atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} às ${(FD.gerado_em||"").slice(11,16)}.` : "");
+  let h = cabec("Fundos", "Resumo e fontes", FD ? `Referência ${dtBR(FD.ref)} · atualizado em ${dtBR((FD.gerado_em||"").slice(0,10))} ${(FD.gerado_em||"").slice(11,16)}` : "");
   h += aviso(); if (!FD) return h;
   const ci = clsInfo(), bms = FD.benchmarks || [], bmN = n => bms.find(b=>b.nome===n) || {};
   const nF = FD.linhas.filter(L=>L.classe!=="FII").length, nI = FD.linhas.length - nF, nDef = FD.linhas.filter(L=>L.defasada).length;
@@ -1379,7 +1379,7 @@ function vResumoF(){
     <div class="tile"><div class="k">CDI 12 meses</div><div class="v">${rt(bmN("CDI").r12)}</div><div class="s">No ano ${rt(bmN("CDI").ano)}</div></div>
     <div class="tile"><div class="k">Ibovespa 12 meses</div><div class="v">${rt(bmN("IBOV").r12)}</div><div class="s">No ano ${rt(bmN("IBOV").ano)}</div></div>
     <div class="tile"><div class="k">IFIX 12 meses</div><div class="v">${rt(bmN("IFIX").r12)}</div><div class="s">No ano ${rt(bmN("IFIX").ano)}</div></div></div>`;
-  h += `<div class="card"><h2>Benchmarks</h2><p class="sub">Índices calculados com a mesma régua dos fundos, na data de referência.</p><div class="tw" style="max-height:none"><table class="ftab"><thead><tr><th>Benchmark</th><th>Data</th>${["Dia","Mês","Ano","12m","24m","36m","48m","60m","Vol 12m"].map((x,i)=>`<th class="r${i===0||i===8?" gs":""}">${x}</th>`).join("")}<th class="gs">Fonte</th></tr></thead><tbody>${bms.map(b=>`<tr><td><b>${esc(b.nome)}</b></td><td>${dtCurta(b.data)}</td><td class="r gs">${rt(b.dia)}</td>${["mes","ano","r12","r24","r36","r48","r60"].map(k=>`<td class="r">${rt(b[k])}</td>`).join("")}<td class="r gs">${rt(b.vol12,1)}</td><td class="gs small muted">${esc(b.fonte||"")}</td></tr>`).join("")}</tbody></table></div></div>`;
+  h += `<div class="card"><h2>Benchmarks</h2><div class="tw" style="max-height:none"><table class="ftab"><thead><tr><th>Benchmark</th><th>Data</th>${["Dia","Mês","Ano","12m","24m","36m","48m","60m","Vol 12m"].map((x,i)=>`<th class="r${i===0||i===8?" gs":""}">${x}</th>`).join("")}<th class="gs">Fonte</th></tr></thead><tbody>${bms.map(b=>`<tr><td><b>${esc(b.nome)}</b></td><td>${dtCurta(b.data)}</td><td class="r gs">${rt(b.dia)}</td>${["mes","ano","r12","r24","r36","r48","r60"].map(k=>`<td class="r">${rt(b[k])}</td>`).join("")}<td class="r gs">${rt(b.vol12,1)}</td><td class="gs small muted">${esc(b.fonte||"")}</td></tr>`).join("")}</tbody></table></div></div>`;
   // medianas por classe (FII por segmento)
   const por = {};
   FD.linhas.forEach(L=>{ const k = L.classe==="FII" ? "FII · "+(L.seg||"(sem segmento)") : L.classe; (por[k] = por[k] || []).push(L); });
@@ -1395,9 +1395,9 @@ function vResumoF(){
       + `<td class="r gs">${rt(mediana(arr.map(L=>L.mes)))}</td><td class="r">${rt(mediana(arr.map(L=>L.ano)))}</td><td class="r"><b>${rt(mediana(arr.map(L=>L.r12)))}</b></td><td class="r">${rt(mediana(arr.map(L=>L.r36)))}</td><td class="r">${rt(mediana(arr.map(L=>L.vol12)),1)}</td>`
       + `<td class="r gs">${rt(mediana(arr.map(L=>L.bmk12)))}</td><td class="r">${comB.length?pct(acima/comB.length,0):dashF}</td><td class="gs small">${nomeL(best)}</td><td class="small">${nomeL(worst)}</td></tr>`;
   });
-  h += `<div class="card mt"><h2>Classes: medianas</h2><p class="sub">Mediana dos ativos de cada classe; FIIs separados por segmento.</p>${t}</tbody></table></div></div>`;
+  h += `<div class="card mt"><h2>Medianas por classe</h2><p class="sub">FIIs separados por segmento</p>${t}</tbody></table></div></div>`;
   const st = FD.status || [];
-  h += `<div class="card mt"><h2>Status das fontes</h2><p class="sub">Resultado da última atualização de cada fonte. A atualização roda nos dias úteis junto com as carteiras e, quando um ativo é cadastrado, traz o histórico dele automaticamente.</p><div class="tw" style="max-height:none"><table><thead><tr><th>Fonte</th><th>Situação</th><th>Dados até</th><th>Executado em</th></tr></thead><tbody>${st.map(s=>{ const ok = /^OK/.test(s.msg||""), er = /^Erro/.test(s.msg||"");
+  h += `<div class="card mt"><h2>Status das fontes</h2><div class="tw" style="max-height:none"><table><thead><tr><th>Fonte</th><th>Situação</th><th>Dados até</th><th>Executado em</th></tr></thead><tbody>${st.map(s=>{ const ok = /^OK/.test(s.msg||""), er = /^Erro/.test(s.msg||"");
     return `<tr><td><b>${esc(s.fonte)}</b></td><td><span class="chip ${ok?"st-ok":er?"st-crit":"st-aten"}"><span class="ic" aria-hidden="true">${ok?"✓":er?"▲":"●"}</span>${ok?"OK":er?"Erro":"Atenção"}</span> <span class="small">${esc((s.msg||"").replace(/^(OK|Atenção|Erro) · /,""))}</span></td><td>${dtBR(s.ult)}</td><td class="small">${dtBR((s.quando||"").slice(0,10))} ${(s.quando||"").slice(11,16)}</td></tr>`; }).join("")}</tbody></table></div></div>`;
   return h + detalheF();
 }
@@ -1567,7 +1567,7 @@ function selBench(attr, val, padrao){ const bs = (FCAD.bmks||[]).map(b=>b.nome);
 function vCadastro(){
   const sf = semFundos(); if (sf) return sf;
   const N = F.novo, ci = clsInfo();
-  let h = cabec("Fundos", "Cadastro de ativos", "Inclua fundos pelo CNPJ ou ativos listados na B3 pelo ticker. O histórico de cinco anos é baixado automaticamente na atualização seguinte ao cadastro, em alguns minutos.");
+  let h = cabec("Fundos", "Cadastro", `${nf0.format((FCAD.cad||[]).filter(a=>a.ativo!=="N").length)} ativos no monitor · fundos por CNPJ e listados por ticker`);
   if (!ghToken()) h += `<div class="note">Para gravar o cadastro para toda a equipe, configure o token do GitHub na aba Acesso. Sem ele, as alterações ficam só neste navegador.</div>`;
   if (FOPS.length) h += `<div class="note">${FOPS.length} alteração(ões) no cadastro aguardando gravação.</div>`;
   // sugestão de classe
@@ -1575,7 +1575,7 @@ function vCadastro(){
   const sug = (N.nome || tk) ? sugerirClasse(N.nome || tk, tk) : null;
   const cls = N.classe || (N.modo==="cnpj" && N.fidc ? "FIDC" : (sug ? sug.classe : ""));
   const seg = N.seg || (sug && sug.seg) || "";
-  h += `<div class="card"><h2>Adicionar ativo</h2><p class="sub">A classe vem sugerida pelo nome; confira antes de adicionar. O ranking e o benchmark seguem a classe escolhida.</p>
+  h += `<div class="card"><h2>Adicionar ativo</h2><p class="sub">O histórico entra na atualização seguinte, em alguns minutos</p>
     <div class="flt"><button class="chipbtn" data-nmodo="cnpj" aria-pressed="${N.modo==="cnpj"}">Fundo (CNPJ)</button><button class="chipbtn" data-nmodo="ticker" aria-pressed="${N.modo==="ticker"}">Listado na B3 (ticker)</button></div>
     <div class="form2">
       ${N.modo==="cnpj" ? `<label>CNPJ do fundo ou da classe<input type="text" id="nCnpj" value="${esc(N.cnpj)}" placeholder="00.000.000/0000-00" inputmode="numeric"></label>`
@@ -1598,7 +1598,7 @@ function vCadastro(){
   if (q) cad = cad.filter(a=>((a.nome||"")+" "+(a.ticker||"")+" "+(a.cnpj||"")).toLowerCase().includes(q) || (qd.length>=4 && String(a.cnpj||"").replace(/\D/g,"").includes(qd)));
   cad.sort((a,b)=>(+b.id||0)-(+a.id||0));
   const tot = cad.length; cad = cad.slice(0, F.cmax);
-  h += `<div class="card mt"><h2>Ativos cadastrados (${nf0.format((FCAD.cad||[]).filter(a=>a.ativo!=="N").length)} ativos)</h2><p class="sub">Altere classe, segmento ou benchmark direto na tabela. Desmarque "No monitor" para tirar um ativo sem perder o cadastro.${nRev?` Há ${nRev} classificação(ões) sugerida(s) automaticamente para revisar.`:""}</p>
+  h += `<div class="card mt"><h2>Ativos cadastrados</h2>${nRev?`<p class="sub">${nRev} classificação(ões) sugerida(s) para revisar</p>`:""}
     <div class="flt"><input type="search" id="cQ" placeholder="Buscar por nome, ticker ou CNPJ" value="${esc(F.cq)}" style="width:250px">
       ${selClasse('id="cCls" aria-label="Classe"', F.ccls, '<option value="">Todas as classes</option>')}
       <label class="small"><input type="checkbox" id="cRev"${F.crev?" checked":""}> Só sugeridas para revisar</label>
@@ -1621,7 +1621,7 @@ function vCadastro(){
   h += `</tbody></table></div>${tot>F.cmax?`<div class="mt"><button class="btn sec sm" id="cMais">Mostrar mais (${tot-F.cmax} restantes)</button></div>`:""}</div>`;
   // classes
   const gsAll = gruposF();
-  h += `<div class="card mt"><h2>Classes</h2><p class="sub">Cada classe define o benchmark padrão e o grupo de comparação do ranking. Os FIIs são comparados dentro do segmento.</p>
+  h += `<div class="card mt"><h2>Classes</h2><p class="sub">Benchmark padrão e grupo do ranking</p>
     <div class="tw" style="max-height:none"><table class="ctab"><thead><tr><th>Código</th><th>Nome</th><th>Grupo</th><th>Benchmark</th><th>Critério</th><th class="r">Ativos</th></tr></thead><tbody>
     ${(FCAD.classes||[]).map(c=>`<tr><td><b>${esc(c.codigo)}</b></td><td><input type="text" data-fcls="${esc(c.codigo)}" data-campo="nome" value="${esc(c.nome)}"></td>
       <td><select data-fcls="${esc(c.codigo)}" data-campo="grupo">${gsAll.map(g=>`<option${g===c.grupo?" selected":""}>${esc(g)}</option>`).join("")}</select></td>
@@ -1808,14 +1808,14 @@ function vPerf(){
   const J = PF.janelas, jm = J.filter(j=>/^m\d/.test(j.k)), jp = J.filter(j=>!/^m\d/.test(j.k));
   const pf = {}; PF.perfis.forEach(p=>pf[p.perfil] = p);
   const idx = {}; PF.indices.forEach(x=>idx[x.nome] = x.ret);
-  let h = cabec("Performances", "Carteiras recomendadas por perfil", `Retorno das carteiras recomendadas onshore desde o início da Etti (${dtBR(PF.inicio)}), com a composição entre CDI, alocação estratégica, tática e seleção de ativos. Cotas até <b>${dtBR(PF.ref)}</b>.`);
+  let h = cabec("Performances", "Resultado", `Carteiras recomendadas onshore · desde ${dtBR(PF.inicio)} · cotas até ${dtBR(PF.ref)}`);
   h += `<div class="tiles">${PERFIS_P.map(p=>{ const t = pf[p].total; return `<div class="tile"><div class="k" style="color:${COR_P[p]}">${p}</div><div class="v">${rt(t.ano)}</div><div class="s">no ano · CDI+ ${ppF(t.ano - idx.CDI.ano)}<br>${rt(t.inicio)} desde o início · CDI+ ${ppF(t.inicio - idx.CDI.inicio)}</div></div>`; }).join("")}
     <div class="tile dest"><div class="k">CDI</div><div class="v">${rt(idx.CDI.ano)}</div><div class="s">no ano<br>${rt(idx.CDI.inicio)} desde o início</div></div></div>`;
   // gráfico desde o início
   const i0 = iniPeriodo(P.per), xs = PF._t.slice(i0);
   const ser = n => { const v = PF.series[n].slice(i0), b = v[0]; return v.map(x=>x!=null && b ? x/b-1 : null); };
   const series = PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:ser(p)})).concat(["CDI","Ibovespa"].map(n=>({nome:n, cor:REF_P[n].cor, dash:REF_P[n].dash, ys:ser(n)})));
-  h += `<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Retorno acumulado</h2><p class="sub">Carteiras recomendadas contra o CDI e o Ibovespa, base zero no início do período.</p></div><div class="flt" style="margin:0">${chipsP("per", [["inicio","Desde o início"],["r24","24 meses"],["r12","12 meses"],["ano","No ano"]])}</div></div>${grafLinhas("pAcum", xs, series, {h:320, aria:"Retorno acumulado das carteiras recomendadas"})}</div>`;
+  h += `<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Retorno acumulado</h2><p class="sub">Contra CDI e Ibovespa</p></div><div class="flt" style="margin:0">${chipsP("per", [["inicio","Desde o início"],["r24","24 meses"],["r12","12 meses"],["ano","No ano"]])}</div></div>${grafLinhas("pAcum", xs, series, {h:320, aria:"Retorno acumulado das carteiras recomendadas"})}</div>`;
   // tabela de resultado por perfil
   const cab = `<thead><tr><th>Carteira</th>${jp.map(j=>`<th class="r" data-tip="${dtBR(j.ini)} a ${dtBR(j.fim)}">${esc(j.rotulo)}</th>`).join("")}${jm.map((j,i)=>`<th class="r${i===0?" gs":""}" data-tip="${dtBR(j.ini)} a ${dtBR(j.fim)}">${esc(j.rotulo)}</th>`).join("")}</tr></thead>`;
   const lin = (nome, r, cls, fmt) => `<tr${cls?` class="${cls}"`:""}><td>${nome}</td>${jp.map(j=>`<td class="r">${(fmt||rt)(r[j.k])}</td>`).join("")}${jm.map((j,i)=>`<td class="r${i===0?" gs":""}">${(fmt||rt)(r[j.k])}</td>`).join("")}</tr>`;
@@ -1830,14 +1830,14 @@ function vPerf(){
     t += lin("CDI", x.cdi) + lin(`Estratégico <span class="muted small">alocação neutra − CDI</span>`, x.estrategico) + lin(`Tático <span class="muted small">alocação tática − estratégica</span>`, x.tatico) + lin(`Selection <span class="muted small">fundos escolhidos − alocação tática</span>`, x.selection);
     t += lin(`<b>${p}</b>`, x.total, "tot") + lin("Ganho sobre o CDI", x.ganho_cdi, "bm", ppF);
   });
-  h += `<div class="card mt"><h2>Resultado por perfil de risco</h2><p class="sub">Composição: CDI + Estratégico + Tático + Selection = retorno da carteira recomendada. Passe o mouse no título da coluna para ver as datas.</p>${t}</tbody></table></div></div>`;
+  h += `<div class="card mt"><h2>Resultado por perfil de risco</h2><p class="sub">CDI + Estratégico + Tático + Selection = carteira</p>${t}</tbody></table></div></div>`;
   // composição (cascata)
-  h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Composição do retorno</h2><p class="sub">Quanto cada decisão somou ao retorno de cada perfil. Barras para cima somaram; para baixo, tiraram.</p></div><div class="flt" style="margin:0">${chipsP("comp", jp.concat(jm.slice(0,1)).map(j=>[j.k, j.rotulo]))}</div></div>
+  h += `<div class="card mt"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Composição do retorno</h2></div><div class="flt" style="margin:0">${chipsP("comp", jp.concat(jm.slice(0,1)).map(j=>[j.k, j.rotulo]))}</div></div>
     <div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${PERFIS_P.map(p=>cascata(pf[p], P.comp, p)).join("")}</div></div>`;
   // índices
   let ti = `<div class="tw" style="max-height:none"><table class="ftab ptab">${cab.replace("Carteira","Índice")}<tbody>`;
   PF.indices.forEach(x=>{ ti += lin(esc(x.nome), x.ret); });
-  h += `<div class="card mt"><h2>Índices de referência</h2><p class="sub">Mesmas janelas da tabela das carteiras.</p>${ti}</tbody></table></div></div>`;
+  h += `<div class="card mt"><h2>Índices</h2>${ti}</tbody></table></div></div>`;
   return h;
 }
 /* tabela de retornos mensais: carteira, benchmark e benchmark+ (diferença para o benchmark) */
@@ -1889,21 +1889,21 @@ function cascata(x, k, p){
 function vRiscoP(){
   const sp = semPerf(); if (sp) return sp;
   const rk = {}; PF.risco.forEach(x=>rk[x.nome] = x);
-  let h = cabec("Performances", "Risco e volatilidade", `Volatilidade anualizada pelo desvio-padrão dos retornos diários (× √252), desde ${dtBR(PF.inicio)} até ${dtBR(PF.ref)} (${PF.dias_uteis} dias úteis).`);
+  let h = cabec("Performances", "Risco e volatilidade", `Desde ${dtBR(PF.inicio)} · cotas até ${dtBR(PF.ref)} · volatilidade anualizada`);
   // retorno x vol
   const base = ["CDI","Ibovespa","IMA-B","IMA-B 5","IDA-IPCA","IHFA","IFIX","JGP Idex CDI"];
   const pts = PERFIS_P.map(n=>rk[n]).concat((P.todosIdx ? PF.risco.filter(x=>!PERFIS_P.includes(x.nome)) : base.map(n=>rk[n])).filter(Boolean));
-  h += `<div class="grid g3"><div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Retorno x volatilidade desde o início</h2><p class="sub">Retorno anualizado contra a volatilidade anualizada.</p></div><div class="flt" style="margin:0"><button class="chipbtn" data-ptodos="1" aria-pressed="${P.todosIdx}">Todos os índices</button></div></div>${dispersao(pts)}</div>`;
+  h += `<div class="grid g3"><div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>Retorno x volatilidade</h2><p class="sub">Desde o início, anualizados</p></div><div class="flt" style="margin:0"><button class="chipbtn" data-ptodos="1" aria-pressed="${P.todosIdx}">Todos os índices</button></div></div>${dispersao(pts)}</div>`;
   // indicadores
   const lin = x => `<tr${PERFIS_P.includes(x.nome)?"":` class="bm"`}><td>${PERFIS_P.includes(x.nome)?`<span class="pt" style="background:${COR_P[x.nome]}"></span><b>${x.nome}</b>`:esc(x.nome)}</td><td class="r">${rt(x.ret_anual)}</td><td class="r">${rt(x.vol,1)}</td><td class="r">${x.sharpe!=null?num2(x.sharpe):dashF}</td><td class="r">${rt(x.max_dd,1)}</td><td class="r">${x.meses_acima_cdi!=null?pct(x.meses_acima_cdi,0):dashF}</td></tr>`;
-  h += `<div class="card"><h2>Indicadores desde o início</h2><p class="sub">Sharpe: retorno anualizado acima do CDI dividido pela volatilidade.</p><div class="tw" style="max-height:none"><table class="ftab ptab ind"><thead><tr><th></th><th class="r">Retorno a.a.</th><th class="r">Vol a.a.</th><th class="r">Sharpe</th><th class="r" data-tip="Maior queda de um pico ao vale seguinte">Queda máx.</th><th class="r" data-tip="Parcela dos meses com retorno acima do CDI">Meses &gt; CDI</th></tr></thead><tbody>${PERFIS_P.map(n=>lin(rk[n])).join("")}${["CDI","Ibovespa","IMA-B","IHFA"].map(n=>rk[n]?lin(rk[n]):"").join("")}</tbody></table></div>
+  h += `<div class="card"><h2>Indicadores</h2><p class="sub">Sharpe sobre o CDI</p><div class="tw" style="max-height:none"><table class="ftab ptab ind"><thead><tr><th></th><th class="r">Retorno a.a.</th><th class="r">Vol a.a.</th><th class="r">Sharpe</th><th class="r" data-tip="Maior queda de um pico ao vale seguinte">Queda máx.</th><th class="r" data-tip="Parcela dos meses com retorno acima do CDI">Meses &gt; CDI</th></tr></thead><tbody>${PERFIS_P.map(n=>lin(rk[n])).join("")}${["CDI","Ibovespa","IMA-B","IHFA"].map(n=>rk[n]?lin(rk[n]):"").join("")}</tbody></table></div>
     <div class="mini" style="grid-template-columns:repeat(3,1fr)">${PERFIS_P.map(n=>`<div><span style="color:${COR_P[n]}">${n}</span><b style="font-size:13px">Melhor ${mesRot(rk[n].melhor_mes)} ${rt(rk[n].melhor_mes_v)}</b><b style="font-size:13px;font-weight:600">Pior ${mesRot(rk[n].pior_mes)} ${rt(rk[n].pior_mes_v)}</b></div>`).join("")}</div></div></div>`;
   // vol móvel 6m e 12m
   const vm = (k) => { const i = PF.datas.findIndex((d,j)=>PERFIS_P.some(p=>PF.vol_movel[p][k][j]!=null)); return grafLinhas("pVol"+k, PF._t.slice(i), PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:PF.vol_movel[p][k].slice(i)})), {h:300, W:600, zero:true, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v), aria:"Volatilidade móvel "+k}); };
-  h += `<div class="grid g2 mt"><div class="card"><h2>Volatilidade móvel de 6 meses</h2><p class="sub">Janela de 126 dias úteis, anualizada.</p>${vm("6m")}</div><div class="card"><h2>Volatilidade móvel de 12 meses</h2><p class="sub">Janela de 252 dias úteis, anualizada.</p>${vm("12m")}</div></div>`;
+  h += `<div class="grid g2 mt"><div class="card"><h2>Volatilidade móvel 6M</h2><p class="sub">126 dias úteis</p>${vm("6m")}</div><div class="card"><h2>Volatilidade móvel 12M</h2><p class="sub">252 dias úteis</p>${vm("12m")}</div></div>`;
   // drawdown
   const dd = n => { let pk = -Infinity; return PF.series[n].map(v=>{ if (v==null) return null; pk = Math.max(pk, v); return v/pk-1; }); };
-  h += `<div class="card mt"><h2>Distância do pico (drawdown)</h2><p class="sub">Quanto cada carteira está abaixo do seu maior valor anterior. Zero é um novo recorde.</p>${grafLinhas("pDD", PF._t, PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:dd(p)})).concat([{nome:"Ibovespa", cor:REF_P.Ibovespa.cor, dash:REF_P.Ibovespa.dash, ys:dd("Ibovespa")}]), {h:240, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v,1), aria:"Drawdown"})}</div>`;
+  h += `<div class="card mt"><h2>Drawdown</h2><p class="sub">Queda em relação ao último pico</p>${grafLinhas("pDD", PF._t, PERFIS_P.map(p=>({nome:p, cor:COR_P[p], ys:dd(p)})).concat([{nome:"Ibovespa", cor:REF_P.Ibovespa.cor, dash:REF_P.Ibovespa.dash, ys:dd("Ibovespa")}]), {h:240, yfmt:v=>nf0.format(v*100)+"%", tipfmt:v=>rt(v,1), aria:"Drawdown"})}</div>`;
   return h;
 }
 function mesRot(k){ if (!k) return "–"; const [y,m] = k.split("-"); return ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][+m-1] + "/" + y.slice(2); }
@@ -1938,10 +1938,10 @@ function dispersao(pts){
 function vMensal(){
   const sp = semPerf(); if (sp) return sp;
   const p = P.mPerfil, M = PF.mensal[p], C = PF.mensal.CDI;
-  let h = cabec("Performances", "Retornos mensais", `Retorno de cada mês da carteira recomendada, o CDI do mês e o CDI+ (quanto a carteira ficou acima ou abaixo do CDI). Cotas até ${dtBR(PF.ref)}; o mês corrente é parcial.`);
+  let h = cabec("Performances", "Retornos mensais", `Cotas até ${dtBR(PF.ref)} · mês corrente parcial`);
   h += `<div class="flt">${PERFIS_P.map(x=>`<button class="chipbtn" data-pset="mPerfil" data-pv="${x}" aria-pressed="${p===x}">${x}</button>`).join("")}</div>`;
   const t = tabelaMensal({nome:p, cor:COR_P[p], meses:M.meses, anos:M.anos, cdiMeses:C.meses, cdiAnos:C.anos});
-  h += `<div class="card">${t}<p class="fonte">CDI+: retorno da carteira menos o CDI. Verde: mês positivo; pêssego: mês negativo (quanto mais forte, maior o movimento). Fonte: Comdinheiro.</p></div>`;
+  h += `<div class="card">${t}<p class="fonte">CDI+: carteira menos CDI. Fonte: Comdinheiro.</p></div>`;
   // excesso mensal sobre o CDI, em barras
   const ks = Object.keys(M.meses).sort();
   const ex = ks.map(k=>({k, v: C.meses[k]!=null ? M.meses[k]-C.meses[k] : null})).filter(x=>x.v!=null);
@@ -1950,7 +1950,7 @@ function vMensal(){
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Retorno mensal acima do CDI">`;
   const pz = mx*100 > 2 ? 0.01 : 0.005; for (let v = -Math.floor(mx/pz)*pz; v <= mx + 1e-12; v += pz){ const z = Math.abs(v) < 1e-9; s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${z?"#b9bdb6":"#ebede7"}"/><text x="${L-6}" y="${Y(v)+4}" font-size="10.5" text-anchor="end" fill="#5f645f">${z?"0%":(v<0?"−":"+")+nf1.format(Math.abs(v*100))+"%"}</text>`; }
   ex.forEach((x,i)=>{ const y1 = Y(Math.max(0,x.v)), y2 = Y(Math.min(0,x.v)); s += `<rect x="${L+i*bw+1}" y="${y1}" width="${Math.max(1,bw-2)}" height="${Math.max(1,y2-y1)}" rx="2" fill="${x.v>=0?"#13a678":"#f0a77a"}" data-tip="${mesRot(x.k)}: ${ppF(x.v).replace(/<[^>]+>/g,"")} sobre o CDI"/>`; if (x.k.endsWith("-01")) s += `<text x="${L+i*bw}" y="${H-8}" font-size="11" fill="#5f645f">${x.k.slice(0,4)}</text>`; });
-  h += `<div class="card mt"><h2>Retorno mensal acima do CDI · ${p}</h2><p class="sub">Diferença entre o retorno do mês e o CDI do mês. ${ex.filter(x=>x.v>0).length} de ${ex.length} meses acima do CDI.</p>${s}</svg></div>`;
+  h += `<div class="card mt"><h2>CDI+ mensal · ${p}</h2><p class="sub">${ex.filter(x=>x.v>0).length} de ${ex.length} meses acima do CDI</p>${s}</svg></div>`;
   return h;
 }
 
@@ -1978,7 +1978,7 @@ function secaoRentab(P_){
   if (r.erro) return `${cx}${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
   const bn = r.bench || "CDI", ano = r.fim.slice(0,4), temB = r.total_bmk!=null;
   const outras = (r.inicio_planilha||[]).filter(d=>d!==r.inicio);
-  let h = `${cx}${tit}<p class="sub">Cota da carteira de ${dtBR(r.inicio)} (início da gestão${r.inicio_fonte==="comdinheiro"?", pela primeira cota na Comdinheiro":""}) até ${dtBR(r.fim)}, último fechamento mensal.${outras.length?` Outras datas de início registradas: ${outras.map(dtBR).join(", ")}.`:""}${bn!=="CDI"?` Carteira em dólar: comparada com o ${esc(bn)} (${esc(r.bench_desc||"")}).`:""}</p>`;
+  let h = `${cx}${tit}<p class="sub">${dtBR(r.inicio)} a ${dtBR(r.fim)} · fechamento mensal · benchmark ${esc(bn)}${outras.length?` · <span data-tip="${esc("Outras datas de início: "+outras.map(dtBR).join(", "))}">outras datas de início</span>`:""}${r.inicio_fonte==="comdinheiro"?" · início pela primeira cota":""}</p>`;
   h += `<div class="mini" style="grid-template-columns:repeat(${temB?4:2},1fr)"><div><span>Desde o início</span><b>${rt(r.total)}</b></div>`
     + (temB ? `<div><span>${esc(bn)} no período</span><b>${rt(r.total_bmk)}</b></div><div><span>${esc(bn)}+</span><b>${ppF(r.total-r.total_bmk)}</b></div>` : "")
     + `<div><span>Em ${ano}</span><b>${rt(r.anos[ano])}</b></div></div>`;
@@ -1986,7 +1986,7 @@ function secaoRentab(P_){
   const series = [{nome:"Carteira", cor:"#224725", ys:r.ret}].concat(temB ? [{nome:bn, cor:"#8b918a", dash:"6 4", ys:r.bmk}] : []);
   h += grafLinhas("cRet", xs, series, {h:280, aria:"Retorno acumulado da carteira desde o início"});
   h += `<h3 class="ch" style="margin-top:18px">Retornos mensais</h3>` + tabelaMensal({nome:"Carteira", bench:bn, meses:r.meses, anos:r.anos, cdiMeses: temB?r.bmk_meses:null, cdiAnos: temB?r.bmk_anos:null, parciais:r.parciais});
-  h += `<p class="fonte">${temB?`${esc(bn)}+: retorno da carteira menos o ${esc(bn)}. `:""}${(r.parciais||[]).length?"* mês parcial (a gestão começou no meio do mês). ":""}Fonte: Comdinheiro (cota da carteira${bn!=="CDI"?" e US:BIL":""}).</p></div>`;
+  h += `<p class="fonte">${(r.parciais||[]).length?"* mês parcial. ":""}Fonte: Comdinheiro${bn!=="CDI"?" (T-Bill: US:BIL)":""}.</p></div>`;
   return h;
 }
 /* =====================================================================
