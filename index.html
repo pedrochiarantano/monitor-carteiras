@@ -280,6 +280,21 @@ body.sd-min .sd-sub,body.sd-min .sd-nav button .car{display:none !important}
 .phead-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .card h2{margin-bottom:4px}
 .card .sub{font-size:12.5px;margin:0 0 12px}
+
+/* ---------- Simulação ---------- */
+.grid.simg{grid-template-columns:360px 1fr;align-items:start}
+.simf{grid-template-columns:1fr 1fr;margin-bottom:12px}
+.simf label{font-size:11.5px}
+.simf input,.simf select{width:100%;box-sizing:border-box}
+.simr{margin:10px 0 14px}
+.simr-t{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:600;margin-bottom:6px}
+.simr-t b{font-size:14px}
+.simr input[type=range]{width:100%;accent-color:var(--verde-etti)}
+details.simadv{border-top:1px solid var(--borda);padding-top:10px;margin-top:6px}
+details.simadv summary{cursor:pointer;font-size:12.5px;font-weight:700;margin-bottom:10px}
+.tile.aviso{background:var(--creme-2);border-color:var(--pessego)}
+@media (max-width:1100px){.grid.simg{grid-template-columns:1fr}}
+@media print{#side,.top,#foot,.phead-r,#simSalvar,#simNome,.sd-tg{display:none !important} body.comside{padding-left:0} main{padding:0}}
 </style>
 </head>
 <body class="lg">
@@ -312,6 +327,10 @@ body.sd-min .sd-sub,body.sd-min .sd-nav button .car{display:none !important}
     <div class="sd-grp" data-grp="p">
       <button data-secao="p" title="Performances" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 18.5 9.5 12l3.5 3.5L20 7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Performances</span><svg class="car" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <div class="sd-sub"><a href="#performance" data-v="performance">Resultado</a><a href="#risco" data-v="risco">Risco e volatilidade</a><a href="#mensal" data-v="mensal">Retornos mensais</a></div>
+    </div>
+    <div class="sd-grp" data-grp="s">
+      <button data-secao="s" title="Simulação" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="8" y="6" width="8" height="3.2" rx="1" fill="currentColor"/><circle cx="9" cy="13" r="1.1" fill="currentColor"/><circle cx="12" cy="13" r="1.1" fill="currentColor"/><circle cx="15" cy="13" r="1.1" fill="currentColor"/><circle cx="9" cy="17" r="1.1" fill="currentColor"/><circle cx="12" cy="17" r="1.1" fill="currentColor"/><circle cx="15" cy="17" r="1.1" fill="currentColor"/></svg><span>Simulação</span><svg class="car" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="sd-sub"><a href="#planejamento" data-v="planejamento">Planejamento patrimonial</a></div>
     </div>
   </nav>
   <div class="sd-fim">
@@ -960,6 +979,7 @@ function render(){
   if (!CFG || !POS.length) return;
   if (SEC_F.has(S.view)) { S.secao = "f"; S.ultF = S.view; }
   else if (SEC_P.has(S.view)) { S.secao = "p"; S.ultP = S.view; }
+  else if (SEC_S.has(S.view)) { S.secao = "s"; S.ultS = S.view; }
   else if (S.view!=="acesso") { S.secao = "c"; S.ultC = S.view; }
   const fs = S.secao!=="c";
   cabecalho();
@@ -987,8 +1007,11 @@ function render(){
 }
 function cabecalho(){
   const sub = document.getElementById("hdrSub"), ft = document.getElementById("foot");
-  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Fundos" : S.secao==="p" ? "Performances" : "Carteiras";
-  if (S.secao==="p"){
+  document.getElementById("hdrTit").textContent = S.secao==="f" ? "Fundos" : S.secao==="p" ? "Performances" : S.secao==="s" ? "Simulação" : "Carteiras";
+  if (S.secao==="s"){
+    sub.textContent = "Projeção de longevidade patrimonial";
+    ft.innerHTML = "Etti Partners | Uso interno e confidencial. Simulação ilustrativa, com premissas informadas pelo usuário.";
+  } else if (S.secao==="p"){
     sub.textContent = PF ? `Cotas até ${dtBR(PF.ref)} · atualizado em ${dtBR((PF.gerado_em||"").slice(0,10))} ${(PF.gerado_em||"").slice(11,16)}` : "";
     ft.innerHTML = `Etti Partners | Uso interno e confidencial. Fonte: Comdinheiro (Histórico de Cotação das carteiras recomendadas e dos índices, número-índice desde ${PF?dtBR(PF.inicio):"30/12/2022"}).`;
   } else if (S.secao==="f"){
@@ -1666,7 +1689,7 @@ document.addEventListener("click", e=>{
   const t = e.target.closest("button,[data-fsort],[data-isort],[data-fclose]"); if (!t) return;
   const d = t.dataset;
   if (d.secao && d.secao===S.secao && S.view!=="acesso"){ S.grpFechado = !S.grpFechado; render(); return; }
-  if (d.secao){ S.grpFechado = false; irPara(d.secao==="f" ? (S.ultF||"fundos") : d.secao==="p" ? (S.ultP||"performance") : (S.ultC||"painel")); return; }
+  if (d.secao){ S.grpFechado = false; irPara(d.secao==="f" ? (S.ultF||"fundos") : d.secao==="p" ? (S.ultP||"performance") : d.secao==="s" ? (S.ultS||"planejamento") : (S.ultC||"painel")); return; }
   if (d.fgrp){ F.grupo = d.fgrp; F.classe = ""; render(); return; }
   if (t.id==="sdToggle"){ const m = !document.body.classList.contains("sd-min"); document.body.classList.toggle("sd-min", m); try { localStorage.setItem("etti_menu_min", m?"1":""); } catch (x) {} return; }
   if (d.fsort){ const k = d.fsort; F.sort = {k, d: F.sort.k===k ? -F.sort.d : (k==="nome"||k==="rank"?1:-1)}; render(); return; }
@@ -1754,9 +1777,10 @@ function grafLinhas(id, xs, series, o){
     s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${z?"#b9bdb6":"#ebede7"}"${z?' stroke-width="1.2"':""}/><text x="${L-8}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="#5f645f">${o.yfmt(z?0:v)}</text>`;
   }
   // marcas de eixo x: anos (ou meses em janelas curtas)
-  const dias = (x1-x0)/864e5, marcas = [];
+  const dias = (x1-x0)/864e5, marcas = o.xmarks ? o.xmarks.slice() : [];
   const d0 = new Date(x0), d1 = new Date(x1);
-  if (dias > 500){ for (let y = d0.getFullYear()+1; y <= d1.getFullYear(); y++) marcas.push([new Date(y,0,1).getTime(), String(y)]); }
+  if (o.xmarks) {}
+  else if (dias > 500){ for (let y = d0.getFullYear()+1; y <= d1.getFullYear(); y++) marcas.push([new Date(y,0,1).getTime(), String(y)]); }
   else { const st = dias > 200 ? 3 : 1; for (let m = new Date(d0.getFullYear(), d0.getMonth()+1, 1); m <= d1; m = new Date(m.getFullYear(), m.getMonth()+st, 1)) marcas.push([m.getTime(), m.toLocaleDateString("pt-BR",{month:"short"}).replace(".","") + (m.getMonth()===0||dias>200?"/"+String(m.getFullYear()).slice(2):"")]); }
   marcas.forEach(([t,l])=>{ s += `<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" stroke="#f2f3ee"/><text x="${X(t)}" y="${H-9}" font-size="11" text-anchor="middle" fill="#5f645f">${l}</text>`; });
   // linhas: referências primeiro (atrás)
@@ -1764,7 +1788,8 @@ function grafLinhas(id, xs, series, o){
   ord.forEach(se=>{
     let d = "", pen = false;
     se.ys.forEach((v,i)=>{ if (v==null || !isFinite(v)) { pen = false; return; } d += (pen?"L":"M") + X(xs[i]).toFixed(1) + "," + Y(v).toFixed(1); pen = true; });
-    s += `<path d="${d}" fill="none" stroke="${se.cor}" stroke-width="${se.dash?1.6:2}" ${se.dash?`stroke-dasharray="${se.dash}"`:""} stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (se.area && d){ const iu = se.ys.reduce((a,v,i)=>v!=null&&isFinite(v)?i:a, 0); s += `<path d="${d}L${X(xs[iu]).toFixed(1)},${Y(Math.max(mn,0)).toFixed(1)}L${X(xs[0]).toFixed(1)},${Y(Math.max(mn,0)).toFixed(1)}Z" fill="${se.area}" stroke="none"/>`; }
+    s += `<path d="${d}" fill="none" stroke="${se.cor}" stroke-width="${se.w || (se.dash?1.6:2)}" ${se.dash?`stroke-dasharray="${se.dash}"`:""} stroke-linejoin="round" stroke-linecap="round"/>`;
   });
   // rótulos no fim, sem sobreposição
   if (o.rotFim){
@@ -1773,7 +1798,7 @@ function grafLinhas(id, xs, series, o){
     fins.forEach(f=>{ s += `<circle cx="${f.x}" cy="${Y(f.v)}" r="3.5" fill="${f.se.cor}" stroke="#fff" stroke-width="1.5"/><text x="${W-R+8}" y="${f.y+4}" font-size="11.5" font-weight="${f.se.dash?400:700}" fill="${f.se.dash?"#5f645f":f.se.cor}">${esc(f.se.nome)} ${o.tipfmt(f.v).replace(/<[^>]+>/g,"")}</text>`; });
   }
   s += `<line class="gcx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#224725" stroke-width="1" visibility="hidden"/><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent"/></svg>`;
-  window._gc[id] = {xs, series, X, W, L, R, fmt:o.tipfmt};
+  window._gc[id] = {xs, series, X, W, L, R, fmt:o.tipfmt, xfmt:o.xfmt};
   const leg = `<div class="legend">${series.map(se=>`<span><i style="background:${se.dash?`repeating-linear-gradient(90deg,${se.cor} 0 5px,transparent 5px 8px)`:se.cor};height:3px;width:18px"></i>${esc(se.nome)}</span>`).join("")}</div>`;
   return leg + s;
 }
@@ -1786,7 +1811,7 @@ document.addEventListener("mousemove", e=>{
   const i = Math.abs(g.xs[hi]-t) < Math.abs(g.xs[lo]-t) ? hi : lo;
   const ln = sv.querySelector(".gcx"); if (ln){ ln.setAttribute("x1", g.X(g.xs[i])); ln.setAttribute("x2", g.X(g.xs[i])); ln.setAttribute("visibility","visible"); }
   const linhas = g.series.map(se=>({n:se.nome, v:se.ys[i]})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
-  tip.textContent = new Date(g.xs[i]).toLocaleDateString("pt-BR") + "\n" + linhas.map(x=>`${x.n}: ${g.fmt(x.v).replace(/<[^>]+>/g,"")}`).join("\n");
+  tip.textContent = (g.xfmt ? g.xfmt(g.xs[i]) : new Date(g.xs[i]).toLocaleDateString("pt-BR")) + "\n" + linhas.map(x=>`${x.n}: ${g.fmt(x.v).replace(/<[^>]+>/g,"")}`).join("\n");
   tip.style.display = "block"; const w = tip.offsetWidth; let x = e.clientX + 16; if (x + w > innerWidth - 8) x = e.clientX - w - 16;
   tip.style.left = x+"px"; tip.style.top = (e.clientY+14)+"px";
 });
@@ -1989,6 +2014,175 @@ function secaoRentab(P_){
   h += `<p class="fonte">${(r.parciais||[]).length?"* mês parcial. ":""}Fonte: Comdinheiro${bn!=="CDI"?" (T-Bill: US:BIL)":""}.</p></div>`;
   return h;
 }
+/* =====================================================================
+   Simulação · Planejamento patrimonial (projeção de longevidade do patrimônio em termos reais)
+   ===================================================================== */
+const SEC_S = new Set(["planejamento"]);
+const SIM_PADRAO = {mes:"", patBR:0, patUSD:0, cambio:5, gasto:0, rec:0, ret:105, cdi:12, infl:8.7, ir:15, adm:0.27, perf:10, fed:3, fedp:0.75, cpi:2};
+let SIM = Object.assign({}, SIM_PADRAO), SIMEST = null, simCarga = null, simNome = "", simMsg = "", simSalvo = JSON.stringify(SIM);
+const MESES_S = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+function mesAtualS(){ const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0"); }
+function fmtMesS(m){ if (!m) return "–"; const [a,b] = m.split("-"); return MESES_S[+b-1] + "/" + a; }
+function mi1(v){ return (v<0?"−":"") + "R$ " + nf1.format(Math.abs(v)/1e6) + " mi"; }
+function pctS(v, d){ return (v<0?"−":"") + (d===1?nf1:nf2).format(Math.abs(v*100)) + "%"; }
+
+function simCalc(s){
+  const CDI = s.cdi/100, INFL = s.infl/100, IR = s.ir/100, adm = s.adm/100, perf = s.perf/100;
+  const total = s.patBR + s.patUSD*s.cambio;
+  const pctOff = total>0 ? (s.patUSD*s.cambio)/total : 0;
+  const retBrutoBRL = (s.ret/100)*CDI;
+  const retBrutoUSD = s.fed/100 + s.fedp/100;
+  const varCambial = INFL - s.cpi/100;
+  const retBRLfromUSD = (1+retBrutoUSD)*(1+varCambial) - 1;
+  const retBruto = pctOff*retBRLfromUSD + (1-pctOff)*retBrutoBRL;
+  const retLiqIR = retBruto*(1-IR);
+  const taxas = perf*Math.max(0, retBruto-CDI) + adm;
+  const retLiqTax = retLiqIR - taxas;
+  const retReal = (1+retLiqTax)/(1+INFL) - 1;
+  const gastoAnual = Math.max(0, s.gasto - s.rec)*12;
+  return {CDI, INFL, total, pctOff, retBruto, retLiqIR, taxas, retLiqTax, retReal, gastoAnual};
+}
+function simProj(total, retReal, gasto, n, mult){
+  n = n || 50; mult = mult || 1; const af = [total];
+  for (let i=1;i<=n;i++) af.push(af[i-1] + af[i-1]*retReal - gasto*mult);
+  return af;
+}
+function simEsgota(af){ for (let i=0;i<af.length;i++) if (af[i] <= 0) return i; return null; }
+function simSerie(af){ let fim = false; return af.map(v=>{ if (fim) return null; if (v <= 0){ fim = true; return 0; } return v; }); }
+
+function carregarEstudos(){
+  if (simCarga) return simCarga;
+  simCarga = lerJSON("data/simulacoes.enc").then(decifrar).then(x=>{ SIMEST = x; }).catch(()=>{ SIMEST = {estudos:[]}; }).then(()=>render());
+  return simCarga;
+}
+async function gravarEstudo(nome){
+  const reg = {nome, dados:Object.assign({}, SIM), por:USUARIO || "", em:new Date().toISOString().slice(0,16)};
+  const aplicar = obj => { obj.estudos = (obj.estudos||[]).filter(e=>e.nome!==nome); obj.estudos.push(reg); obj.estudos.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")); return obj; };
+  if (!ghToken()){ simMsg = "Configure o token do GitHub em Acesso para salvar estudos."; render(); return; }
+  simMsg = "Salvando…"; render();
+  for (let t=0; t<2; t++){
+    try {
+      let sha, obj;
+      try { const r = await ghLer("data/simulacoes.enc"); sha = r.sha; obj = await decifrar(r.json); }
+      catch (e) { if (e.status!==404) throw e; obj = {estudos:[]}; }
+      aplicar(obj);
+      await ghGravar("data/simulacoes.enc", await cifrar(obj), sha, `Simulação: estudo "${nome}" por ${USUARIO}`);
+      SIMEST = obj; simNome = nome; simSalvo = JSON.stringify(SIM); simMsg = "Estudo salvo para a equipe."; render(); return;
+    } catch (e) {
+      if (e.status===409 && t===0) continue;
+      simMsg = "Não foi possível salvar (" + (e.status||"erro") + ")."; render(); return;
+    }
+  }
+}
+function carteirasCliente(){
+  // agrupa as carteiras pelo cliente (cliente_40, cliente_40_btg, cliente_40_offshore...)
+  const g = {};
+  Object.values((M||{}).ports||{}).forEach(p=>{ const b = p.nome.split("_").slice(0,2).join("_"); const x = g[b] || (g[b] = {nome:b, br:0, usd:0}); if (p.uni==="off") x.usd += p.aum; else x.br += p.aum; });
+  return Object.values(g).sort((a,b)=>a.nome.localeCompare(b.nome, "pt-BR", {numeric:true}));
+}
+
+function vPlanejamento(){
+  if (!SIMEST){ carregarEstudos(); }
+  if (!SIM.mes) SIM.mes = mesAtualS();
+  const s = SIM, m = simCalc(s), tem = m.total > 0, a0 = +s.mes.slice(0,4);
+  const af = tem ? simProj(m.total, m.retReal, m.gastoAnual) : [];
+  const dep = tem ? simEsgota(af) : null, perp = m.total*m.retReal;
+  const alterado = JSON.stringify(SIM) !== simSalvo;
+  const estudos = (SIMEST && SIMEST.estudos) || [];
+  const dir = `<select id="simEst" aria-label="Estudo salvo"><option value="">Estudos salvos (${estudos.length})</option>${estudos.map(e=>`<option value="${esc(e.nome)}"${e.nome===simNome?" selected":""}>${esc(e.nome)}</option>`).join("")}</select>
+    <button class="btn sec sm" id="simNovo">Novo</button><button class="btn sec sm" id="simPrint">Imprimir / PDF</button>`;
+  let h = cabec("Simulação", "Planejamento patrimonial", `Projeção do patrimônio em termos reais · data-base ${fmtMesS(s.mes)}${simNome?` · ${esc(simNome)}`:""}`, dir);
+  h += `<div class="tiles">
+    <div class="tile dest"><div class="k">Patrimônio total</div><div class="v">${tem?mi1(m.total):"–"}</div><div class="s">${tem?`${pctS(m.pctOff,1)} offshore · ${pctS(1-m.pctOff,1)} Brasil`:"informe o patrimônio"}</div></div>
+    <div class="tile"><div class="k">Retorno real líquido</div><div class="v">${pctS(m.retReal)}</div><div class="s">a.a., líquido de IR, taxas e inflação</div></div>
+    <div class="tile"><div class="k">Retirada anual</div><div class="v">${mi1(m.gastoAnual)}</div><div class="s">${moeda(s.gasto,"BRL")}/mês${s.rec>0?` − ${moeda(s.rec,"BRL")} de receita`:""}</div></div>
+    <div class="tile${tem&&dep!==null?" aviso":""}"><div class="k">Longevidade</div><div class="v">${!tem?"–":dep===null?"Perpétuo":"~"+dep+" anos"}</div><div class="s">${!tem?"até o esgotamento":dep===null?"não se esgota em 50 anos":"esgota em "+(a0+dep)}</div></div>
+    <div class="tile"><div class="k">Renda perpétua</div><div class="v">${tem&&perp>0?mi1(perp):"–"}</div><div class="s">por ano, sem consumir o capital real</div></div></div>`;
+  // premissas
+  const num = (id, rot, v, passo) => `<label>${rot}<input type="number" data-sim="${id}" value="${v}" step="${passo}"></label>`;
+  const faixa = (id, rot, v, mn, mx, passo, txt) => `<div class="simr"><div class="simr-t"><span>${rot}</span><b>${txt}</b></div><input type="range" data-sim="${id}" min="${mn}" max="${mx}" step="${passo}" value="${v}"></div>`;
+  const clis = carteirasCliente();
+  h += `<div class="grid simg"><div class="card"><h2>Premissas</h2>
+    <div class="form2 simf">
+      <label>Preencher com carteira<select id="simCli"><option value="">Escolher cliente…</option>${clis.map(c=>`<option value="${esc(c.nome)}">${esc(nomeCart(c.nome))}</option>`).join("")}</select></label>
+      <label>Data-base<input type="month" data-sim="mes" value="${esc(s.mes)}"></label>
+      ${num("patBR","Patrimônio Brasil (R$)",s.patBR,1000000)}
+      ${num("patUSD","Exterior (US$)",s.patUSD,100000)}
+      ${num("cambio","Câmbio (R$/US$)",s.cambio,0.05)}
+      ${num("gasto","Gasto mensal (R$)",s.gasto,5000)}
+    </div>
+    ${faixa("ret","Retorno da carteira",s.ret,80,135,1,nf0.format(s.ret)+"% do CDI")}
+    ${faixa("cdi","CDI",s.cdi,4,16,0.25,nf2.format(s.cdi)+"% a.a.")}
+    ${faixa("infl","Inflação de referência",s.infl,2,14,0.1,nf1.format(s.infl)+"% a.a.")}
+    <details class="simadv"><summary>Premissas avançadas</summary><div class="form2 simf">
+      ${num("ir","IR (%)",s.ir,1)}${num("adm","Taxa adm. (% a.a.)",s.adm,0.01)}${num("perf","Taxa perf. (%)",s.perf,1)}
+      ${num("rec","Receita mensal (R$)",s.rec,10000)}${num("fed","Fed funds (%)",s.fed,0.25)}${num("fedp","Spread offshore (%)",s.fedp,0.25)}${num("cpi","CPI EUA (%)",s.cpi,0.25)}
+    </div></details>
+    <div class="row mt" style="gap:8px"><input type="text" id="simNome" placeholder="Nome do estudo" value="${esc(simNome)}" style="flex:1;min-width:140px"><button class="btn sm" id="simSalvar">Salvar estudo</button></div>
+    <p class="small ${alterado?"":"muted"}" style="margin:8px 0 0" role="status">${esc(simMsg || (alterado ? "Alterações não salvas." : simNome ? "Estudo salvo." : ""))}</p></div>`;
+  // gráfico principal
+  const xs = [...Array(51)].map((_,i)=>a0+i), marcas = xs.filter(x=>(x-a0)%5===0).map(x=>[x, String(x)]);
+  const oG = {h:340, zero:true, rotFim:false, xmarks:marcas, xfmt:x=>String(x), yfmt:v=>"R$ "+nf0.format(v/1e6)+" mi", tipfmt:v=>mi1(v)};
+  h += `<div class="card"><h2>Evolução do patrimônio real</h2><p class="sub">Em R$ de ${fmtMesS(s.mes)}, líquido de inflação, IR e taxas</p>`
+    + (tem ? grafLinhas("simMain", xs, [{nome:"Patrimônio real", cor:"#224725", w:2.5, area:"rgba(0,191,133,.12)", ys:simSerie(af)}], oG)
+           : `<div class="empty">Informe o patrimônio e o gasto mensal para gerar a projeção.</div>`)
+    + `<div class="mini" style="grid-template-columns:repeat(6,1fr)"><div><span>Retorno bruto</span><b>${pctS(m.retBruto)}</b></div><div><span>Líq. de IR</span><b>${pctS(m.retLiqIR)}</b></div><div><span>Custo de taxas</span><b>${pctS(m.taxas)}</b></div><div><span>Líq. de taxas</span><b>${pctS(m.retLiqTax)}</b></div><div><span>Retorno real</span><b>${pctS(m.retReal)}</b></div><div><span>% offshore</span><b>${pctS(m.pctOff,1)}</b></div></div></div></div>`;
+  // sensibilidade
+  if (tem){
+    const base = s.ret, cen = [base-15, base, base+10, base+20].filter(x=>x>0), coresR = ["#8b918a","#224725","#13a678","#3f73ad"];
+    const serR = cen.map((x,i)=>({nome:nf0.format(x)+"% do CDI"+(x===base?" (atual)":""), cor:coresR[i], w:x===base?2.6:1.8, ys:simSerie(simProj(m.total, simCalc(Object.assign({}, s, {ret:x})).retReal, m.gastoAnual))}));
+    const cg = [[0.85,"0,85× gastos","#13a678"],[1,"1× gastos (atual)","#224725"],[1.15,"1,15× gastos","#cf7d45"],[1.3,"1,3× gastos","#3f73ad"]];
+    const serC = cg.map(([c,l,cor])=>({nome:l, cor, w:c===1?2.6:1.8, ys:simSerie(simProj(m.total, m.retReal, m.gastoAnual, 50, c))}));
+    const oS = Object.assign({}, oG, {h:280, W:600});
+    h += `<div class="grid g2 mt"><div class="card"><h2>Tempo × taxa de retorno</h2><p class="sub">Carteira a ${cen.map(x=>nf0.format(x)+"%").join(", ")} do CDI</p>${grafLinhas("simRet", xs, serR, oS)}</div>
+      <div class="card"><h2>Tempo × despesas</h2><p class="sub">Gastos a 0,85×, 1×, 1,15× e 1,3× o atual</p>${grafLinhas("simGasto", xs, serC, oS)}</div></div>`;
+  }
+  // premissas do estudo
+  const linhas = [["Data-base","Mês de referência",fmtMesS(s.mes)],["Inflação de referência","IPCA projetado, com eventual ajuste de gastos acima do IPCA",nf1.format(s.infl)+"% a.a."],
+    ["CDI","Taxa básica de referência",nf2.format(s.cdi)+"% a.a."],["Carteira onshore","Múltiplo do CDI",nf0.format(s.ret)+"% do CDI"],
+    ["Carteira offshore","Fed funds + spread, em US$",nf2.format(s.fed+s.fedp)+"% em US$"],
+    ["Patrimônio","R$ "+nf1.format(s.patBR/1e6)+" mi onshore + US$ "+nf2.format(s.patUSD/1e6)+" mi offshore a R$ "+nf2.format(s.cambio),tem?mi1(m.total):"–"],
+    ["Retirada anual","Despesas menos receitas recorrentes (12 meses)",mi1(m.gastoAnual)],["Imposto de renda","Alíquota sobre rendimentos",nf0.format(s.ir)+"%"],
+    ["Taxas","Administração + performance sobre o que excede o CDI",String(s.adm).replace(".",",")+"% + "+nf0.format(s.perf)+"% perf."]];
+  h += `<div class="card mt"><h2>Premissas do estudo</h2><div class="tw" style="max-height:none"><table><thead><tr><th>Premissa</th><th>Descrição</th><th class="r">Valor</th></tr></thead><tbody>${linhas.map(l=>`<tr><td><b>${l[0]}</b></td><td class="small">${esc(l[1])}</td><td class="r"><b>${l[2]}</b></td></tr>`).join("")}</tbody></table></div>
+    <details class="simadv"><summary>Metodologia</summary><ul class="small" style="margin:8px 0 0 18px;line-height:1.6">
+      <li>Projeção anual em termos reais: o patrimônio rende o retorno real líquido e a retirada anual sai ao fim de cada ano.</li>
+      <li>Retorno real = (1 + retorno líquido de IR e taxas) ÷ (1 + inflação de referência) − 1.</li>
+      <li>A parcela offshore rende Fed funds + spread em US$, convertida pela diferença entre a inflação de referência e o CPI dos EUA (paridade de poder de compra).</li>
+      <li>A taxa de performance incide só sobre o retorno acima do CDI.</li>
+      <li>Renda perpétua: retirada anual que mantém o patrimônio real constante (patrimônio × retorno real).</li>
+      <li>Premissas constantes no horizonte; não considera eventos extraordinários, sucessão ou volatilidade de mercado.</li></ul></details>
+    <p class="fonte">Material ilustrativo. As projeções dependem de premissas que podem não se concretizar e não constituem garantia de rentabilidade nem recomendação individual de investimento.</p></div>`;
+  return h;
+}
+function simAplicar(nome){
+  const e = ((SIMEST||{}).estudos||[]).find(x=>x.nome===nome); if (!e) return;
+  SIM = Object.assign({}, SIM_PADRAO, e.dados); simNome = e.nome; simSalvo = JSON.stringify(SIM); simMsg = ""; render();
+}
+document.addEventListener("input", e=>{
+  const t = e.target; if (!t.dataset || !t.dataset.sim) return;
+  const k = t.dataset.sim;
+  if (k==="mes"){ if (/^\d{4}-\d{2}$/.test(t.value)) SIM.mes = t.value; else return; }
+  else { const v = parseFloat(t.value); SIM[k] = isFinite(v) ? v : 0; }
+  simMsg = "";
+  clearTimeout(window._simT); window._simT = setTimeout(render, t.type==="range" ? 0 : 250);
+});
+document.addEventListener("change", e=>{
+  const t = e.target;
+  if (t.id==="simEst" && t.value){ simAplicar(t.value); return; }
+  if (t.id==="simCli" && t.value){ const c = carteirasCliente().find(x=>x.nome===t.value); if (!c) return;
+    SIM.patBR = Math.round(c.br); SIM.patUSD = Math.round(c.usd); if (META && META.ptax) SIM.cambio = +(+META.ptax).toFixed(4);
+    simNome = "";
+    simMsg = `Patrimônio de ${nomeCart(c.nome)} nas posições de ${dtBR(META.data_analise)}.`; render(); return; }
+});
+document.addEventListener("click", e=>{
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.id==="simSalvar"){ const n = (document.getElementById("simNome").value||"").trim(); if (!n){ simMsg = "Dê um nome ao estudo."; render(); return; } gravarEstudo(n); return; }
+  if (t.id==="simNovo"){ SIM = Object.assign({}, SIM_PADRAO, {mes:mesAtualS()}); simNome = ""; simSalvo = JSON.stringify(SIM); simMsg = ""; render(); return; }
+  if (t.id==="simPrint"){ window.print(); return; }
+});
+VIEWS.planejamento = vPlanejamento;
+
 /* =====================================================================
    Início
    ===================================================================== */
