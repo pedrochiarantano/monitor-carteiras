@@ -123,7 +123,7 @@ def calcular(datas, cols, meta, carteiras, inicios):
             i0 = next((i for i, d in enumerate(datas) if d >= ini and v[i] is not None), -1)
         i1 = max([i for i, d in enumerate(datas) if d <= fim and v[i] is not None] or [-1])
         if i0 < 0 or i1 <= i0:
-            msg = ("gestão começou em %s, depois da última cota disponível (%s)" % (ini.strftime("%d/%m/%Y"), fim.strftime("%d/%m/%Y"))
+            msg = ("a cota na Comdinheiro vai até %s, antes do início da gestão (%s); aparece assim que a Comdinheiro calcular as cotas desde o início" % (fim.strftime("%d/%m/%Y"), ini.strftime("%d/%m/%Y"))
                    if ini >= fim else "cota sem histórico depois do início")
             reg.update({"inicio": ini.isoformat(), "fim": fim.isoformat(), "erro": msg})
             out[c] = reg; continue
@@ -160,7 +160,7 @@ def calcular(datas, cols, meta, carteiras, inicios):
                     cdim[chave] = cb / ca - 1
                 if fim_mes(m) > datas[i1] and b_d < fim_mes(m) - dt.timedelta(days=3):
                     parciais.append(chave)
-                if m.year == datas[i0].year and m.month == datas[i0].month and datas[i0] > m:
+                if m.year == datas[i0].year and m.month == datas[i0].month and datas[i0] > m and chave not in parciais:
                     parciais.append(chave)
             m = fim_mes(m) + dt.timedelta(days=1)
         reg["meses"] = meses; reg["bmk_meses"] = cdim; reg["parciais"] = parciais
