@@ -1870,7 +1870,7 @@ function tabelaMensal(o){
   const M = o.meses||{}, A = o.anos||{}, CM = o.cdiMeses, CA = o.cdiAnos, parc = new Set(o.parciais||[]), comCdi = !!CM, bn = o.bench || "CDI";
   const anos = Object.keys(A).sort().reverse(), nr = comCdi ? 3 : 1;
   const cel = (v, k) => { if (v==null) return `<td class="r"></td>`; const a = Math.min(1, Math.abs(v)/0.03); const bg = v>=0 ? `rgba(19,166,120,${(0.08+0.32*a).toFixed(2)})` : `rgba(240,167,122,${(0.12+0.45*a).toFixed(2)})`;
-    return `<td class="r" style="background:${bg}"${parc.has(k)?' data-tip="Mês parcial: a carteira começou ou terminou no meio do mês"':""}>${rt(v)}${parc.has(k)?"*":""}</td>`; };
+    return `<td class="r" style="background:${bg}"${parc.has(k)?' data-tip="Mês parcial: começou no meio do mês ou ainda não fechou"':""}>${rt(v)}${parc.has(k)?"*":""}</td>`; };
   const acum = {}, acumC = {}; let a = 1, c = 1;
   Object.keys(A).sort().forEach(y=>{ a *= 1 + (A[y]||0); acum[y] = a-1; if (comCdi && CA[y]!=null){ c *= 1 + CA[y]; acumC[y] = c-1; } });
   const dif = (x, y) => x!=null && y!=null ? ppF(x-y) : "";
@@ -1987,7 +1987,7 @@ document.addEventListener("click", e=>{
 });
 VIEWS.performance = vPerf; VIEWS.risco = vRiscoP; VIEWS.mensal = vMensal;
 
-/* rentabilidade da carteira do cliente desde o início da gestão (cotas da Comdinheiro, fechamento mensal) */
+/* rentabilidade da carteira do cliente desde o início da gestão (cotas da Comdinheiro, mês corrente parcial) */
 let CT = null, ctCarga = null, ctErro = null;
 function carregarCotas(){
   if (ctCarga) return ctCarga;
@@ -2003,7 +2003,7 @@ function secaoRentab(P_){
   if (r.erro) return `${cx}${tit}<p class="sub">Sem rentabilidade: ${esc(r.erro)}.</p></div>`;
   const bn = r.bench || "CDI", ano = r.fim.slice(0,4), temB = r.total_bmk!=null;
   const outras = (r.inicio_planilha||[]).filter(d=>d!==r.inicio);
-  let h = `${cx}${tit}<p class="sub">${dtBR(r.inicio)} a ${dtBR(r.fim)} · fechamento mensal · benchmark ${esc(bn)}${outras.length?` · <span data-tip="${esc("Outras datas de início: "+outras.map(dtBR).join(", "))}">outras datas de início</span>`:""}${r.inicio_fonte==="comdinheiro"?" · início pela primeira cota":""}</p>`;
+  let h = `${cx}${tit}<p class="sub">${dtBR(r.inicio)} a ${dtBR(r.fim)} · benchmark ${esc(bn)}${outras.length?` · <span data-tip="${esc("Outras datas de início: "+outras.map(dtBR).join(", "))}">outras datas de início</span>`:""}${r.inicio_fonte==="comdinheiro"?" · início pela primeira cota":""}</p>`;
   h += `<div class="mini" style="grid-template-columns:repeat(${temB?4:2},1fr)"><div><span>Desde o início</span><b>${rt(r.total)}</b></div>`
     + (temB ? `<div><span>${esc(bn)} no período</span><b>${rt(r.total_bmk)}</b></div><div><span>${esc(bn)}+</span><b>${ppF(r.total-r.total_bmk)}</b></div>` : "")
     + `<div><span>Em ${ano}</span><b>${rt(r.anos[ano])}</b></div></div>`;

@@ -2,8 +2,7 @@
 """Rentabilidade das carteiras dos clientes desde o início da gestão.
 
 Consulta na Comdinheiro o Histórico de Cotação das cotas de cada carteira (Ext_<carteira>_Cota,
-número-índice) e do CDI, até o último dia útil do mês anterior (fechamento mensal, como o script
-comdinheiro_clientes.py). Para cada carteira calcula, a partir da data de início da gestão:
+número-índice) e do CDI, até a cota mais recente (D-1); o mês corrente aparece como parcial. Para cada carteira calcula, a partir da data de início da gestão:
   - retorno de cada mês e de cada ano, benchmark do período e benchmark+ (retorno − benchmark);
   - retorno acumulado diário (para o gráfico), contra o benchmark.
 Benchmark: CDI nas carteiras em reais; T-Bill nas offshore (US:BIL, ETF SPDR Bloomberg 1-3 Month
@@ -11,6 +10,7 @@ T-Bill, com proventos reinvestidos).
 
 Entradas: data/cotas_carteiras.enc {"carteiras": [...], "inicio": {carteira: [datas]}}
           (usa a data de início mais antiga; sem data, usa o início da cota na Comdinheiro)
+          data/posicoes.enc: carteiras novas nas posições entram sozinhas na consulta
 Saída:    <pasta>/cotas.enc
 
 Uso: python tools/atualizar_cotas.py data _base [--se-necessario]
@@ -28,7 +28,7 @@ TBILL_DESC = "ETF SPDR Bloomberg 1-3 Month T-Bill, com proventos"
 
 def bench_de(carteira, moeda):
     return "TBILL" if ("offshore" in carteira.lower() or (moeda or "").upper() == "USD") else "CDI"
-PARAMS = ("&data_ini=%s&data_fim=ult_du_mmenos1&pagina=1&d=MOEDA_ORIGINAL&g=1&m=0&info_desejada=numero_indice"
+PARAMS = ("&data_ini=%s&data_fim=dmenos1&pagina=1&d=MOEDA_ORIGINAL&g=1&m=0&info_desejada=numero_indice"
           "&retorno=discreto&tipo_data=du_br&tipo_ajuste=todosajustes&num_casas=2&enviar_email=0&ordem_legenda=1"
           "&cabecalho_excel=modo1&classes_ativos=1qae8ggyq4ngn3&ordem_data=0&rent_acum=rent_acum&minY=&maxY=&deltaY="
           "&preco_nd_ant=0&base_num_indice=100&flag_num_indice=0&eixo_x=Data&startX=0&max_list_size=20&line_width=2"
@@ -193,6 +193,12 @@ def main():
             print("Cotas das carteiras já atualizadas hoje (%s); nada a fazer." % ant["gerado_em"])
             return
     cfg = cripto.ler(os.path.join(pasta, "cotas_carteiras.enc"), key)
+    # carteiras que já aparecem nas posições também entram (exceto as de teste)
+    pos = cripto.ler(os.path.join(pasta, "posicoes.enc"), key, [])
+    novas = sorted({p["c"] for p in pos if p.get("c") and not p["c"].startswith("carteira_teste")} - set(cfg["carteiras"]))
+    if novas:
+        print("Carteiras novas (das posições): " + ", ".join(novas))
+        cfg["carteiras"] = cfg["carteiras"] + novas
     usuario = os.environ.get("COMDINHEIRO_COTAS_USER") or os.environ["COMDINHEIRO_USER"]
     senha = os.environ.get("COMDINHEIRO_COTAS_PASS") or os.environ["COMDINHEIRO_PASS"]
     j = consultar(usuario, senha, cfg["carteiras"])
@@ -203,7 +209,7 @@ def main():
                          "(Ext_..._Cota). Cadastre no GitHub os segredos COMDINHEIRO_COTAS_USER e COMDINHEIRO_COTAS_PASS "
                          "com o login dono dessas cotas. Arquivo anterior mantido." % (com_cota, len(cfg["carteiras"])))
     res = {"ref": datas[-1].isoformat(), "gerado_em": agora.strftime("%Y-%m-%dT%H:%M"),
-           "fonte": "Comdinheiro · cotas das carteiras (fechamento mensal)",
+           "fonte": "Comdinheiro · cotas das carteiras",
            "carteiras": calcular(datas, cols, meta, cfg["carteiras"], cfg.get("inicio", {}))}
     os.makedirs(saida, exist_ok=True)
     cripto.gravar(arq, res, key)
